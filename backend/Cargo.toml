@@ -1,9 +1,0 @@
-[workspace]
-members = [
-    "node",
-    "pallets/daily_post",
-    "pallets/posts",
-    "runtime",
-]
-[profile.release]
-panic = "unwind"
