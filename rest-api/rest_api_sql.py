@@ -15,20 +15,13 @@ import math
 import re, praw, json, ipfshttpclient, time, datetime
 import pandas as pd
 import sqlite3
-from substrate_helpers import make_call, addSchema, get_msa_id, \
-            get_signature, create_msa_with_delegator, mint_votes, mint_user, \
-            mint_data, follow_user
-from substrateinterface import SubstrateInterface, Keypair
+from web3_helpers import *
 
 con = sqlite3.connect('postthreadV1_write.db', check_same_thread=False)
 cur = con.cursor()
 
-substrate = SubstrateInterface(
-    url="ws://127.0.0.1:9944",
-    ss58_format=42,
-    type_registry_preset='kusama'
-)
-bob = Keypair.create_from_uri('//Bob')
+bob = delegate
+bob_msa_id = get_msa_id(delegate)
 
 loop = asyncio.new_event_loop()
 
@@ -239,7 +232,7 @@ def categories_get(
         FROM vote GROUP BY parent_hash
     ) votes ON votes.parent_hash = post.ipfs_hash
     LEFT JOIN (
-        SELECT msa_id, username, password, profile_pic, wallet_ss58_address, block_number AS user_block_number, provider_key AS user_provider_key, date_minted AS user_date_minted
+        SELECT msa_id, username, password, profile_pic, wallet_address, block_number AS user_block_number, provider_key AS user_provider_key, date_minted AS user_date_minted
         FROM user u1
         WHERE date_minted = (SELECT max(date_minted) 
             FROM user u2
@@ -332,7 +325,7 @@ def announcements_get(
         FROM vote GROUP BY parent_hash
     ) votes ON votes.parent_hash = {announcement_type_singular}.ipfs_hash
     LEFT JOIN (
-        SELECT msa_id, username, password, profile_pic, wallet_ss58_address, block_number AS user_block_number, provider_key AS user_provider_key, date_minted AS user_date_minted
+        SELECT msa_id, username, password, profile_pic, wallet_address, block_number AS user_block_number, provider_key AS user_provider_key, date_minted AS user_date_minted
         FROM user u1
         WHERE date_minted = (SELECT max(date_minted) 
             FROM user u2
@@ -532,9 +525,9 @@ def user_dailypayout_get(
     
     return {
         "user_level": users_level[user_msa_id], "user_social_score": weighted_avgs[user_msa_id]/6 *1000,
-        "user_score": user_score, "payout_amount_left_to_claim": daily_token_rewards * user_score, 
+        "user_score": user_score*1000, "payout_amount_left_to_claim": daily_token_rewards * user_score, 
         "seconds_till_next_payout": seconds_till_next_payout, 
-        "wallet_ss58_address": df[df['msa_id_from_query'] == user_msa_id]['wallet_ss58_address'].iloc[0]
+        "wallet_ss58_address": df[df['msa_id_from_query'] == user_msa_id]['wallet_address'].iloc[0]
     }
 
 @app.post('/user/dailypayout', tags=["userpage"], summary="Pays a user their daily rewards")
@@ -550,8 +543,7 @@ async def user_dailypayout_post(
         return response
     
     payout_amount = response['payout_amount_left_to_claim']
-    receipt = make_call("Balances", "transfer", {"dest": response['wallet_ss58_address'], "value": payout_amount}, bob, 
-                        wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
+    receipt = postthread_contract.functions.transfer(response['wallet_ss58_address'], payout_amount).transact({'from': bob})
     if wait_for_inclusion and receipt.error_message:
         return HTTPException(status_code=402, detail=receipt.error_message)
     
@@ -666,7 +658,7 @@ async def user_mint(
         return HTTPException(status_code=406, detail="Username already exists")
     # override password for testing
     password = "password"
-    user_wallet = Keypair.create_from_uri('//' + username + password)
+    user_wallet = w3.eth.account.from_key(keccak(encode_abi_packed(['string'],[f"{username}{password}"])))
     background_tasks.add_task(create_msa_and_mint_user, user_wallet, username, password, profile_pic)
     return {"message": "User minting started"}
 
@@ -701,7 +693,7 @@ def airdrop_get(
     df = get_user(postthread_username, None)
     if df.size == 0:
         return HTTPException(status_code=404, detail="User not found")
-    user_wallet = df['wallet_ss58_address'].iloc[0]
+    user_wallet = df['wallet_address'].iloc[0]
     
     title = f"I just received an airdrop of {airdrop_value} thread tokens just by signing up to www.PostThread.com"
     body = f"""My reward was based on the karma I earned on Reddit. Now I can level up my account and earn more tokens by posting.
@@ -717,6 +709,7 @@ async def airdrop_claim(
             postthread_username: str = Query(default="hughjassjess", example="hughjassjess", description='Username they have on PostThread'), 
             wait_for_inclusion: Union[bool, None]=None, wait_for_finalization: Union[bool, None]=None
         ):
+    user = reddit.redditor(reddit_username)
     wait_for_inclusion = False
     wait_for_finalization = False
     response = airdrop_get(reddit_username, postthread_username)
@@ -728,8 +721,7 @@ async def airdrop_claim(
             break
         if type(post) == praw.models.reddit.submission.Submission:
             if response["user_wallet"] in post.selftext:
-                receipt = make_call("Balances", "transfer", {"dest": response["user_wallet"], "value": response["airdrop_value"]}, bob, 
-                            wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
+                receipt = postthread_contract.functions.transfer(response['user_wallet'], response["airdrop_value"]).transact({'from': bob})
                 if wait_for_inclusion and receipt.error_message:
                     return HTTPException(status_code=402, detail=receipt.error_message)
                 return {"message": "Successfully claimed airdrop. Your reward is being transferred to your account."}
@@ -744,7 +736,7 @@ def get_centralities():
     G.add_edges_from(df[['protagonist_msa_id', 'antagonist_msa_id']].values.tolist())
     degree_scores = nx.degree_centrality(G)
     closeness_scores = nx.closeness_centrality(G)
-    betweeness_scores = nx.betweenness_centrality(G, k=20)
+    betweeness_scores = nx.betweenness_centrality(G, k=1)
     
     return [degree_scores, closeness_scores, betweeness_scores]
 
@@ -768,13 +760,14 @@ def get_user_weighted_social_score(centralities, user_msa_id):
 def socialgraph_score(
             user_msa_id: int = Query(default=accounts['Charlie'], example=accounts['Charlie'], description="user's msa_id to get social score of"),
         ):
+    df = pd.read_sql_query("""SELECT * FROM follow""", con)
     if user_msa_id not in df['protagonist_msa_id'] and user_msa_id not in df['antagonist_msa_id']:
         return HTTPException(status_code=404, detail="User not following or being followed")
     
     centralities = get_centralities()
     weighted_avg = get_user_weighted_social_score(centralities, user_msa_id)
     
-    return {"social_score": weighted_avg}
+    return {"social_score": weighted_avg*1000}
 
 @app.get('/socialgraph/dict_of_dicts/', tags=["socialgraph"], summary="Get social graph of PostThread user as a dict of dicts")
 def socialgraph_graph(
@@ -791,7 +784,7 @@ def socialgraph_graph(
 if __name__ == '__main__':
     # global loop
 
-    config = Config(app=app, loop=loop, port=5000, host='0.0.0.0', reload=True, workers=10)
+    config = Config(app=app, loop=loop, port=5001, host='0.0.0.0', reload=True, workers=10)
     server = Server(config)
     loop.run_until_complete(server.serve())
     # uvicorn.run(app, port=5000, host='0.0.0.0', reload=True, workers=10)
