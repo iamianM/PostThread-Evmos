@@ -1,0 +1,19 @@
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.5.0
+  - smartcontractkit/chainlink@1.4.1
+  # - appliedzkp/semaphore-contracts@0.10.0
+  # - appliedzkp/zk-kit@latest
+  # - semaphore-protocol/semaphore@audit_v1
+compiler:
+  solc:
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.5.0"
+      - "@chainlink=smartcontractkit/chainlink@1.4.1"
+      # - "@semaphore=appliedzkp/semaphore-contracts@0.10.0"
+      # - "@zk-kit=appliedzkp/zk-kit@latest"
+      # - "@semaphore-protocol/semaphore@audit_v1"
+dotenv: .env
+wallets:
+  from_key:
+    - ${PRIVATE_KEY_1}
+    - ${PRIVATE_KEY_2}

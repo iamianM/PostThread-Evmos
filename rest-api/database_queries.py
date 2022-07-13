@@ -4,17 +4,9 @@ import time
 import json
 import pandas as pd
 import sqlite3
-
-from substrateinterface import SubstrateInterface, Keypair
-from substrateinterface.exceptions import SubstrateRequestException
+from web3_helpers import *
 
 schemas = json.load(open("schemas.json", "r"))
-
-substrate = SubstrateInterface(
-    url="ws://127.0.0.1:9944",
-    ss58_format=42,
-    type_registry_preset='kusama'
-)
 
 client = ipfshttpclient.connect()
     
@@ -27,7 +19,7 @@ def get_posts():
     return pd.read_sql_query("SELECT * FROM post", con)
 
 def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=False):        
-    current_block = substrate.get_block()['header']['number']
+    current_block = w3.eth.get_block_number()
     date_format = "%Y-%m-%d %H:%M:%S"
 
     for schemaName, schemaId in schemas.items():
@@ -43,11 +35,7 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
             print(f"Skipping {schemaName}")
             continue
         
-        schemaValue = substrate.query(
-            module='Schemas',
-            storage_function='Schemas',
-            params=[schemaId]
-        ).value
+        schemaValue = postthread_contract.functions.getSchema(schemaId).call()
 
         extraValues = "block_number INTEGER,msa_id_from_query INTEGER,provider_key STRING,date_minted DATE"
         is_ipfs_hash = schemaName in ["post", "comment"]
@@ -62,36 +50,7 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
             create_table = f"CREATE TABLE {schemaName} ({schemaValue}, {extraValues}, UNIQUE({names}))"
             cur.execute(create_table)
 
-        params = [
-            schemaId,
-            {
-                "page_size": 10000,
-                "from_block": start_block,
-                "to_block": current_block,
-                "from_index": 0,
-            }
-        ]
-        
-        request = substrate.rpc_request(
-            method='messages_getBySchema',
-            params=params,
-        )
-        contents = request['result']['content']
-        while len(request['result']['content']) == 10000:
-            params = [
-                schemaId,
-                {
-                    "page_size": 10000,
-                    "from_block": contents[-1]['block_number'],
-                    "to_block": current_block,
-                    "from_index": 0,
-                }
-            ]
-            request = substrate.rpc_request(
-                method='messages_getBySchema',
-                params=params,
-            )
-            contents += request['result']['content']
+        contents = postthread_contract.functions.getMessages(schemaId).call()
         
         if len(contents) > 0:
             print(schemaName, len(contents))
@@ -100,23 +59,14 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
         table_values = []
         total_time = 0
         for content in contents:
-            date_str = "null"
-            if content['block_number'] not in extrinsics:
-                extrinsics[content['block_number']] = substrate.get_block(substrate.get_block_hash(content['block_number']))['extrinsics']
-            for extrinsic in extrinsics[content['block_number']]:
-                if "Timestamp" == extrinsic.value['call']['call_module']:
-                    timestamp = extrinsic.value['call']['call_args'][0]['value']
-                    date_time = datetime.datetime.fromtimestamp(timestamp/1000)
-                    date_str = date_time.strftime(date_format)
-                    break
-            
-            if date_str is None:
-                print('Failed to get timestamp from block ', )
+            timestamp = content[4]
+            date_time = datetime.datetime.fromtimestamp(timestamp/1000)
+            date_str = date_time.strftime(date_format)
 
-            row_raw = bytes.fromhex(content['payload'][2:]).decode()
+            row_raw = content[2]
             ipfs_hash = None
             if is_ipfs_hash:
-                ipfs_hash = row_raw
+                ipfs_hash = row_raw.strip("'")
                 try:
                     row_raw = client.cat(ipfs_hash).decode()
                 except:
@@ -147,7 +97,7 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
             if len(row_values) == 0:
                 continue
                 
-            row_values.extend([content['block_number'], content['msa_id'], f"{content['provider_key']}", date_str])
+            row_values.extend([content[3], content[0], f"{content[5]}", date_str])
             if is_ipfs_hash:
                 row_values.append(ipfs_hash)
                 

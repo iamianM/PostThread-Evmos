@@ -16,8 +16,8 @@ import re, praw, json, ipfshttpclient, time, datetime
 import pandas as pd
 import sqlite3
 from substrate_helpers import make_call, addSchema, get_msa_id, \
-            get_signature, create_msa_with_delegator, mint_votes, mint_user, get_schemas_from_pattern, \
-            get_content_from_schemas, mint_data, follow_user
+            get_signature, create_msa_with_delegator, mint_votes, mint_user, \
+            mint_data, follow_user
 from substrateinterface import SubstrateInterface, Keypair
 
 con = sqlite3.connect('postthreadV1_write.db', check_same_thread=False)
