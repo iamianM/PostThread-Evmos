@@ -50,17 +50,17 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
             create_table = f"CREATE TABLE {schemaName} ({schemaValue}, {extraValues}, UNIQUE({names}))"
             cur.execute(create_table)
 
-        contents = postthread_contract.functions.getMessages(schemaId).call()
-        
-        if len(contents) > 0:
-            print(schemaName, len(contents))
-            
+        contents = postthread_contract.functions.getMessages(schemaId).call()            
 
         table_values = []
-        total_time = 0
+        count = 0
         for content in contents:
+            if content[3] < start_block:
+                continue
+
+            count += 1
             timestamp = content[4]
-            date_time = datetime.datetime.fromtimestamp(timestamp/1000)
+            date_time = datetime.datetime.fromtimestamp(timestamp)
             date_str = date_time.strftime(date_format)
 
             row_raw = content[2]
@@ -102,6 +102,9 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
                 row_values.append(ipfs_hash)
                 
             table_values.append(tuple(row_values))
+
+        if count > 0:
+            print(schemaName, count)
             
         if len(table_values) == 0:
             continue
