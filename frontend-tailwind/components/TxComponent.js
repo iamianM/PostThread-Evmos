@@ -10,7 +10,6 @@ export default function TxComponent() {
     const id = context.id;
 
     async function linkWallet(address, signedMessage) {
-
         const response = await fetch(`/api/user/link?` + new URLSearchParams({
             account_type: "wallet",
             account_value: address,
@@ -46,12 +45,11 @@ export default function TxComponent() {
                 var HexStr = tronWeb.toHex(str);
                 var signedStr = await tronWeb.trx.sign(HexStr);
                 console.log(signedStr)
-                // await linkWallet(tronWeb.defaultAddress.base58, signedStr)
+                await linkWallet(tronWeb.defaultAddress.base58, signedStr)
                 addToast(`Account ${tronWeb.defaultAddress.base58} successfully linked`, {
                     appearance: 'success',
                     autoDismiss: true,
                 })
-
             } catch (e) {
                 console.log(e);
             }
@@ -60,12 +58,10 @@ export default function TxComponent() {
 
     return (
         <div className='container'>
-            <>
-                <p className='mt-4'>Verify your wallet:</p>
-                <button className="w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex" onClick={connect}>
-                    <TronSVG />
-                </button>
-            </>
+            <p className='mt-4'>Verify your wallet:</p>
+            <button className="w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex" onClick={connect}>
+                <TronSVG />
+            </button>
         </div>
     )
 }
