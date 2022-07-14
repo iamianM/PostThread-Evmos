@@ -1,9 +1,11 @@
 import React from 'react'
 import TronSVG from './Buttons/TronSVG';
+import MetamaskSVG from './Buttons/MetamaskSVG';
 import { useToasts } from 'react-toast-notifications';
 import { useAppContext } from '../context/AppContext';
+import { ethers } from "ethers";
 
-export default function TxComponent() {
+export default function TxComponent({ type }) {
 
     const { addToast } = useToasts();
     const context = useAppContext()
@@ -27,7 +29,7 @@ export default function TxComponent() {
         return data
     }
 
-    const connect = async () => {
+    const signTronMessage = async () => {
         if (typeof window !== "undefined") {
             try {
                 if (!(window.tronWeb && window.tronWeb.defaultAddress.base58)) {
@@ -56,12 +58,45 @@ export default function TxComponent() {
         }
     }
 
+    const signMetamaskMessage = async () => {
+        try {
+            if (!window.ethereum) {
+                addToast(`Install Metamask to proceed`, {
+                    appearance: 'failure',
+                    autoDismiss: true,
+                })
+                throw new Error("No Metamask wallet found. Please install it.");
+            }
+
+            await window.ethereum.send("eth_requestAccounts");
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const signature = await signer.signMessage("verify");
+            const address = await signer.getAddress();
+
+            console.log({ address, signature });
+
+            await linkWallet(address, signature)
+            addToast(`Account ${address} successfully linked`, {
+                appearance: 'success',
+                autoDismiss: true,
+            })
+
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     return (
         <div className='container'>
-            <p className='mt-4'>Verify your wallet:</p>
-            <button className="w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex" onClick={connect}>
-                <TronSVG />
-            </button>
+            {type === "tron" ?
+                <button className="w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex" onClick={signTronMessage}>
+                    <TronSVG />
+                </button> :
+                <button className="mt-4 w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex" onClick={signMetamaskMessage}>
+                    <MetamaskSVG />
+                </button>
+            }
         </div>
     )
 }

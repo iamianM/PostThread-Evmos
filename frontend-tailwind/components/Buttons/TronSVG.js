@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function TronSVG() {
 	return (
-		<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="40"
+		<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="200" height="30"
 			viewBox="0 0 3000 1131.5">
 			<g>
 				<g>

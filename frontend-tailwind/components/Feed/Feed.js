@@ -12,7 +12,7 @@ export default function Feed({ category }) {
   const [posts, setPosts] = useState([]);
   const [iter, setIter] = useState(1);
   const [filter, setFilter] = useState("top")
-  const [time, setTime] = useState(1440)
+  const [time, setTime] = useState(10080)
   const [profiles, setProfiles] = useState([])
   const [hasMore, setHasMore] = useState(true);
   const numMessagesPerScroll = 10;
@@ -52,7 +52,7 @@ export default function Feed({ category }) {
     async function fetchTrendingProfiles() {
       const response = await fetch(`/api/announcement/posts/1/10?` + new URLSearchParams({
         sort_by: "top",
-        minutes_filter: 1440,
+        minutes_filter: 10080,
       }));
       const data = await response.json();
       setProfiles(data);
@@ -141,7 +141,7 @@ export default function Feed({ category }) {
         </div>
         <div className="flex flex-col flex-shrink-0 w-1/4 pl-4 overflow-y-auto">
           <div>
-            <h3 className="mt-6 font-semibold">Today&apos;s top 10 trending profiles</h3>
+            <h3 className="mt-6 font-semibold">Week's top 10 trending profiles</h3>
             <DisplayTrendingProfiles profiles={profiles} />
           </div>
         </div>

@@ -9,6 +9,10 @@ export default function Editor() {
     const context = useAppContext();
     const id = context.id;
 
+    const cleanForm = () => {
+        document.getElementById("post-form").reset();
+    }
+
     const handleSubmit = async (event) => {
         // Stop the form from submitting and refreshing the page.
         event.preventDefault()
@@ -27,6 +31,8 @@ export default function Editor() {
         }
 
         console.log(JSON.stringify(post))
+
+        cleanForm()
 
         try {
             const response = await fetch(`/api/submit/post?` + new URLSearchParams({
@@ -66,7 +72,7 @@ export default function Editor() {
                 <div className="text-center bg-base-100 text-inherit py-5 px-6">
                     <h1 className="text-2xl font-bold mt-0 mb-6">Create a new post</h1>
                 </div>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} id="post-form">
                     <input className="h-12 px-2 border-2 w-full border-primary rounded-xl bg-base-100 text-inherit" type="text" id="title" placeholder="Title..." required />
                     <div className="mb-4 w-full bg-primary my-5 rounded-xl border border-neutral-focus">
                         <div className="flex justify-between items-center py-2 px-3 border-b">

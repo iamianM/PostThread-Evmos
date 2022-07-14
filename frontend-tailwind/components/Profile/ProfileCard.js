@@ -6,6 +6,7 @@ import { useQuery } from 'react-query'
 import AnimateWheel from '../AnimateWheel'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import SignMetamask from '../SignMetamask'
 
 const TxComponent = dynamic(() => import('../TxComponent'), { ssr: false })
 
@@ -18,6 +19,8 @@ export default function ProfileCard({ id, username, profilePic }) {
     const [percentage, setPercentage] = useState(0)
     const [level, setLevel] = useState(0)
     const [isFollowing, setIsFollowing] = useState(false)
+    const [disabled, setDisabled] = useState(false);
+
 
     const context = useAppContext()
     const loggedUser = context.username
@@ -61,11 +64,11 @@ export default function ProfileCard({ id, username, profilePic }) {
 
 
     async function dailyPayout() {
+        setDisabled(true)
         if (dailyReward > 0) {
             addToast(`Request for ${dailyReward} tokens submitted!`, { appearance: 'info', autoDismiss: true })
             const response = await fetch('/api/user/dailypayout?' + new URLSearchParams({
                 user_msa_id: loggedId,
-                wait_for_inclusion: true
             }),
                 {
                     method: 'POST',
@@ -81,6 +84,10 @@ export default function ProfileCard({ id, username, profilePic }) {
         else {
             addToast('You don&apos;t have any rewards left, come back tomorrow!', { appearance: 'info', autoDismiss: true })
         }
+
+        setTimeout(() => {
+            setDisabled(false);
+        }, 600000)
     }
 
     const handleClick = async () => {
@@ -135,12 +142,18 @@ export default function ProfileCard({ id, username, profilePic }) {
                         (loggedId === id) ?
                             <>
                                 <li>
-                                    <button className="w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex" onClick={dailyPayout} disabled={dailyReward <= 0}>
+                                    <button className="w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex disabled:bg-base-200" onClick={dailyPayout} disabled={dailyReward <= 0 || disabled}>
                                         Get Reward💰 {isFetching ? <AnimateWheel stroke="stroke-primary-focus" fill="fill-primary-focus" /> : <>{dailyReward}</>}
                                     </button >
                                 </li>
                                 <li>
-                                    <TxComponent />
+                                    <p className='mt-4'>Verify your wallet:</p>
+                                </li>
+                                <li>
+                                    <TxComponent type="tron" />
+                                </li>
+                                <li>
+                                    <TxComponent type="metamask" />
                                 </li>
                                 <li>
                                     <p className='mt-4 gap-3 flex'>Connect your accounts:</p>

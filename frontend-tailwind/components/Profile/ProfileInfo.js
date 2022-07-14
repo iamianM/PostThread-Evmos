@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import DisplayPosts from "../Feed/DisplayPosts";
 import Loader from '../Loader';
 
-export default function ProfileInfo({ type, user, comments }) {
+export default function ProfileInfo({ type, user }) {
 
     const { error, isError, isLoading } = useQuery("announcements", fetchUserAnnouncements);
     const [announcements, setAnnouncements] = useState([]);
