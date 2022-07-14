@@ -141,7 +141,7 @@ export default function Feed({ category }) {
         </div>
         <div className="flex flex-col flex-shrink-0 w-1/4 pl-4 overflow-y-auto">
           <div>
-            <h3 className="mt-6 font-semibold">Week's top 10 trending profiles</h3>
+            <h3 className="mt-6 font-semibold">Week&apos;s top 10 trending profiles</h3>
             <DisplayTrendingProfiles profiles={profiles} />
           </div>
         </div>
