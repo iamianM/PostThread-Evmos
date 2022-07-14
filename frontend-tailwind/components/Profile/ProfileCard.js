@@ -19,6 +19,8 @@ export default function ProfileCard({ id, username, profilePic }) {
     const [percentage, setPercentage] = useState(0)
     const [level, setLevel] = useState(0)
     const [isFollowing, setIsFollowing] = useState(false)
+    const [numFollowing, setNumFollowing] = useState(0)
+    const [numFollowers, setNumFollowers] = useState(0)
     const [disabled, setDisabled] = useState(false);
 
 
@@ -40,7 +42,7 @@ export default function ProfileCard({ id, username, profilePic }) {
             }
         }
 
-        async function getFollowing() {
+        async function getIsFollowing() {
             const response = await fetch('/api/user/get/following?' + new URLSearchParams({
                 user_msa_id: loggedId,
                 user_msa_id_to_check: id
@@ -50,7 +52,27 @@ export default function ProfileCard({ id, username, profilePic }) {
             setIsFollowing(data)
         }
 
+        async function getFollowing() {
+            const response = await fetch('/api/user/get/following?' + new URLSearchParams({
+                user_msa_id: id,
+            }))
+            const data = await response.json()
+            console.log(data)
+            setNumFollowing(data.length)
+        }
+
+        async function getFollowers() {
+            const response = await fetch('/api/user/get/followers?' + new URLSearchParams({
+                user_msa_id: id,
+            }))
+            const data = await response.json()
+            console.log(data)
+            setNumFollowers(data.length)
+        }
+
+        getFollowers()
         getFollowing()
+        getIsFollowing()
         getExpInfo()
     }, [id])
 
@@ -137,6 +159,12 @@ export default function ProfileCard({ id, username, profilePic }) {
                     </li>
                     <li>
                         <p className='mt-4 gap-3 flex'>Social score: {isFetching ? <AnimateWheel stroke="stroke-primary" fill="fill-primary" /> : <>{userScore}</>}</p>
+                    </li>
+                    <li>
+                        <p className='mt-4'>Followers: {numFollowers}</p>
+                    </li>
+                    <li>
+                        <p>Following: {numFollowing}</p>
                     </li>
                     {
                         (loggedId === id) ?

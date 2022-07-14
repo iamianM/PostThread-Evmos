@@ -34,31 +34,38 @@ export default function Editor() {
 
         cleanForm()
 
-        try {
-            const response = await fetch(`/api/submit/post?` + new URLSearchParams({
-                user_msa_id: id,
-                wait_for_inclusion: true,
-                wait_for_finalization: false
-            }), {
-                method: 'POST',
-                body: JSON.stringify(post),
-                headers: {
-                    'Content-Type': 'application/json'
+        if (post.category && post.title && post.body) {
+            try {
+                const response = await fetch(`/api/submit/post?` + new URLSearchParams({
+                    user_msa_id: id,
+                    wait_for_inclusion: true,
+                    wait_for_finalization: false
+                }), {
+                    method: 'POST',
+                    body: JSON.stringify(post),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
+                )
+
+                const data = await response.json()
+                console.log(data)
+
+                addToast("Post was created and will finalize on the blockchain soon.", {
+                    appearance: 'success',
+                    autoDismiss: true,
+                })
+
+            } catch (error) {
+                console.log(error)
+                addToast("Post creation failed", {
+                    appearance: 'error',
+                    autoDismiss: true,
+                })
             }
-            )
-
-            const data = await response.json()
-            console.log(data)
-
-            addToast("Post was created and will finalize on the blockchain soon.", {
-                appearance: 'success',
-                autoDismiss: true,
-            })
-
-        } catch (error) {
-            console.log(error)
-            addToast("Post creation failed", {
+        } else {
+            addToast("Fill title, body and category", {
                 appearance: 'error',
                 autoDismiss: true,
             })
