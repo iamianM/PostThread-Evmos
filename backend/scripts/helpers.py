@@ -2,38 +2,24 @@ from brownie import network, config, PostThread
 import json
 
 
-LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "development", "ganache", "mainnet-fork"]
+LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "development", "ganache", "mainnet-fork", "local"]
 
 
-def get_account(accounts, index=None, id=None):
-    # accounts[0]
-    # accounts.add("env")
-    # accounts.load("id")
-    if index:
-        return accounts[index]
-    if id:
-        return accounts.load(id)
-    return accounts.add(config["wallets"]["from_key"])
-
-
-def deploy_contracts(accounts, use_previous=False, publish=True, testnet=False):
+def deploy_contracts(accounts, use_previous=False, publish=False, testnet=False):
     previous = json.load(open("previous.json"))
 
-    if testnet:
-        from_dict1 = {"from": accounts.add(config["wallets"]["from_key"][0])}
-        from_dict2 = {"from": accounts.add(config["wallets"]["from_key"][1])}
+    if not testnet:
+        from_dict1 = {"from": accounts.add(config["wallets"]["from_key"][1])}
     else:
         from_dict1 = {"from": accounts[0]}
-        from_dict2 = {"from": accounts[1]}
 
     if network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
-        publish_source = False
         cur_network = "local"
         accounts = accounts[:10]
-        account = accounts[0]
+        account = from_dict1['from']
     else:
-        publish_source = True
         cur_network = network.show_active()
+        account = from_dict1['from']
         # accounts.load("main2")
         # accounts.load("new")
 
@@ -57,4 +43,4 @@ def deploy_contracts(accounts, use_previous=False, publish=True, testnet=False):
         PostThread.publish_source(postthread)
 
 
-    return postthread
+    return postthread, account

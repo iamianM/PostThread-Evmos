@@ -1,5 +1,6 @@
 import os, sys; sys.path.append('..')
 
+import uvicorn
 from uvicorn import Config, Server
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,7 +16,7 @@ import math
 import re, praw, json, ipfshttpclient, time, datetime
 import pandas as pd
 import sqlite3
-from web3_helpers import *
+from scripts.web3_helpers import *
 
 con = sqlite3.connect('postthreadV1_write.db', check_same_thread=False)
 cur = con.cursor()
@@ -25,7 +26,7 @@ bob_msa_id = get_msa_id(delegate)
 
 loop = asyncio.new_event_loop()
 
-reddit_creds = json.load(open(".reddit_creds.json", "r"))
+reddit_creds = json.load(open("./scripts/.reddit_creds.json", "r"))
 reddit = praw.Reddit(
     client_id=reddit_creds["client_id"],
     client_secret=reddit_creds["client_secret"],
@@ -41,7 +42,7 @@ daily_token_rewards = 100000
 accounts = json.load(open("accounts.json", "r"))
 schemas = json.load(open("schemas.json", "r"))
 example_post = pd.read_sql_query(f"SELECT ipfs_hash FROM post WHERE msa_id_from_query = {accounts['Charlie']} LIMIT 1", con)['ipfs_hash'].iloc[0]
-path = "/tmp/"
+path = "C:/tmp/"
 date_format = "%Y-%m-%d %H:%M:%S"
 
 tags_metadata = [
@@ -784,10 +785,13 @@ def socialgraph_graph(
     G.add_edges_from(df[['protagonist_msa_id', 'antagonist_msa_id']].values.tolist())
     return nx.to_dict_of_dicts(nx.bfs_tree(G, user_msa_id, reverse=False))
   
-if __name__ == '__main__':
+def main():
+    uvicorn.run("scripts\\rest_api_sql:app", port=5555, host='0.0.0.0', reload=True, workers=10)
+
+# if __name__ == '__main__':
     # global loop
 
-    config = Config(app=app, loop=loop, port=5001, host='0.0.0.0', reload=True, workers=10)
-    server = Server(config)
-    loop.run_until_complete(server.serve())
-    # uvicorn.run(app, port=5000, host='0.0.0.0', reload=True, workers=10)
+    # config = Config(app=app, loop=loop, port=5001, host='0.0.0.0', reload=True, workers=10)
+    # server = Server(config)
+    # loop.run_until_complete(server.serve())
+    # uvicorn.run(app, port=5555, host='0.0.0.0', reload=True, workers=10)

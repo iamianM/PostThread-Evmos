@@ -7,44 +7,21 @@ from web3 import Web3
 from eth_account.messages import encode_defunct
 from eth_abi.packed import encode_abi_packed
 from eth_utils import keccak
-from web3.middleware import geth_poa_middleware
-from web3.middleware import construct_sign_and_send_raw_middleware
-from web3.middleware import local_filter_middleware, latest_block_based_cache_middleware
+from brownie import network, config, PostThread, accounts
 
-
+from web3 import Web3
 w3 = Web3(Web3.HTTPProvider('https://bttc.trongrid.io'))
 
-PRIVATE = json.load(open('.PRIVATE.json'))
-delegate = w3.eth.account.from_key(PRIVATE['KEY'])
+previous = json.load(open("previous.json"))
 
-build = json.load(open("../backend/build/contracts/PostThread.json"))
-prev = json.load(open("../backend/previous.json"))
+from_dict1 = {"from": accounts.add(config["wallets"]["from_key"][1]), 'required_confs':10}
+delegate = from_dict1["from"]
+from_dict1_dont_wait = from_dict1
+from_dict1_dont_wait['required_confs'] = 0
 
-postthread_contract = w3.eth.contract(
-    address=prev['btt']['postthread'],
-    abi=build['abi']
-)
+cur_network = network.show_active()
+postthread_contract = PostThread.at(previous[cur_network]["postthread"])
 
-w3.eth.account.enable_unaudited_hdwallet_features()
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-w3.middleware_onion.add(local_filter_middleware)
-w3.middleware_onion.add(construct_sign_and_send_raw_middleware(delegate))
-# w3.eth.default_account = delegate.address
-block_filter = w3.eth.filter("latest")
-# w3.middleware_onion.add(construct_latest_block_based_cache_middleware(block_filter))
-w3.middleware_onion.add(latest_block_based_cache_middleware)
-# log_filter = postthread_contract.events.myEvent.build_filter().deploy()
-
-# dynamic fee transaction, introduced by EIP-1559:
-dynamic_fee_transaction = {
-    # 'type': '0x2',  # optional - defaults to '0x2' when dynamic fee transaction params are present
-    "chainId": w3.eth.chainId,
-    'from': delegate.address,  # optional if w3.eth.default_account was set with acct.address
-    'value': 22,
-    "gas": 123456,
-    'maxFeePerGas': 2000000000,  # required for dynamic fee transactions
-    'maxPriorityFeePerGas': 1000000000,  # required for dynamic fee transactions
-}
 
 client = ipfshttpclient.connect()
 
@@ -53,31 +30,24 @@ schemas = json.load(open("schemas.json"))
 def addSchema(schema, check=True, create=True, wait_for_inclusion=True, wait_for_finalization=False):
     schemaId = None
     if check:
-        schemaCount = postthread_contract.functions.getSchemaCount().call()
+        schemaCount = postthread_contract.getSchemaCount(from_dict1)
         for schemaId in range(schemaCount, 0, -1):
-            try:
-                foundSchema = postthread_contract.functions.getSchema(schemaId).call()
-            except Exception as e:
-                print(e)
-                continue
+            foundSchema = postthread_contract.getSchema(schemaId, from_dict1)
             if foundSchema == schema:
                 return schemaId
 
     if create:
-        tx_hash = postthread_contract.functions.registerSchema(schema).transact(dynamic_fee_transaction)
         if wait_for_inclusion or wait_for_finalization:
-            try:
-                receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-            except Exception as e:
-                print(e)
-                return -1
-            return postthread_contract.functions.getSchemaCount().call()
+            tx_hash = postthread_contract.registerSchema(schema, from_dict1)
+        else:
+            tx_hash = postthread_contract.registerSchema(schema, from_dict1_dont_wait)
+
+            return postthread_contract.getSchemaCount(from_dict1)
 
 def get_msa_id(wallet, create=False, wait_for_inclusion=True, wait_for_finalization=False):
     try:
-        msa_id = postthread_contract.functions.getMsaId(wallet.address).call()
-    except Exception as e:
-        # print(e)
+        msa_id = postthread_contract.getMsaId(wallet.address, from_dict1)
+    except:
         msa_id = None
     
     if not create:
@@ -86,45 +56,48 @@ def get_msa_id(wallet, create=False, wait_for_inclusion=True, wait_for_finalizat
         else:
             return msa_id
 
-    if msa_id is None:
-        try:
-            tx_hash = postthread_contract.functions.createMsaId(wallet.address).transact(dynamic_fee_transaction)
-        except Exception as e:
-            print(e)
-            return -1
-        
+    if msa_id is None:        
         if wait_for_inclusion or wait_for_finalization:
-            receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-            return postthread_contract.functions.getMsaId(wallet.address).call()
+            tx_hash = postthread_contract.createMsaId(wallet.address, from_dict1)
+            tx_hash.wait(10)
+            return postthread_contract.getMsaId(wallet.address, from_dict1)
+        else:
+            tx_hash = postthread_contract.createMsaId(wallet.address, from_dict1_dont_wait)
+            return None
 
     return msa_id
 
 delegate_msa_id = get_msa_id(delegate)
+print(delegate_msa_id)
 
 def create_msa_with_delegator(delegator_wallet, wait_for_inclusion=True, wait_for_finalization=False):
     msa_id = get_msa_id(delegator_wallet, create=False)
     if msa_id is not None:
         return msa_id
 
-    private_key = delegator_wallet.privateKey.hex()
+    private_key = delegator_wallet.privateKey
     hash = keccak(encode_abi_packed(['uint256'],[delegate_msa_id]))
     message = encode_defunct(hexstr=hash.hex())
     signed_message =  w3.eth.account.sign_message(message, private_key=private_key)
-
-    # try:
-    tx_hash = postthread_contract.functions.createSponsoredAccountWithDelegation(
-        delegator_wallet.address, delegate.address, signed_message.signature.hex()
-    ).transact(dynamic_fee_transaction)
-    # except Exception as e:
-    #     print(e)
-    #     return -1
     
     if wait_for_inclusion or wait_for_finalization:
-        receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        msa_id = postthread_contract.functions.getMsaId(delegator_wallet.address).call()
+        try:
+            tx_hash = postthread_contract.createSponsoredAccountWithDelegation(
+                delegator_wallet.address, delegate.address, signed_message.signature.hex(), from_dict1
+            )
+        except:
+            return None
+        tx_hash.wait(10)
+        msa_id = postthread_contract.getMsaId(delegator_wallet.address, from_dict1)
             
         return msa_id
     else:
+        try:
+            tx_hash = postthread_contract.createSponsoredAccountWithDelegation(
+                delegator_wallet.address, delegate.address, signed_message.signature.hex(), from_dict1_dont_wait
+            )
+        except:
+            return None
         return None
 
 def mint_data(data, user_msa_id, schemaId, path=None, wait_for_inclusion=True, wait_for_finalization=False):
@@ -145,17 +118,13 @@ def mint_data(data, user_msa_id, schemaId, path=None, wait_for_inclusion=True, w
         message = res_post["Hash"]
     else:
         message = data
-
-    try:
-        print(int(delegate_msa_id), int(user_msa_id), int(schemaId), f"{message}")
-        tx_hash = postthread_contract.functions.addMessage(int(delegate_msa_id), int(user_msa_id), int(schemaId), f"{message}").transact(dynamic_fee_transaction)
-    except Exception as e:
-        print(e)
-        return message, -1
     
     if wait_for_inclusion or wait_for_finalization:
-        receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        return message, receipt
+        tx_hash = postthread_contract.addMessage(int(delegate_msa_id), int(user_msa_id), int(schemaId), f"{message}", from_dict1)
+        tx_hash.wait(10)
+        return message, None
+    else:
+        tx_hash = postthread_contract.addMessage(int(delegate_msa_id), int(user_msa_id), int(schemaId), f"{message}", from_dict1_dont_wait)
 
     return message, None
 

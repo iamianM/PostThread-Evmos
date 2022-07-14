@@ -7,14 +7,14 @@ from eth_abi.packed import encode_abi_packed
 from eth_utils import keccak
 
 
-is_testnet = network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS
-postthread = deploy_contracts(accounts, use_previous=False, publish=True, testnet=is_testnet)
+is_testnet = network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS
+postthread, account = deploy_contracts(accounts, use_previous=False, publish=False, testnet=is_testnet)
 
 # mint msa ids
-tx = postthread.createMsaId(accounts[0].address)
+tx = postthread.createMsaId(account.address)
 msa_id = tx.return_value
-print(msa_id, accounts[0].address, tx.events)
-print("Msa_id match", postthread.getMsaId(accounts[0].address) == msa_id)
+print(msa_id, account.address, tx.events)
+print("Msa_id match", postthread.getMsaId(account.address) == msa_id)
 
 private_key = "0x416b8a7d9290502f5661da81f0cf43893e3d19cb9aea3c426cfb36e8186e9c09"
 local = accounts.add(private_key=private_key)
@@ -24,7 +24,7 @@ signed_message =  w3.eth.account.sign_message(message, private_key=private_key)
 
 tx = postthread.isValidUser(msa_id, str(signed_message.signature.hex()), local.address)
 
-tx = postthread.createSponsoredAccountWithDelegation(local.address, accounts[0].address, signed_message.signature.hex())
+tx = postthread.createSponsoredAccountWithDelegation(local.address, account.address, signed_message.signature.hex())
 delegate_msa_id = tx.return_value
 print("Msas", msa_id, delegate_msa_id)
 
@@ -35,7 +35,7 @@ print("schemas match", postthread.getSchema(post_schemaId) == post_schema)
 
 # mint message
 payload = '{"category": "test", "title": "test", "body": "test", "url": "test", "is_nsfw": 0}'
-tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": accounts[0]})
+tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": account})
 
 def main():
     pass
