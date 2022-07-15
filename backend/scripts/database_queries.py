@@ -55,7 +55,6 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
 
         while contents[-1][0] != 0:
             offset += 1
-            print(offset, len(contents), contents)
             contents.extend(list(postthread_contract.getMessages(schemaId, offset, from_dict1)))
 
         table_values = []
