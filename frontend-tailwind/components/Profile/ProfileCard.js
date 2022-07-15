@@ -6,7 +6,6 @@ import { useQuery } from 'react-query'
 import AnimateWheel from '../AnimateWheel'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import SignMetamask from '../SignMetamask'
 
 const TxComponent = dynamic(() => import('../TxComponent'), { ssr: false })
 
@@ -17,12 +16,13 @@ export default function ProfileCard({ id, username, profilePic }) {
     const userScore = isNaN(userInfo?.user_social_score) ? 0 : parseFloat(userInfo?.user_social_score).toFixed(3)
 
     const [percentage, setPercentage] = useState(0)
+    const [score, setScore] = useState(0)
+    const [spinner, setSpinner] = useState(false)
     const [level, setLevel] = useState(0)
     const [isFollowing, setIsFollowing] = useState(false)
     const [numFollowing, setNumFollowing] = useState(0)
     const [numFollowers, setNumFollowers] = useState(0)
     const [disabled, setDisabled] = useState(false);
-
 
     const context = useAppContext()
     const loggedUser = context.username
@@ -33,13 +33,11 @@ export default function ProfileCard({ id, username, profilePic }) {
 
     useEffect(() => {
         async function getExpInfo() {
-            if (id > 0) {
-                const response = await fetch(`/api/user/level/${id}`)
-                const data = await response.json()
-                const percentageToNextLevel = (data.exp * 100) / data.exp_to_next_level
-                setPercentage(Math.floor(percentageToNextLevel))
-                setLevel(data.level)
-            }
+            const response = await fetch(`/api/user/level/${id}`)
+            const data = await response.json()
+            const percentageToNextLevel = (data.exp * 100) / data.exp_to_next_level
+            setPercentage(Math.floor(percentageToNextLevel))
+            setLevel(data.level)
         }
 
         async function getIsFollowing() {
@@ -48,7 +46,6 @@ export default function ProfileCard({ id, username, profilePic }) {
                 user_msa_id_to_check: id
             }))
             const data = await response.json()
-            console.log(data)
             setIsFollowing(data)
         }
 
@@ -57,7 +54,6 @@ export default function ProfileCard({ id, username, profilePic }) {
                 user_msa_id: id,
             }))
             const data = await response.json()
-            console.log(data)
             setNumFollowing(data.length)
         }
 
@@ -66,14 +62,20 @@ export default function ProfileCard({ id, username, profilePic }) {
                 user_msa_id: id,
             }))
             const data = await response.json()
-            console.log(data)
             setNumFollowers(data.length)
         }
 
-        getFollowers()
-        getFollowing()
-        getIsFollowing()
-        getExpInfo()
+        async function fetchData() {
+            if (id > 0) {
+                getFollowers()
+                getFollowing()
+                getIsFollowing()
+                getExpInfo()
+            }
+        }
+
+        fetchData()
+
     }, [id])
 
 
@@ -142,10 +144,6 @@ export default function ProfileCard({ id, username, profilePic }) {
                         alt="" />
                 </div>
                 <h1 className="text-inherit font-bold text-xl leading-8 my-1">{username}</h1>
-                {/* <h3 className="text-inherit font-lg text-semibold leading-6">Owner at Her Company Inc.</h3>
-                <p className="text-sm text-inherit leading-6">Lorem ipsum dolor sit amet
-                    consectetur adipisicing elit.
-                    Reprehenderit, eligendi dolorum sequi illum qui unde aspernatur non deserunt</p> */}
                 <ul
                     className="bg-base-300 text-inherit py-2 px-3 mt-3 rounded shadow-sm">
                     <li className="flex items-center py-3">
@@ -158,19 +156,19 @@ export default function ProfileCard({ id, username, profilePic }) {
                         <ProgressBar percentage={percentage} level={level} />
                     </li>
                     <li>
-                        <p className='mt-4 gap-3 flex'>Social score: {isFetching ? <AnimateWheel stroke="stroke-primary" fill="fill-primary" /> : <>{userScore}</>}</p>
+                        <p className='mt-4 gap-3 flex'>Social score: {spinner ? <AnimateWheel stroke="stroke-primary" fill="fill-primary" /> : <>{userScore}</>}</p>
                     </li>
                     <li>
-                        <p className='mt-4'>Followers: {numFollowers}</p>
+                        <p className='mt-4'>Followers: {numFollowers ?? 0}</p>
                     </li>
                     <li>
-                        <p>Following: {numFollowing}</p>
+                        <p>Following: {numFollowing ?? 0}</p>
                     </li>
                     {
                         (loggedId === id) ?
                             <>
                                 <li>
-                                    <button className="w-full bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex disabled:bg-base-200" onClick={dailyPayout} disabled={dailyReward <= 0 || disabled}>
+                                    <button className="w-full mt-4 bg-primary py-1 px-2 rounded text-inherit font-semibold text-sm gap-3 flex disabled:bg-base-200" onClick={dailyPayout} disabled={dailyReward <= 0 || disabled}>
                                         Get Reward💰 {isFetching ? <AnimateWheel stroke="stroke-primary-focus" fill="fill-primary-focus" /> : <>{dailyReward}</>}
                                     </button >
                                 </li>
