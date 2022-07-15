@@ -1,0 +1,1 @@
+{"type": "follow", "msa_id": 1, "is_follow": 0, "msa_id_to_interact_with": 4}test

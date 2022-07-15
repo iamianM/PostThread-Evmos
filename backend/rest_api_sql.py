@@ -16,13 +16,13 @@ import math
 import re, praw, json, ipfshttpclient, time, datetime
 import pandas as pd
 import sqlite3
-from scripts.web3_helpers import *
+from eth_abi.packed import encode_abi_packed
+from eth_utils import keccak
+from web3 import Web3
+w3 = Web3(Web3.HTTPProvider('https://bttc.trongrid.io'))
 
 con = sqlite3.connect('postthreadV1_write.db', check_same_thread=False)
 cur = con.cursor()
-
-bob = delegate
-bob_msa_id = get_msa_id(delegate)
 
 loop = asyncio.new_event_loop()
 
@@ -123,10 +123,12 @@ async def submit_post(
             return HTTPException(status_code=404, detail="User not found")
         user_msa_id = df['msa_id'].iloc[0]
 
-    _, receipt = mint_data(postInput.dict(), user_msa_id, schemas['post'], path+'posts/', 
-                           wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
-    if wait_for_inclusion and receipt.error_message:
-        return HTTPException(status_code=402, detail=receipt.error_message)
+    s = schemas['post']
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "mint_data", "data": {json.dumps(postInput.dict())}, "user_msa_id": {user_msa_id}, "schema": {s}, "path": "posts/"' + '}'
+        f.write(new_line+'\n') 
+    # _, receipt = mint_data(postInput.dict(), user_msa_id, schemas['post'], path+'posts/', 
+    #                        wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
 
     return {"Success": "Post was created and will finalize on the blockchain soon."}
     
@@ -149,14 +151,18 @@ async def submit_vote(
             return HTTPException(status_code=404, detail="User not found")
         user_msa_id = df['msa_id'].iloc[0]
 
-    data = '{' + f'"post_hash": {post_hash},"parent_hash": {parent_hash},"parent_type": {parent_type},"num_votes": {num_votes}' + '}'
-    _, receipt = mint_data(data, user_msa_id, schemas['vote'], 
-                        wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
+    data = '{' + f'"post_hash": "{post_hash}","parent_hash": "{parent_hash}","parent_type": "{parent_type}","num_votes": {num_votes}' + '}'
+    s = schemas['vote']
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "mint_data", "data": {data}, "user_msa_id": {user_msa_id}, "schema": {s}' + '}'
+        f.write(new_line+'\n') 
+    # _, receipt = mint_data(data, user_msa_id, schemas['vote'], 
+    #                     wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
     
-    if wait_for_inclusion:
-        if receipt.error_message:
-            return HTTPException(status_code=402, detail=receipt.error_message)
-        return {"Success": "Vote was created and posted to the blockchain."} 
+    # if wait_for_inclusion:
+    #     if receipt.error_message:
+    #         return HTTPException(status_code=402, detail=receipt.error_message)
+    #     return {"Success": "Vote was created and posted to the blockchain."} 
 
     return {"Success": "Vote was created and will finalize on the blockchain soon."}
     
@@ -181,11 +187,16 @@ async def submit_comment(
         if df.size == 0:
             return HTTPException(status_code=404, detail="User not found")
         user_msa_id = df['msa_id'].iloc[0]
+    
+    s = schemas['comment']
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "mint_data", "data": {json.dumps(commentInput.dict())}, "user_msa_id": {user_msa_id}, "schema": {s}, "path": "comments/"' + '}'
+        f.write(new_line+'\n') 
 
-    message, receipt = mint_data(commentInput.dict(), user_msa_id, schemas['comment'], path+'comments/', 
-                        wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
-    if wait_for_inclusion and receipt.error_message:
-            return HTTPException(status_code=402, detail=receipt.error_message)
+    # message, receipt = mint_data(commentInput.dict(), user_msa_id, schemas['comment'], path+'comments/', 
+    #                     wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
+    # if wait_for_inclusion and receipt.error_message:
+    #         return HTTPException(status_code=402, detail=receipt.error_message)
 
     return {"Success": "Comment was created and will finalize on the blockchain soon."}
 
@@ -528,7 +539,8 @@ def user_dailypayout_get(
         "user_level": users_level[user_msa_id], "user_social_score": weighted_avgs[user_msa_id]/6 *1000,
         "user_score": user_score*1000, "payout_amount_left_to_claim": daily_token_rewards * user_score, 
         "seconds_till_next_payout": seconds_till_next_payout, 
-        "wallet_ss58_address": df[df['msa_id_from_query'] == user_msa_id]['wallet_address'].iloc[0]
+        "wallet_ss58_address": df[df['msa_id_from_query'] == user_msa_id]['wallet_address'].iloc[0],
+        "username": df['username'].iloc[0]
     }
 
 @app.post('/user/dailypayout', tags=["userpage"], summary="Pays a user their daily rewards")
@@ -545,15 +557,24 @@ async def user_dailypayout_post(
     
     payout_amount = response['payout_amount_left_to_claim']
     payout_amount = 0
-    receipt = postthread_contract.functions.transfer(response['wallet_ss58_address'], payout_amount).transact({'from': bob})
-    if wait_for_inclusion and receipt.error_message:
-        return HTTPException(status_code=402, detail=receipt.error_message)
+    wallet = response['wallet_ss58_address']
+    username = response['username']
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "transfer", "username": "{username}", "password": "password", "value": {payout_amount}' + '}'
+        f.write(new_line+'\n') 
+    # receipt = postthread_contract.functions.transfer(response['wallet_ss58_address'], payout_amount).transact({'from': bob})
+    # if wait_for_inclusion and receipt.error_message:
+    #     return HTTPException(status_code=402, detail=receipt.error_message)
     
     data = '{' + f'"payout_amount": {payout_amount}' + '}'
-    _, receipt = mint_data(data, user_msa_id, schemas['payout'], 
-                        wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
-    if wait_for_inclusion and receipt.error_message:
-        return HTTPException(status_code=402, detail=receipt.error_message)
+    s = schemas['payout']
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "mint_data", "data": {data}, "user_msa_id": {user_msa_id}, "schema": {s}' + '}'
+        f.write(new_line+'\n') 
+    # _, receipt = mint_data(data, user_msa_id, schemas['payout'], 
+    #                     wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
+    # if wait_for_inclusion and receipt.error_message:
+    #     return HTTPException(status_code=402, detail=receipt.error_message)
     return response
     
 def get_follow_df(followers, user_msa_id):
@@ -631,18 +652,15 @@ async def user_follow(
         if user_msa_id_to_interact_with not in following['following_msa_id'].values:
             return {"message": "User is not following"}
         is_follow = False
-        
-    reciept_follow = follow_user(user_msa_id, user_msa_id_to_interact_with, is_follow=is_follow,
-                                    wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
+
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "follow", "msa_id": {user_msa_id}, "is_follow": {int(is_follow)}, "msa_id_to_interact_with": {user_msa_id_to_interact_with}' + '}'
+        f.write(new_line+'\n') 
+    # reciept_follow = follow_user(user_msa_id, user_msa_id_to_interact_with, is_follow=is_follow,
+    #                                 wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
     
     
     return {f"Success": f"You have successfully {follow}ed a user"}
-
-def create_msa_and_mint_user(user_wallet, username, password, profile_pic):
-    user_msa_id = create_msa_with_delegator(bob, user_wallet, 
-                                            wait_for_inclusion=True, wait_for_finalization=False)
-    mint_user(user_msa_id, username, password, profile_pic, user_wallet, 
-                wait_for_inclusion=False, wait_for_finalization=False)
 
 @app.post('/user/mint', tags=["userpage"], summary="Mint a new user")
 async def user_mint(
@@ -661,7 +679,10 @@ async def user_mint(
     # override password for testing
     password = "password"
     user_wallet = w3.eth.account.from_key(keccak(encode_abi_packed(['string'],[f"{username}{password}"])))
-    background_tasks.add_task(create_msa_and_mint_user, user_wallet, username, password, profile_pic)
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "create_msa_and_mint_user", "username": "{username}", "password": "{password}", "profile_pic": "{profile_pic}"' + '}'
+        f.write(new_line+'\n') 
+    # background_tasks.add_task(create_msa_and_mint_user, user_wallet, username, password, profile_pic)
     return {"message": "User minting started"}
 
 @app.post('/user/link', tags=["userpage"], summary="Link an already verified account (email, social, etc)")
@@ -675,10 +696,15 @@ async def user_post(
     wait_for_inclusion = False
     wait_for_finalization = False
     data = '{' + f'"account_type": "{account_type}","account_value": "{account_value}"' + '}'
-    _, receipt = mint_data(data, user_msa_id, schemas['link'], 
-                wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
-    if wait_for_inclusion and receipt.error_message:
-        return HTTPException(status_code=402, detail=receipt.error_message)
+    
+    s = schemas['link']
+    with open("new_announcements.txt", "a") as f:
+        new_line = '{' + f'"type": "mint_data", "user_msa_id": {user_msa_id}, "data": {data}, "schema": {s}' + '}'
+        f.write(new_line+'\n')
+    # _, receipt = mint_data(data, user_msa_id, schemas['link'], 
+    #             wait_for_inclusion=wait_for_inclusion, wait_for_finalization=wait_for_finalization)
+    # if wait_for_inclusion and receipt.error_message:
+    #     return HTTPException(status_code=402, detail=receipt.error_message)
     return {"Success": "Link was created and will finalize on the blockchain soon."}
 
 @app.get('/airdrop/check/{reddit_username}', tags=["airdroppage"], summary="Check a Reddit user to see how much their airdrop will be as well as get an example post a user can make on Reddit to claim the airdrop.")
@@ -725,9 +751,13 @@ async def airdrop_claim(
             if response["user_wallet"] in post.selftext:
                 # transfers set to 0 for demo
                 airdrop_value = response["airdrop_value"]
-                receipt = postthread_contract.functions.transfer(response['user_wallet'], airdrop_value).transact({'from': bob})
-                if wait_for_inclusion and receipt.error_message:
-                    return HTTPException(status_code=402, detail=receipt.error_message)
+                wallet = response['user_wallet']
+                with open("new_announcements.txt", "a") as f:
+                    new_line = '{' + f'"type": "transfer", "username": "{postthread_username}", "password": "password", "value": {airdrop_value}' + '}'
+                    f.write(new_line+'\n') 
+                # receipt = postthread_contract.functions.transfer(response['user_wallet'], airdrop_value).transact({'from': bob})
+                # if wait_for_inclusion and receipt.error_message:
+                #     return HTTPException(status_code=402, detail=receipt.error_message)
                 return {"message": "Successfully claimed airdrop. Your reward is being transferred to your account."}
                 
     details = "We could not match any of your recent posts with the message we provided for you. Please post again and make sure you are using the exact message we provide you."
@@ -785,13 +815,10 @@ def socialgraph_graph(
     G.add_edges_from(df[['protagonist_msa_id', 'antagonist_msa_id']].values.tolist())
     return nx.to_dict_of_dicts(nx.bfs_tree(G, user_msa_id, reverse=False))
   
-def main():
-    uvicorn.run("scripts\\rest_api_sql:app", port=5555, host='0.0.0.0', reload=True, workers=10)
-
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # global loop
 
-    # config = Config(app=app, loop=loop, port=5001, host='0.0.0.0', reload=True, workers=10)
-    # server = Server(config)
-    # loop.run_until_complete(server.serve())
-    # uvicorn.run(app, port=5555, host='0.0.0.0', reload=True, workers=10)
+    config = Config(app=app, loop=loop, port=5001, host='0.0.0.0', reload=True, workers=10)
+    server = Server(config)
+    loop.run_until_complete(server.serve())
+    uvicorn.run(app, port=5555, host='0.0.0.0', reload=True, workers=10)

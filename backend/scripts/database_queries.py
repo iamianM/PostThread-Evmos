@@ -50,7 +50,13 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
             create_table = f"CREATE TABLE {schemaName} ({schemaValue}, {extraValues}, UNIQUE({names}))"
             cur.execute(create_table)
 
-        contents = postthread_contract.getMessages(schemaId, from_dict1)           
+        offset = 0
+        contents = list(postthread_contract.getMessages(schemaId, offset, from_dict1) )
+
+        while contents[-1][0] != 0:
+            offset += 1
+            print(offset, len(contents), contents)
+            contents.extend(list(postthread_contract.getMessages(schemaId, offset, from_dict1)))
 
         table_values = []
         count = 0
@@ -68,15 +74,19 @@ def update_db(start_block=0, backfill=True, schemaToUpdate=None, query_start=Fal
             if is_ipfs_hash:
                 ipfs_hash = row_raw.strip("'")
                 try:
+                    print(ipfs_hash)
                     row_raw = client.cat(ipfs_hash).decode()
                 except:
                     print("Failed to get ipfs hash ", ipfs_hash)
                     continue
-            try:
-                row = json.loads(row_raw)
-            except:
-                print("Failed to parse json", row_raw)
-                continue
+
+            if type(row_raw) != dict:
+                try:
+                    row_raw = row_raw.replace("'", '"')
+                    row = json.loads(row_raw)
+                except:
+                    print("Failed to parse json", row_raw)
+                    continue
 
             row_values = []
             for scheme in schemaValue.split(','):

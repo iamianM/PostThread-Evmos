@@ -27,6 +27,13 @@ client = ipfshttpclient.connect()
 
 schemas = json.load(open("schemas.json"))
 
+
+def create_msa_and_mint_user(user_wallet, username, password, profile_pic):
+    user_msa_id = create_msa_with_delegator(user_wallet, 
+                                            wait_for_inclusion=True, wait_for_finalization=False)
+    mint_user(user_msa_id, username, password, profile_pic, user_wallet, 
+                wait_for_inclusion=False, wait_for_finalization=False)
+
 def addSchema(schema, check=True, create=True, wait_for_inclusion=True, wait_for_finalization=False):
     schemaId = None
     if check:

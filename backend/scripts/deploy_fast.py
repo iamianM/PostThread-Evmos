@@ -36,6 +36,25 @@ print("schemas match", postthread.getSchema(post_schemaId) == post_schema)
 # mint message
 payload = '{"category": "test", "title": "test", "body": "test", "url": "test", "is_nsfw": 0}'
 tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": account})
+tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": account})
+tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": account})
+tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": account})
+tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": account})
+tx = postthread.addMessage(msa_id, delegate_msa_id, post_schemaId, payload, {"from": account})
+
+
+tx = postthread.getMessages(post_schemaId, 0, {"from": account})
+print(tx)
+tx = postthread.getMessages(post_schemaId, 1, {"from": account})
+print(tx)
+tx = postthread.getMessages(post_schemaId, 2, {"from": account})
+print(tx)
+tx = postthread.getMessages(post_schemaId, 3, {"from": account})
+print(tx)
+tx = postthread.getMessages(post_schemaId, 4, {"from": account})
+print(tx)
+# print(tx.error())
+# print(tx.return_value)
 
 def main():
     pass

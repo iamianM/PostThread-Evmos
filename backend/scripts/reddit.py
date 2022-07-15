@@ -6,6 +6,8 @@ import ipfshttpclient
 from os import listdir
 from os.path import isfile, join
 import praw
+import os
+import shutil
 
 from scripts.web3_helpers import *
 from scripts.database_queries import update_db
@@ -152,6 +154,7 @@ user_msa_ids = pd.read_sql_query(user_query, con)['msa_id_from_query'].unique().
 
 minted_time = 0
 last_block = 0
+new_announcement_time = 0
 while True:
     # Mint reddit posts every hour
     if (time.time() - minted_time) / 60 > 30:
@@ -170,5 +173,30 @@ while True:
 
         minted_time = time.time()
         print('Done minting')
+
+    if new_announcement_time != os.stat("new_announcements.txt").st_mtime:
+        shutil.copyfile("new_announcements.txt", "new_announcements_copy.txt")
+        with open("new_announcements.txt", "w") as f:
+            pass
+
+        with open("new_announcements_copy.txt", "r") as f:
+            lines = f.readlines()
+            for l in lines:
+                l = json.loads(l)
+                print(l)
+                if l['type'] == "follow":
+                    follow_user(l["msa_id"], l["msa_id_to_interact_with"], is_follow=l["is_follow"])
+                elif l['type'] == "create_msa_and_mint_user":
+                    wallet = w3.eth.account.from_key(keccak(encode_abi_packed(['string'],[f"{l['username']}{l['password']}"])))
+                    create_msa_and_mint_user(wallet, l["username"], l["password"], l["profile_pic"])
+                elif l['type'] == "mint_data":
+                    if "path" in l:
+                        mint_data(json.dumps(l["data"]), l["user_msa_id"], l["schema"], path+l["path"])
+                    else:
+                        mint_data(json.dumps(l["data"]), l["user_msa_id"], l["schema"])
+                elif l['type'] == "transfer":
+                    wallet = w3.eth.account.from_key(keccak(encode_abi_packed(['string'],[f"{l['username']}{l['password']}"])))
+                    bob.transfer(wallet.address, 0)
+
     
     time.sleep(1)

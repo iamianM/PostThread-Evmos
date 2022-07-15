@@ -10,7 +10,7 @@ con = sqlite3.connect('postthreadV1_write.db')
 cur = con.cursor()
 
 
-update_db(backfill=True, schemaToUpdate=None)
+# update_db(backfill=True, schemaToUpdate=None)
 
 minted_time = 0
 last_block = 0

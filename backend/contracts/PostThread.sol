@@ -112,9 +112,27 @@ contract PostThread {
         return true;
     }
 
-    function getMessages(uint schemaId) public view returns (Message[] memory) {
+    function getNumberOfMessages(uint schemaId) public view returns (uint) {
+        return schemaIdToMessages[schemaId].length;
+    }
+
+    function getMessages(uint schemaId, uint offset) public view returns (Message[100] memory) {
         require(bytes(idToSchema[schemaId]).length != 0, "Schema does not exist");
-        return schemaIdToMessages[schemaId];
+        Message[100] memory messages;
+        uint l = schemaIdToMessages[schemaId].length;
+        uint upperBound;
+        if (100 * offset > l) {
+            return messages;
+        } else if (100 * (offset + 1) > l) {
+            upperBound = l - 100 * offset;
+        } else {
+            upperBound = 100;
+        }
+
+        for (uint i = 0; i < upperBound; i++) {
+            messages[i] = schemaIdToMessages[schemaId][100 * offset + i];
+        }
+        return messages;
     }
 
 }
