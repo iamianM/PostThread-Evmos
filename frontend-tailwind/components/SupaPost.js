@@ -15,7 +15,7 @@ import { db } from "../firebase"
 import { addDoc, collection, onSnapshot, serverTimestamp, orderBy, query, setDoc, doc, deleteDoc } from "firebase/firestore"
 import Moment from "react-moment"
 
-function Post({ id, username, userImg, img, caption }) {
+function SupaPost({ id, username, userImg, img, caption }) {
 
     // const { data: session } = useSession()
     const [comment, setComment] = useState("")
@@ -133,4 +133,4 @@ function Post({ id, username, userImg, img, caption }) {
     )
 }
 
-export default Post
+export default SupaPost

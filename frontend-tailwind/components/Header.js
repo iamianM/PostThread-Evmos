@@ -29,12 +29,12 @@ function Header() {
                     <div onClick={() => { router.push("/") }} className="relative hidden md:inline-grid h-12 w-12 cursor-pointer">
                         <img src="/postthreadicon.png" />
                     </div>
-                    <a onClick={() => { router.push("/") }} className="font-bold text-xl relative hidden md:inline-grid cursor-pointer text-base-100">
+                    <a onClick={() => { router.push("/") }} className="font-bold text-xl relative hidden md:inline-grid cursor-pointer text-base-content">
                         PostThread
                     </a>
                 </div>
                 {/* Middle */}
-                <div className="max-w-xs flex items-center">
+                <div className="max-w-lg flex items-center">
                     <div className="relative p-3 rounded-md">
                         <div className="absolute inset-y-0 pl-3 flex items-center pointer-events-none">
                             <SearchIcon className="h-5 w-5 text-gray-500 " />
@@ -42,7 +42,9 @@ function Header() {
                         <input type="text" placeholder="Search"
                             className="bg-base-100 block w-full pl-10 sm:text-sm border-base-200 rounded-md focus:ring-black focus:border-black" />
                     </div>
-                    <ThemeSelector />
+                    <div className="hidden lg:inline-block">
+                        <ThemeSelector/>
+                    </div>
                 </div>
                 {/* Right */}
                 <div className="flex items-center justify-end space-x-4">

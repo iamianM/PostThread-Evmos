@@ -3,22 +3,22 @@ import React from 'react'
 export default function ThemeSelector() {
     return (
         <div className="m-5">
-            <select data-choose-theme className="focus:outline-none h-10 rounded-full px-3 border bg-secondary">
-                <option value="light">light🌕</option>
-                <option value="dark">dark🌑</option>
-                <option value="halloween">halloween🎃</option>
-                <option value="bumblebee">bumblebee🐝</option>
-                <option value="emerald">emerald🪲</option>
-                <option value="corporate">corporate👔</option>
-                <option value="synthwave">synthwave🎧</option>
-                <option value="retro">retro💾</option>
-                <option value="cyberpunk">cyberpunk🤖</option>
-                <option value="forest">forest🌲</option>
-                <option value="aqua">aqua💧</option>
-                <option value="lofi">lofi🔉</option>
-                <option value="fantasy">fantasy🐉</option>
-                <option value="dracula">dracula🧛‍♂️</option>
-                <option value="coffee">coffee☕️</option>
+            <select data-choose-theme className="focus:outline-none h-10 rounded-full focus:ring-primary focus:border-primary px-3 border bg-secondary">
+                <option value="light">🌕</option>
+                <option value="dark">🌑</option>
+                <option value="halloween">🎃</option>
+                <option value="bumblebee">🐝</option>
+                <option value="emerald">🪲</option>
+                <option value="corporate">👔</option>
+                <option value="synthwave">🎧</option>
+                <option value="retro">💾</option>
+                <option value="cyberpunk">🤖</option>
+                <option value="forest">🌲</option>
+                <option value="aqua">💧</option>
+                <option value="lofi">🔉</option>
+                <option value="fantasy">🐉</option>
+                <option value="dracula">🧛‍♂️</option>
+                <option value="coffee">☕️</option>
             </select>
         </div>
     )
