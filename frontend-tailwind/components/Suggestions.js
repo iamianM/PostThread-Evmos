@@ -28,7 +28,7 @@ function Suggestions() {
     }, [])
 
     return (
-        <div className="mt-4 ml-10 my-7 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">
+        <div className="mt-4 bg-base-100 ml-10 my-7 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">
             <div className="flex justify-between text-sm mb-5">
                 <h3 className="text-sm font-bold text-gray-400">Suggestions for you</h3>
                 <button className="text-gray-600 font-semibold">See All</button>
@@ -40,7 +40,7 @@ function Suggestions() {
                         <div className="flex-1 ml-4">
                             <h2 className="font-semibold text-sm">{profile.username}</h2>
                         </div>
-                        <button className="text-blue-400 text-xs font-semibold">Follow</button>
+                        <button className="text-primary text-xs font-semibold">Follow</button>
                     </div>
                 ))
             }

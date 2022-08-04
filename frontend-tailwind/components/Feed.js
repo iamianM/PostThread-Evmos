@@ -1,8 +1,8 @@
-import InputBox from "./InputBox"
 import Posts from "./Posts"
 import MiniProfile from "./MiniProfile"
 import Suggestions from "./Suggestions"
 import Trending from "./Trending"
+import PostBox from "./PostBox"
 
 function Feed() {
 
@@ -10,7 +10,7 @@ function Feed() {
         <main className={`grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
         xl:max-w-6xl mx-auto`}>
             <section className="col-span-2">
-                <InputBox />
+                <PostBox />
                 <Posts />
             </section>
             <section className="hidden lg:inline-grid md:col-span-1 ">

@@ -34,7 +34,7 @@ function Trending() {
     ]
 
     return (
-        <div className="mt-4 ml-10 my-7 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">
+        <div className="mt-4 ml-10 my-7 bg-base-100 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">
             <div className="flex justify-between text-sm mb-5">
                 <h3 className="text-sm font-bold text-gray-400">Trending topics</h3>
                 <button className="text-gray-600 font-semibold">See All</button>

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.6.9",
     "@faker-js/faker": "^7.3.0",
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^1.0.6",
@@ -16,11 +17,14 @@
     "@tailwindcss/forms": "^0.5.2",
     "daisyui": "^2.15.4",
     "firebase": "^9.9.1",
+    "graphql": "^16.5.0",
     "moment": "^2.29.4",
     "next": "12.1.6",
     "next-auth": "^4.8.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-hook-form": "^7.34.0",
+    "react-hot-toast": "^2.3.0",
     "react-infinite-scroll-component": "^6.1.0",
     "react-moment": "^1.1.2",
     "react-toast-notifications": "^2.5.1",
