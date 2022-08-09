@@ -33,3 +33,33 @@ mutation AddCategory(
        created_at
     }
 }`
+
+export const ADD_USER = gql`
+mutation AddUser(
+    $username: String!, 
+    $profile_pic: String!) { 
+    insertUser(username: $username, profile_pic: $profile_pic) {
+       id
+       username
+       profile_pic
+       created_at
+    }
+}`
+
+export const ADD_COMMENT = gql`
+mutation AddComment(
+    $post_id: ID!,
+    $body: String!,
+    $user_id: ID!) { 
+    insertComment(
+    post_id: $post_id,
+    body: $body
+    user_id: $user_id
+  ) {
+    id
+    created_at
+    body
+    post_id,
+    user_id
+  }
+}`

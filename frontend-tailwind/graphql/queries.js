@@ -25,6 +25,7 @@ export const GET_ALL_POSTS = gql`
       profile_pic
     }
     created_at
+    id
   }
     }`
 
@@ -36,4 +37,25 @@ query getCategoryByName(
         name
         created_at
     }
+}`
+
+export const GET_USER_BY_USERNAME = gql`
+query getUserByUsername(
+    $username: String!) { 
+      getUserByUsername(username: $username) {
+        id
+        created_at
+    }
+}`
+
+export const GET_COMMENTS_BY_POST_ID = gql`
+query getUserByUsername(
+    $id: ID!) { 
+      getCommentUsingPost_id(id: $id) {
+      user {
+        username
+      }
+      body
+      created_at
+  }
 }`

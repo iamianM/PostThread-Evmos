@@ -1,22 +1,23 @@
 import { useForm } from 'react-hook-form';
-import Image from 'next/image';
-import {
-    CameraIcon
-} from "@heroicons/react/solid"
+import { CameraIcon } from "@heroicons/react/solid"
 import { useRef, useState } from "react"
 import toast from "react-hot-toast"
-import { GET_CATEGORY_BY_NAME } from "../graphql/queries"
+import { GET_CATEGORY_BY_NAME, GET_USER_BY_USERNAME, GET_ALL_POSTS } from "../graphql/queries"
 import { useMutation } from '@apollo/client';
 import { ADD_POST, ADD_CATEGORY } from "../graphql/mutations";
 import client from "../apollo-client"
 import { useSession } from 'next-auth/react';
 
-
 function PostBox() {
 
     const filepickerRef = useRef(null)
     const [imageToPost, setImageToPost] = useState(null)
-    const [addPost] = useMutation(ADD_POST)
+    const [addPost] = useMutation(ADD_POST, {
+        refetchQueries: [
+            GET_ALL_POSTS,
+            'getPostList'
+        ]
+    })
     const [addCategory] = useMutation(ADD_CATEGORY)
     const { data: session } = useSession()
 
@@ -31,8 +32,6 @@ function PostBox() {
     const onSubmit = handleSubmit(async (data) => {
 
         // const notification = toast.loading("Creating new post...")
-
-        console.log("here")
 
         // try {
 
@@ -62,7 +61,7 @@ function PostBox() {
                     body: data.body,
                     url: url,
                     title: data.title,
-                    user_id: 1,
+                    user_id: localStorage.getItem('user_id'),
                     category_id: newCategory.id
                 }
             })
@@ -75,7 +74,7 @@ function PostBox() {
                     url: url,
                     title: data.title,
                     category_id: getCategoryByName.id,
-                    user_id: 1
+                    user_id: localStorage.getItem('user_id')
                 }
             })
 
@@ -118,13 +117,10 @@ function PostBox() {
     return (
         <form onSubmit={onSubmit} className="bg-base-100 p-2 rounded-2xl shadow-lg border text-base-content font-medium mt-6">
             <div className="flex space-x-4 items-center p-4">
-                <Image
-                    className="rounded-full cursor-pointer"
-                    src="/postthreadicon.png"
-                    width={40} height={40}
-                    layout="fixed"
+                <img
+                    className="rounded-full cursor-pointer w-10 h-10"
+                    src={session.user.image}
                 />
-
                 <input
                     {...register('title', { required: true })}
                     className="rounded-xl h-12 bg-base-100 border-primary focus:ring-primary focus:border-primary flex-grow px-5 focus:outline-none"

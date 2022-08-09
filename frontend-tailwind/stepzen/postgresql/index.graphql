@@ -96,7 +96,19 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-        SELECT * FROM category WHERE name = $1
+        SELECT T."id", T."name", T."created_at"
+        FROM "public"."category" T
+        WHERE T."name" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getUserByUsername(username: String!): Category
+    @dbquery(
+      type: "postgresql"
+      query: """
+        SELECT T."id", T."username", T."created_at", T."profile_pic", T."msa_id"
+        FROM "public"."user" T
+        WHERE T."username" = $1
       """
       configuration: "postgresql_config"
     )
@@ -127,8 +139,10 @@ type Query {
   getPostList: [Post]
     @dbquery(
       type: "postgresql"
-      schema: "public"
-      table: "post"
+      query: """
+        select * from "post"
+        order by "post"."created_at" desc
+      """
       configuration: "postgresql_config"
     )
   getPost(id: ID!): Post
@@ -240,7 +254,6 @@ type Mutation {
     )
   insertComment(
     post_id: ID!
-    created_at: DateTime!
     body: String!
     user_id: ID!
   ): Comment
@@ -282,8 +295,6 @@ type Mutation {
       configuration: "postgresql_config"
     )
   insertUser(
-    created_at: DateTime!
-    msa_id: ID!
     profile_pic: String!
     username: String!
   ): User

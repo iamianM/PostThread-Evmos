@@ -11,16 +11,42 @@ import { useSession } from "next-auth/react"
 import { HeartIcon as HeartIconFilled } from "@heroicons/react/solid"
 import { useEffect, useState } from "react"
 import TimeAgo from 'react-timeago'
+import { ADD_COMMENT } from '../graphql/mutations'
+import { GET_COMMENTS_BY_POST_ID } from '../graphql/queries'
+import { useMutation, useQuery } from '@apollo/client';
 
 function Post({ post }) {
 
     const { data: session } = useSession()
+    const { data, error } = useQuery(GET_COMMENTS_BY_POST_ID, {
+        variables: { id: post.id }
+    })
+
     const [comment, setComment] = useState("")
-    const [comments, setComments] = useState([])
+    const comments = data?.getCommentUsingPost_id || []
     const [likes, setLikes] = useState([])
     const [hasLiked, setHasLiked] = useState(false)
 
-    console.log(post)
+    const [addComment] = useMutation(ADD_COMMENT, {
+        refetchQueries: [
+            GET_COMMENTS_BY_POST_ID,
+            'getCommentUsingPost_id'
+        ]
+    })
+
+    const sendComment = async (e) => {
+        e.preventDefault()
+        const commentToSend = comment
+        setComment("")
+
+        await addComment({
+            variables: {
+                body: commentToSend,
+                post_id: post.id,
+                user_id: localStorage.getItem("user_id")
+            }
+        })
+    }
 
     return (
 
@@ -44,16 +70,16 @@ function Post({ post }) {
                         <p className="font-bold mb-1">{likes.length} likes</p>
                     )} */}
                     {
-                        post.commentList.length > 0 && (
-                            <p className="font-semibold text-sm mb-1">{post.commentList.length} comments</p>
+                        comments.length > 0 && (
+                            <p className="font-semibold text-sm mb-1">{comments.length} comments</p>
                         )
                     }
                 </div>
             </div>
 
-            {post.commentList.length > 0 && (
+            {comments.length > 0 && (
                 <div className="ml-6 h-20 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
-                    {post.commentList.map(comment => (
+                    {comments.map(comment => (
                         <div key={comment.id} className="flex items-center space-x-2 mb-3">
                             <img className="h-7 rounded-full" src={comment.user.profile_pic} />
                             <p className="text-sm flex-1">
@@ -92,7 +118,7 @@ function Post({ post }) {
                             placeholder="Add a comment..."
                             className="border-none bg-base-100 flex-1 focus:ring-0 outline-none"
                         />
-                        <button type="submit" disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Post</button>
+                        <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Post</button>
                     </form>
                 </>}
 
