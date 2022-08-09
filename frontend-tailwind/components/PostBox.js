@@ -9,6 +9,7 @@ import { GET_CATEGORY_BY_NAME } from "../graphql/queries"
 import { useMutation } from '@apollo/client';
 import { ADD_POST, ADD_CATEGORY } from "../graphql/mutations";
 import client from "../apollo-client"
+import { useSession } from 'next-auth/react';
 
 
 function PostBox() {
@@ -17,6 +18,7 @@ function PostBox() {
     const [imageToPost, setImageToPost] = useState(null)
     const [addPost] = useMutation(ADD_POST)
     const [addCategory] = useMutation(ADD_CATEGORY)
+    const { data: session } = useSession()
 
     const {
         register,
@@ -30,64 +32,68 @@ function PostBox() {
 
         // const notification = toast.loading("Creating new post...")
 
-        try {
+        console.log("here")
 
-            const { data: { getCategoryByName } } = await client.query({
-                query: GET_CATEGORY_BY_NAME,
+        // try {
+
+        const { data: { getCategoryByName } } = await client.query({
+            query: GET_CATEGORY_BY_NAME,
+            variables: {
+                name: data.category
+            }
+        })
+
+        console.log(getCategoryByName)
+
+        const categoryExists = getCategoryByName?.id > 0
+        const url = imageToPost || ''
+
+        console.log(categoryExists)
+
+        if (!categoryExists) {
+            const { data: { insertCategory: newCategory } } = await addCategory({
                 variables: {
                     name: data.category
                 }
             })
 
-            const categoryExists = getCategoryByName?.id > 0
-            const image = imageToPost || ''
+            const { data: { insertPost: newPost } } = await addPost({
+                variables: {
+                    body: data.body,
+                    url: url,
+                    title: data.title,
+                    user_id: 1,
+                    category_id: newCategory.id
+                }
+            })
 
-            console.log(categoryExists)
+            console.log(newPost)
+        } else {
+            const { data: { insertPost: newPost } } = await addPost({
+                variables: {
+                    body: data.body,
+                    url: url,
+                    title: data.title,
+                    category_id: getCategoryByName.id,
+                    user_id: 1
+                }
+            })
 
-            if (!categoryExists) {
-                const { data: { insertCategory: newCategory } } = await addCategory({
-                    variables: {
-                        name: data.category
-                    }
-                })
-
-                const { data: { insertPost: newPost } } = await addPost({
-                    variables: {
-                        body: data.body,
-                        image: image,
-                        title: data.title,
-                        user_id: 1,
-                        category_id: newCategory.id
-                    }
-                })
-
-                console.log(newPost)
-            } else {
-                const { data: { insertPost: newPost } } = await addPost({
-                    variables: {
-                        body: data.body,
-                        image: image,
-                        title: data.title,
-                        category_id: getCategoryByName.id,
-                        user_id: 1
-                    }
-                })
-
-                console.log(newPost)
-                // toast.success("Post created!", {
-                //     id: notification
-                // })
-            }
-        } catch (error) {
-            // toast.error("Whoops! Something went wrong.", {
+            console.log(newPost)
+            // toast.success("Post created!", {
             //     id: notification
             // })
         }
+        // } catch (error) {
+        //     // toast.error("Whoops! Something went wrong.", {
+        //     //     id: notification
+        //     // })
+        // }
 
-        setValue("body", "")
-        setValue("title", "")
-        setValue("category", "")
-        setImageToPost(null)
+        // setValue("body", "")
+        // setValue("title", "")
+        // setValue("category", "")
+        // setImageToPost(null)
 
     })
 
@@ -105,6 +111,8 @@ function PostBox() {
     const removeImage = () => {
         setImageToPost(null)
     }
+
+
 
 
     return (

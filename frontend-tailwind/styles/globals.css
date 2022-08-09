@@ -11,4 +11,8 @@
     .btn {
         @apply h-7 hover:scale-125 cursor-pointer transition-all duration-150 ease-out
     }
+
+    .voteButtons {
+        @apply h-6 w-6 hover:bg-gray-200 rounded-md
+    }
 }

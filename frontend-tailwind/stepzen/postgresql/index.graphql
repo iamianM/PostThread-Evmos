@@ -34,23 +34,44 @@ type Post {
   commentList: [Comment] @materializer(query: "getCommentUsingPost_id")
   created_at: DateTime
   id: ID!
-  image: String
   title: String
+  url: String
   user: User
     @materializer(
       query: "getUser"
       arguments: [{ name: "id", field: "user_id" }]
     )
   user_id: ID
+  voteList: [Vote] @materializer(query: "getVoteUsingPost_id")
 }
 
 type User {
   commentList: [Comment] @materializer(query: "getCommentUsingUser_id")
   created_at: DateTime
   id: ID!
+  msa_id: ID
   postList: [Post] @materializer(query: "getPostUsingUser_id")
   profile_pic: String
   username: String
+  voteList: [Vote] @materializer(query: "getVoteUsingUser_id")
+}
+
+type Vote {
+  created_at: DateTime
+  id: ID!
+  post: Post
+    @materializer(
+      query: "getPost"
+      arguments: [{ name: "id", field: "post_id" }]
+    )
+  post_id: ID
+  up: Boolean
+  user: User
+    @materializer(
+      query: "getUser"
+      arguments: [{ name: "id", field: "user_id" }]
+    )
+  user_id: ID
 }
 
 """
@@ -75,7 +96,7 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-        select * from "category" where "name" = $1
+        SELECT * FROM category WHERE name = $1
       """
       configuration: "postgresql_config"
     )
@@ -83,7 +104,7 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-      SELECT T."body", T."category_id", T."created_at", T."id", T."image", T."title", T."user_id"
+      SELECT T."body", T."category_id", T."created_at", T."id", T."title", T."url", T."user_id"
         FROM "public"."post" T
         WHERE T."category_id" = $1
       """
@@ -127,6 +148,16 @@ type Query {
       """
       configuration: "postgresql_config"
     )
+  getVoteUsingPost_id(id: ID!): [Vote]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."created_at", T."id", T."post_id", T."up", T."user_id"
+        FROM "public"."vote" T
+        WHERE T."post_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
   getUserList: [User]
     @dbquery(
       type: "postgresql"
@@ -155,10 +186,34 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-      SELECT T."body", T."category_id", T."created_at", T."id", T."image", T."title", T."user_id"
+      SELECT T."body", T."category_id", T."created_at", T."id", T."title", T."url", T."user_id"
         FROM "public"."post" T
         WHERE T."user_id" = $1
       """
+      configuration: "postgresql_config"
+    )
+  getVoteUsingUser_id(id: ID!): [Vote]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."created_at", T."id", T."post_id", T."up", T."user_id"
+        FROM "public"."vote" T
+        WHERE T."user_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getVoteList: [Vote]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "vote"
+      configuration: "postgresql_config"
+    )
+  getVote(id: ID!): Vote
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "vote"
       configuration: "postgresql_config"
     )
 }
@@ -205,11 +260,11 @@ type Mutation {
       configuration: "postgresql_config"
     )
   insertPost(
-    image: String!
     body: String!
     category_id: ID!
-    title: String!
     user_id: ID!
+    title: String!
+    url: String!
   ): Post
     @dbquery(
       type: "postgresql"
@@ -228,8 +283,9 @@ type Mutation {
     )
   insertUser(
     created_at: DateTime!
-    username: String!
+    msa_id: ID!
     profile_pic: String!
+    username: String!
   ): User
     @dbquery(
       type: "postgresql"
@@ -243,6 +299,27 @@ type Mutation {
       type: "postgresql"
       schema: "public"
       table: "user"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertVote(
+    post_id: ID!
+    created_at: DateTime!
+    up: Boolean!
+    user_id: ID!
+  ): Vote
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "vote"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  deleteVote(id: ID!): Vote
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "vote"
       dml: DELETE
       configuration: "postgresql_config"
     )

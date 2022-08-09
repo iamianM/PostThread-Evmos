@@ -12,11 +12,16 @@ import { useRouter } from "next/router"
 import { useRecoilState } from "recoil"
 import { modalState } from "../atoms/modalAtom"
 import ThemeSelector from "./ThemeSelector";
+import { useSession } from "next-auth/react"
+import { signIn } from "next-auth/react"
+
 
 function Header() {
 
     const [open, setOpen] = useRecoilState(modalState)
     const router = useRouter()
+    const { data: session } = useSession()
+
 
     return (
         <div className="shadow-sm borderb-b bg-primary sticky top-0 z-50 ">
@@ -43,31 +48,37 @@ function Header() {
                             className="bg-base-100 block w-full pl-10 sm:text-sm border-base-200 rounded-md focus:ring-black focus:border-black" />
                     </div>
                     <div className="hidden lg:inline-block">
-                        <ThemeSelector/>
+                        <ThemeSelector />
                     </div>
                 </div>
                 {/* Right */}
                 <div className="flex items-center justify-end space-x-4">
-                    <HomeIcon onClick={() => { router.push("/") }} className="navBtn" />
-                    <MenuIcon className="h-6 md:hidden cursor-pointer" />
-                    <>
-                        <div className="relative navBtn">
-                            <PaperAirplaneIcon className="navBtn" />
-                            <div
-                                className="absolute -top-2 -right-3 text-xs w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white">3</div>
-                        </div>
-                        <PlusCircleIcon onClick={() => setOpen(true)} className="navBtn" />
-                        <UserGroupIcon className="navBtn" />
-                        <div className="relative navBtn">
-                            <BellIcon className="navBtn" />
-                            <div
-                                className="absolute -top-2 -right-3 text-xs w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white">3</div>
-                        </div>
-                        {/* <img
-                        onClick={signOut}
-                        src={session?.user?.image}
-                        className="rounded-full h-10 w-10 cursor-pointer" /> */}
-                    </>
+                    {session ? (
+                        <>
+                            <HomeIcon onClick={() => { router.push("/") }} className="navBtn" />
+                            <MenuIcon className="h-6 md:hidden cursor-pointer" />
+                            <div className="relative navBtn">
+                                <PaperAirplaneIcon className="navBtn" />
+                                <div
+                                    className="absolute -top-2 -right-3 text-xs w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white">3</div>
+                            </div>
+                            <PlusCircleIcon onClick={() => setOpen(true)} className="navBtn" />
+                            <UserGroupIcon className="navBtn" />
+                            <div className="relative navBtn">
+                                <BellIcon className="navBtn" />
+                                <div
+                                    className="absolute -top-2 -right-3 text-xs w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white">3</div>
+                            </div>
+                            <div className="hidden lg:flex cursor-pointer">
+                                <div className="relative flex-shrink-0">
+                                    <img
+                                        src={session?.user?.image}
+                                        className="rounded-full h-6 w-6 cursor-pointer" />
+                                </div>
+                            </div>
+                        </>)
+                        :
+                        (<button onClick={signIn}>Sign in</button>)}
                 </div>
 
 
