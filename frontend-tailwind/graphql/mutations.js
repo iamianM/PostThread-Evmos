@@ -63,3 +63,21 @@ mutation AddComment(
     user_id
   }
 }`
+
+export const ADD_VOTE = gql`
+mutation AddVote(
+    $post_id: ID!,
+    $up: Boolean!,
+    $user_id: ID!) { 
+    insertVote(
+    post_id: $post_id,
+    up: $up
+    user_id: $user_id
+  ) {
+    id
+    created_at
+    up
+    post_id,
+    user_id
+  }
+}`

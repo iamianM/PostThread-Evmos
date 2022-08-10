@@ -7,11 +7,14 @@ import { useMutation } from '@apollo/client';
 import { ADD_POST, ADD_CATEGORY } from "../graphql/mutations";
 import client from "../apollo-client"
 import { useSession } from 'next-auth/react';
+import { create } from 'ipfs-http-client';
 
 function PostBox() {
 
+    const ipfsClient = create('https://ipfs.infura.io:5001/api/v0')
     const filepickerRef = useRef(null)
     const [imageToPost, setImageToPost] = useState(null)
+    const [imageToIpfs, setImageToIpfs] = useState(null)
     const [addPost] = useMutation(ADD_POST, {
         refetchQueries: [
             GET_ALL_POSTS,
@@ -31,68 +34,74 @@ function PostBox() {
 
     const onSubmit = handleSubmit(async (data) => {
 
-        // const notification = toast.loading("Creating new post...")
-
-        // try {
-
-        const { data: { getCategoryByName } } = await client.query({
-            query: GET_CATEGORY_BY_NAME,
-            variables: {
-                name: data.category
-            }
+        toast.loading("Creating new post...", {
+            id: "post-toast",
         })
 
-        console.log(getCategoryByName)
+        try {
 
-        const categoryExists = getCategoryByName?.id > 0
-        const url = imageToPost || ''
-
-        console.log(categoryExists)
-
-        if (!categoryExists) {
-            const { data: { insertCategory: newCategory } } = await addCategory({
+            const { data: { getCategoryByName } } = await client.query({
+                query: GET_CATEGORY_BY_NAME,
                 variables: {
                     name: data.category
                 }
             })
 
-            const { data: { insertPost: newPost } } = await addPost({
-                variables: {
-                    body: data.body,
-                    url: url,
-                    title: data.title,
-                    user_id: localStorage.getItem('user_id'),
-                    category_id: newCategory.id
-                }
-            })
+            const categoryExists = getCategoryByName?.id > 0
+            console.log(JSON.stringify(getCategoryByName))
+            console.log(categoryExists)
+            let url = ''
 
-            console.log(newPost)
-        } else {
-            const { data: { insertPost: newPost } } = await addPost({
-                variables: {
-                    body: data.body,
-                    url: url,
-                    title: data.title,
-                    category_id: getCategoryByName.id,
-                    user_id: localStorage.getItem('user_id')
-                }
-            })
+            if (imageToIpfs) {
+                const added = await ipfsClient.add(imageToIpfs)
+                url = `https://ipfs.infura.io/ipfs/${added.path}`
+            }
 
-            console.log(newPost)
-            // toast.success("Post created!", {
-            //     id: notification
-            // })
+            if (!categoryExists) {
+                const { data: { insertCategory: newCategory } } = await addCategory({
+                    variables: {
+                        name: data.category
+                    }
+                })
+
+                const { data: { insertPost: newPost } } = await addPost({
+                    variables: {
+                        body: data.body,
+                        url: url,
+                        title: data.title,
+                        user_id: localStorage.getItem('user_id'),
+                        category_id: newCategory.id
+                    }
+                })
+
+                console.log(newPost)
+            } else {
+                const { data: { insertPost: newPost } } = await addPost({
+                    variables: {
+                        body: data.body,
+                        url: url,
+                        title: data.title,
+                        category_id: getCategoryByName.id,
+                        user_id: localStorage.getItem('user_id')
+                    }
+                })
+
+                console.log(newPost)
+                toast.success("Post created!", {
+                    id: "post-toast",
+                })
+            }
+
+        } catch (error) {
+            toast.error("Whoops! Something went wrong.", {
+                id: "post-toast",
+            })
         }
-        // } catch (error) {
-        //     // toast.error("Whoops! Something went wrong.", {
-        //     //     id: notification
-        //     // })
-        // }
 
-        // setValue("body", "")
-        // setValue("title", "")
-        // setValue("category", "")
-        // setImageToPost(null)
+        setValue("body", "")
+        setValue("title", "")
+        setValue("category", "")
+        setImageToPost(null)
 
     })
 
@@ -105,10 +114,12 @@ function PostBox() {
         reader.onload = (readerEvent) => {
             setImageToPost(readerEvent.target.result);
         };
+        setImageToIpfs(e.target.files[0])
     }
 
     const removeImage = () => {
         setImageToPost(null)
+        setImageToIpfs(null)
     }
 
 

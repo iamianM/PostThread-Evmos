@@ -4,10 +4,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from "react"
 import { CameraIcon } from "@heroicons/react/outline"
 import { useRef, useState } from "react"
-import { db, storage } from "../firebase"
-import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore"
 import { useSession } from "next-auth/react"
-import { ref, getDownloadURL, uploadString } from "firebase/storage"
 
 function Modal() {
     // const { data: session } = useSession()
@@ -21,23 +18,7 @@ function Modal() {
         if (loading) return
         setLoading(true)
 
-        const docRef = await addDoc(collection(db, "posts"), {
-            username: "pules",
-            caption: captionRef.current.value,
-            profileImg: "/postthreadicon.png",
-            timestamp: serverTimestamp(),
-        })
-
-        console.log("New doc added with id", docRef.id)
-
-        const imageRef = ref(storage, `posts/${docRef.id}/image`)
-        await uploadString(imageRef, selectedFile, "data_url").then(async snapshot => {
-            const downloadURL = await getDownloadURL(imageRef)
-            console.log("Download URL", downloadURL)
-            await updateDoc(doc(db, "posts", docRef.id), {
-                image: downloadURL,
-            })
-        })
+        //code goes here
 
         setOpen(false)
         setLoading(false)

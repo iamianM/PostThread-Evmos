@@ -5,9 +5,7 @@ function Posts({ posts }) {
     return (
         <div>
             {posts.map(post => (
-                <div key={post.id}>
-                    <Post post={post} />
-                </div>
+                <Post key={post.id} post={post} />
             ))}
         </div>
     )

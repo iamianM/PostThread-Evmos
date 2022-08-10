@@ -17,16 +17,17 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     }, [])
 
     return (
-        <SessionProvider session={session}>
-            <ApolloProvider client={client} >
-                <RecoilRoot>
-                    <Header />
-                    <Component {...pageProps} />
-                    <Toaster />
-                </RecoilRoot>
-            </ApolloProvider >
-        </SessionProvider>
-
+        <>
+            <Toaster />
+            <SessionProvider session={session}>
+                <ApolloProvider client={client} >
+                    <RecoilRoot>
+                        <Header />
+                        <Component {...pageProps} />
+                    </RecoilRoot>
+                </ApolloProvider >
+            </SessionProvider>
+        </>
     )
 }
 

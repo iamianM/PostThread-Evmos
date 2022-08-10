@@ -1,22 +1,11 @@
 import { gql } from "@apollo/client"
 
 export const GET_ALL_POSTS = gql`
-    query getAllPosts {
+    query getPostList {
         getPostList {
     body
     category {
       name
-    }
-    commentList {
-      body
-      user {
-        username
-        profile_pic
-        commentList {
-          id
-        }
-      }
-      created_at
     }
     title
     url
@@ -49,7 +38,7 @@ query getUserByUsername(
 }`
 
 export const GET_COMMENTS_BY_POST_ID = gql`
-query getUserByUsername(
+query getCommentUsingPost_id(
     $id: ID!) { 
       getCommentUsingPost_id(id: $id) {
       user {
@@ -59,3 +48,16 @@ query getUserByUsername(
       created_at
   }
 }`
+
+export const GET_VOTES_BY_POST_ID = gql`
+query getVoteUsingPost_id(
+    $id: ID!) { 
+      getVoteUsingPost_id(id: $id) {
+        id
+        created_at
+        up
+        post_id
+        user_id
+  }
+}`
+

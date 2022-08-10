@@ -1,31 +1,34 @@
 import {
-    BookmarkIcon,
-    ChatIcon,
-    DotsHorizontalIcon,
     EmojiHappyIcon,
-    HeartIcon,
-    PaperAirplaneIcon
 } from "@heroicons/react/outline"
-import { ChatAltIcon, ShareIcon, ThumbUpIcon, ThumbDownIcon } from "@heroicons/react/outline";
+import { ShareIcon, ThumbUpIcon, ThumbDownIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react"
-import { HeartIcon as HeartIconFilled } from "@heroicons/react/solid"
+import { ThumbUpIcon as ThumbUpIconFilled } from "@heroicons/react/solid"
+import { ThumbDownIcon as ThumbDownIconFilled } from "@heroicons/react/solid"
 import { useEffect, useState } from "react"
 import TimeAgo from 'react-timeago'
-import { ADD_COMMENT } from '../graphql/mutations'
-import { GET_COMMENTS_BY_POST_ID } from '../graphql/queries'
+import toast from "react-hot-toast"
+import { ADD_COMMENT, ADD_VOTE } from '../graphql/mutations'
+import { GET_COMMENTS_BY_POST_ID, GET_VOTES_BY_POST_ID } from '../graphql/queries'
 import { useMutation, useQuery } from '@apollo/client';
 
 function Post({ post }) {
 
     const { data: session } = useSession()
-    const { data, error } = useQuery(GET_COMMENTS_BY_POST_ID, {
-        variables: { id: post.id }
+    const { data, loading } = useQuery(GET_COMMENTS_BY_POST_ID, {
+        variables: { id: post?.id }
+    })
+
+    const { data: voteData, loading: voteLoading } = useQuery(GET_VOTES_BY_POST_ID, {
+        variables: { id: post?.id }
     })
 
     const [comment, setComment] = useState("")
     const comments = data?.getCommentUsingPost_id || []
     const [likes, setLikes] = useState([])
     const [hasLiked, setHasLiked] = useState(false)
+    const [vote, setVote] = useState()
+    const user_id = localStorage?.getItem("user_id")
 
     const [addComment] = useMutation(ADD_COMMENT, {
         refetchQueries: [
@@ -34,19 +37,60 @@ function Post({ post }) {
         ]
     })
 
+    const [addVote] = useMutation(ADD_VOTE, {
+        refetchQueries: [
+            GET_VOTES_BY_POST_ID,
+            'getVoteUsingPost_id'
+        ]
+    })
+
+    const upVote = async (isUpVote) => {
+        if (vote && isUpVote) return
+        if (vote === false && !isUpVote) return
+
+        await addVote({
+            variables: {
+                post_id: post.id,
+                up: isUpVote,
+                user_id: user_id
+            }
+        })
+    }
+
+
     const sendComment = async (e) => {
+        toast.loading("Posting your comment...", {
+            id: "comment-toast",
+        })
         e.preventDefault()
         const commentToSend = comment
         setComment("")
 
-        await addComment({
-            variables: {
-                body: commentToSend,
-                post_id: post.id,
-                user_id: localStorage.getItem("user_id")
-            }
-        })
+        try {
+            await addComment({
+                variables: {
+                    body: commentToSend,
+                    post_id: post.id,
+                    user_id: user_id
+                }
+            })
+
+            toast.success("Comment posted!", {
+                id: "comment-toast",
+            })
+        } catch (error) {
+            toast.error("Error posting comment", {
+                id: "comment-toast",
+            })
+        }
     }
+
+    useEffect(() => {
+        const votes = voteData?.getVoteUsingPost_id
+        const vote = votes?.find(vote => vote.user_id === user_id)?.up
+        setVote(vote)
+
+    }, [voteData])
 
     return (
 
@@ -95,12 +139,14 @@ function Post({ post }) {
             {session &&
                 <>
                     <div className="flex justify-between items-center bg-base-100 text-base-content border-t">
-                        <div className="flex space-x-1 items-center hover:bg-base-200 flex-grow justify-center p-2 rounded-xl cursor-pointer">
-                            <ThumbUpIcon className="h-4" />
+                        <div className={`flex space-x-1 items-center hover:bg-base-200 flex-grow justify-center p-2 rounded-xl cursor-pointer hover:text-success ${vote && 'text-success'}`}
+                            onClick={() => upVote(true)}>
+                            {vote ? <ThumbUpIconFilled className="h-4" /> : <ThumbUpIcon className="h-4" />}
                             <p className="text-xs sm:text-base">Upvote</p>
                         </div>
-                        <div className="flex space-x-1 items-center hover:bg-base-200 flex-grow justify-center p-2 rounded-xl cursor-pointer">
-                            <ThumbDownIcon className="h-4" />
+                        <div className={`flex space-x-1 items-center hover:bg-base-200 flex-grow justify-center p-2 rounded-xl cursor-pointer hover:text-error ${vote === false && 'text-error'}`}
+                            onClick={() => upVote(false)} >
+                            {vote === false ? <ThumbDownIconFilled className="h-4" /> : <ThumbDownIcon className="h-4" />}
                             <p className="text-xs sm:text-base">Downvote</p>
                         </div>
                         <div className="flex space-x-1 items-center hover:bg-base-200 flex-grow justify-center p-2 rounded-xl cursor-pointer ">
@@ -118,10 +164,9 @@ function Post({ post }) {
                             placeholder="Add a comment..."
                             className="border-none bg-base-100 flex-1 focus:ring-0 outline-none"
                         />
-                        <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Post</button>
+                        <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Comment</button>
                     </form>
                 </>}
-
         </div>
     )
 }

@@ -85,6 +85,7 @@ type Query {
       table: "category"
       configuration: "postgresql_config"
     )
+    
   getCategory(id: ID!): Category
     @dbquery(
       type: "postgresql"
@@ -96,9 +97,7 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-        SELECT T."id", T."name", T."created_at"
-        FROM "public"."category" T
-        WHERE T."name" = $1
+        select * from "category" where "name" = $1
       """
       configuration: "postgresql_config"
     )
@@ -166,9 +165,9 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-      SELECT T."created_at", T."id", T."post_id", T."up", T."user_id"
-        FROM "public"."vote" T
-        WHERE T."post_id" = $1
+      select * from "vote"
+      where "post_id" = $1
+      order by "created_at" desc
       """
       configuration: "postgresql_config"
     )
@@ -315,7 +314,6 @@ type Mutation {
     )
   insertVote(
     post_id: ID!
-    created_at: DateTime!
     up: Boolean!
     user_id: ID!
   ): Vote
