@@ -121,6 +121,17 @@ type Query {
       """
       configuration: "postgresql_config"
     )
+    getPostListByCategory(name: String!): [Post]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select *, "post".id as id from "post"
+      join "category" on "category"."id" = "post"."category_id"
+      where "category"."name" = $1
+      order by "post"."created_at" desc
+      """
+      configuration: "postgresql_config"
+    )
   getCommentList: [Comment]
     @dbquery(
       type: "postgresql"
@@ -144,6 +155,16 @@ type Query {
       """
       configuration: "postgresql_config"
     )
+  getPostByPostId(id: ID!): Post
+    @dbquery(
+      type: "postgresql"
+      query: """
+        select * from "post"
+        where "post"."id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+
   getPost(id: ID!): Post
     @dbquery(
       type: "postgresql"

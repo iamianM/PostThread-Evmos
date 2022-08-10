@@ -9,7 +9,7 @@ import client from "../apollo-client"
 import { useSession } from 'next-auth/react';
 import { create } from 'ipfs-http-client';
 
-function PostBox() {
+function PostBox({ category }) {
 
     const ipfsClient = create('https://ipfs.infura.io:5001/api/v0')
     const filepickerRef = useRef(null)
@@ -43,7 +43,7 @@ function PostBox() {
             const { data: { getCategoryByName } } = await client.query({
                 query: GET_CATEGORY_BY_NAME,
                 variables: {
-                    name: data.category
+                    name: category || data.category
                 }
             })
 
@@ -130,14 +130,13 @@ function PostBox() {
             <div className="flex space-x-4 items-center p-4">
                 <img
                     className="rounded-full cursor-pointer w-10 h-10"
-                    src={session.user.image}
+                    src={session?.user?.image}
                 />
                 <input
                     {...register('title', { required: true })}
                     className="rounded-xl h-12 bg-base-100 border-primary focus:ring-primary focus:border-primary flex-grow px-5 focus:outline-none"
                     type="text"
-                    placeholder="Create a post by entering a title!" />
-
+                    placeholder={session ? category ? `Create a post in p/${category}` : "Create a post by entering a title!" : "Sign in to post"} />
 
                 {imageToPost ? (
                     <div onClick={removeImage} className="flex flex-col filter
@@ -165,14 +164,17 @@ function PostBox() {
                             type="text"
                             placeholder="Text (optional)" />
                     </div>
-                    <div className='flex items-center p-2'>
-                        <p className='min-w-[90px] font-semibold'>Category:</p>
-                        <input
-                            {...register('category', { required: true })}
-                            className="rounded-xl flex-1 h-12 bg-base-100 border-primary focus:ring-primary focus:border-primary flex-grow px-5 focus:outline-none"
-                            type="text"
-                            placeholder="i.e. Web3" />
-                    </div>
+
+                    {!category && (
+                        <div className='flex items-center p-2'>
+                            <p className='min-w-[90px] font-semibold'>Category:</p>
+                            <input
+                                {...register('category', { required: true })}
+                                className="rounded-xl flex-1 h-12 bg-base-100 border-primary focus:ring-primary focus:border-primary flex-grow px-5 focus:outline-none"
+                                type="text"
+                                placeholder="i.e. Web3" />
+                        </div>
+                    )}
 
                     {Object.keys(errors).length > 0 && (
                         <div className='space-y-2 p-2 text-error'>

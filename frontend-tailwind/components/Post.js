@@ -11,8 +11,22 @@ import toast from "react-hot-toast"
 import { ADD_COMMENT, ADD_VOTE } from '../graphql/mutations'
 import { GET_COMMENTS_BY_POST_ID, GET_VOTES_BY_POST_ID } from '../graphql/queries'
 import { useMutation, useQuery } from '@apollo/client';
+import Link from "next/link";
+import { NewtonsCradle } from '@uiball/loaders'
 
 function Post({ post }) {
+
+    if (!post) {
+        return (
+            <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
+                <NewtonsCradle
+                    size={50}
+                    speed={1.4}
+                    color="black"
+                />
+            </div>
+        )
+    }
 
     const { data: session } = useSession()
     const { data, loading } = useQuery(GET_COMMENTS_BY_POST_ID, {
@@ -25,10 +39,14 @@ function Post({ post }) {
 
     const [comment, setComment] = useState("")
     const comments = data?.getCommentUsingPost_id || []
-    const [likes, setLikes] = useState([])
-    const [hasLiked, setHasLiked] = useState(false)
     const [vote, setVote] = useState()
-    const user_id = localStorage?.getItem("user_id")
+    const [user_id, setUser_id] = useState(0)
+
+    useEffect(() => {
+        if (session?.user) {
+            setUser_id(localStorage?.getItem("user_id"))
+        }
+    }, [session])
 
     const [addComment] = useMutation(ADD_COMMENT, {
         refetchQueries: [
@@ -94,49 +112,59 @@ function Post({ post }) {
 
     return (
 
-        <div className="bg-base-100 my-7 border rounded-t-2xl rounded-b-2xl shadow-sm">
-            <div className="flex items-center p-5">
-                <img src={post.user.profile_pic} className="rounded-full h-12 object-contain border p-1 mr-3" />
-                <p className="flex-1 font-bold">{post.user.username}</p>
-                <TimeAgo className="text-sm" date={post.created_at} />
-            </div>
+        <div className={`bg-base-100 my-7 max-w-3xl border rounded-t-2xl rounded-b-2xl shadow-sm cursor-pointer`}>
+            <Link href={`/post/${post.id}`}>
+                <div>
+                    <div className="flex items-center p-5">
+                        <img src={post?.user?.profile_pic} className="rounded-full h-12 object-contain border p-1 mr-3" />
+                        <div className="flex-col flex-1">
+                            <p className="font-bold">{post?.user?.username}</p>
+                            <Link href={`/category/${post?.category?.name}`}>
+                                <p className="text-sm cursor-pointer hover:text-info hover:underline">p/{post?.category?.name}</p>
+                            </Link>
+                        </div>
+                        <TimeAgo className="text-sm" date={post?.created_at} />
+                    </div>
 
-            <div className="p-7">
-                <h1 className="text-base-content text-lg font-semibold">{post.title}</h1>
-                <p className="m-5">{post.body}</p>
-            </div>
+                    <div className="p-7">
+                        <h1 className="text-base-content text-lg font-semibold">{post?.title}</h1>
+                        <p className="m-5">{post?.body}</p>
+                    </div>
 
-            <img src={post.url} className="object-cover w-full" />
+                    <img src={post?.url} className="object-cover w-full" />
 
-            <div>
-                <div className="p-5 truncate">
-                    {/* {likes.length > 0 && (
+                    <div>
+                        <div className="p-5 truncate">
+                            {/* {likes.length > 0 && (
                         <p className="font-bold mb-1">{likes.length} likes</p>
                     )} */}
-                    {
-                        comments.length > 0 && (
-                            <p className="font-semibold text-sm mb-1">{comments.length} comments</p>
-                        )
-                    }
-                </div>
-            </div>
-
-            {comments.length > 0 && (
-                <div className="ml-6 h-20 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
-                    {comments.map(comment => (
-                        <div key={comment.id} className="flex items-center space-x-2 mb-3">
-                            <img className="h-7 rounded-full" src={comment.user.profile_pic} />
-                            <p className="text-sm flex-1">
-                                <span className="font-bold">{comment.user.username}</span>
-                                {" "}{comment.body}
-                            </p>
-                            <TimeAgo className="text-sm px-4" date={comment.created_at} />
+                            {
+                                comments?.length > 0 && (
+                                    <p className="font-semibold text-sm mb-1">{comments?.length} comments</p>
+                                )
+                            }
                         </div>
-                    ))}
-                </div>
-            )}
+                    </div>
 
-            {session &&
+                    {comments.length > 0 && (
+                        <div className="ml-6 h-20 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
+                            {comments.map(comment => (
+                                <div key={comment.id} className="flex items-center space-x-2 mb-3">
+                                    <img className="h-7 rounded-full" src={comment?.user?.profile_pic} />
+                                    <p className="text-sm flex-1">
+                                        <span className="font-bold">{comment?.user?.username}</span>
+                                        {" "}{comment.body}
+                                    </p>
+                                    <TimeAgo className="text-sm px-4" date={comment?.created_at} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </Link>
+
+            {
+                session &&
                 <>
                     <div className="flex justify-between items-center bg-base-100 text-base-content border-t">
                         <div className={`flex space-x-1 items-center hover:bg-base-200 flex-grow justify-center p-2 rounded-xl cursor-pointer hover:text-success ${vote && 'text-success'}`}
@@ -166,8 +194,9 @@ function Post({ post }) {
                         />
                         <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Comment</button>
                     </form>
-                </>}
-        </div>
+                </>
+            }
+        </div >
     )
 }
 

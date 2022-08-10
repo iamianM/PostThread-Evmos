@@ -18,6 +18,31 @@ export const GET_ALL_POSTS = gql`
   }
     }`
 
+export const GET_POST_BY_ID = gql`
+    query getPostByPostId($id: ID!) {
+      getPostByPostId(id: $id) {
+        body
+        category {
+          name
+        }
+        commentList {
+          body
+          created_at
+          user {
+            username
+            profile_pic
+          }
+        }
+        title
+        url
+        user {
+          username
+          profile_pic
+        }
+        id
+    }
+}`
+
 export const GET_CATEGORY_BY_NAME = gql`
 query getCategoryByName(
     $name: String!) { 
@@ -58,6 +83,25 @@ query getVoteUsingPost_id(
         up
         post_id
         user_id
+  }
+}`
+
+export const GET_POSTS_BY_CATEGORY = gql`
+query getPostListByCategory(
+    $name: String!) { 
+      getPostListByCategory(name: $name) {
+        body
+        category {
+          name
+        }
+        title
+        url
+        user {
+          username
+          profile_pic
+        }
+        created_at
+        id
   }
 }`
 
