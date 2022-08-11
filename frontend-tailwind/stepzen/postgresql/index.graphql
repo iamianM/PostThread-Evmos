@@ -79,6 +79,23 @@ type Vote {
   user_id: ID
 }
 
+type Follow {
+  created_at: DateTime
+  id: ID!
+  follower_id: ID
+  follower: User
+    @materializer(
+      query: "getUser"
+      arguments: [{ name: "id", field: "follower_id" }]
+    )
+  following_id: ID
+  following: User
+    @materializer(
+      query: "getUser"
+      arguments: [{ name: "id", field: "following_id" }]
+    )
+}
+
 """
 These are some examples of queries generated from the schema. Feel free to modify them or add your own.
 """
@@ -90,6 +107,29 @@ type Query {
       table: "category"
       configuration: "postgresql_config"
     )
+
+  getCategoryListLimit(limit: Int!): [Category]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "category"
+      order by "created_at" desc
+      limit $1
+      """
+      configuration: "postgresql_config"
+    )
+
+  getUserListLimit(limit: Int!): [User]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "user"
+      order by "created_at" desc
+      limit $1
+      """
+      configuration: "postgresql_config"
+    )
+
   getCategory(id: ID!): Category
     @dbquery(
       type: "postgresql"
@@ -105,11 +145,11 @@ type Query {
       """
       configuration: "postgresql_config"
     )
-  getUserByUsername(username: String!): Category
+  getUserByUsername(username: String!): User
     @dbquery(
       type: "postgresql"
       query: """
-      SELECT T."id", T."username", T."created_at", T."profile_pic", T."msa_id"
+      SELECT *
       FROM "public"."user" T
       WHERE T."username" = $1
       """
@@ -201,6 +241,26 @@ type Query {
       query: """
       select * from "vote"
       where "post_id" = $1
+      order by "created_at" desc
+      """
+      configuration: "postgresql_config"
+    )
+  getFollowersByUser_id(id: ID!): [Follow]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "follow"
+      where "following_id" = $1
+      order by "created_at" desc
+      """
+      configuration: "postgresql_config"
+    )
+  getFollowingsByUser_id(id: ID!): [Follow]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "follow"
+      where "follower_id" = $1
       order by "created_at" desc
       """
       configuration: "postgresql_config"
@@ -347,11 +407,29 @@ type Mutation {
       dml: INSERT
       configuration: "postgresql_config"
     )
+
+  insertFollow(follower_id: ID!, following_id: ID!): Follow
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "follow"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
   deleteVote(id: ID!): Vote
     @dbquery(
       type: "postgresql"
       schema: "public"
       table: "vote"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+
+  deleteFollow(follower_id: ID!, following_id: ID!): Follow
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "follow"
       dml: DELETE
       configuration: "postgresql_config"
     )

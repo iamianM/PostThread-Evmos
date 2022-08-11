@@ -10,7 +10,6 @@ const Home = () => {
                 <link rel="icon" href="/postthreadicon.png" />
             </Head>
             <Feed />
-            <Modal />
         </div>
     )
 }

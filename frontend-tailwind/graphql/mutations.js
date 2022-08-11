@@ -81,3 +81,30 @@ mutation AddVote(
     user_id
   }
 }`
+
+export const ADD_FOLLOW = gql`
+mutation AddFollow(
+    $follower_id: ID!,
+    $following_id: ID!) { 
+    insertFollow(
+    follower_id: $follower_id,
+    following_id: $following_id
+  ) {
+    id
+    created_at
+    follower_id
+    following_id
+  }
+}`
+
+export const REMOVE_FOLLOW = gql`
+mutation deleteFollow(
+    $follower_id: ID!,
+    $following_id: ID!) { 
+    deleteFollow(
+    follower_id: $follower_id,
+    following_id: $following_id
+  ) {
+    id
+  }
+}`

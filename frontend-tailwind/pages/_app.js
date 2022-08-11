@@ -8,8 +8,6 @@ import Header from '../components/Header'
 import { Toaster } from 'react-hot-toast';
 import { SessionProvider } from "next-auth/react"
 
-import { AppWrapper } from '../context/AppContext';
-
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 
     useEffect(() => {
@@ -23,7 +21,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
                 <ApolloProvider client={client} >
                     <RecoilRoot>
                         <Header />
-                        <Component {...pageProps} />
+                        <Component {...pageProps} className="bg-base-200" />
                     </RecoilRoot>
                 </ApolloProvider >
             </SessionProvider>

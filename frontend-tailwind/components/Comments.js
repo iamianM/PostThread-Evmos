@@ -11,7 +11,7 @@ import toast from "react-hot-toast"
 import { ADD_COMMENT } from '../graphql/mutations'
 import { useSession } from "next-auth/react";
 
-function Comments({ id }) {
+function Comments({ id, showAddComment, commentsToShow }) {
 
     const { data: session } = useSession()
     const [user_id, setUser_id] = useState(0)
@@ -27,7 +27,7 @@ function Comments({ id }) {
     })
 
     const [comment, setComment] = useState("")
-    const comments = data?.getCommentUsingPost_id || []
+    const comments = commentsToShow ?? (data?.getCommentUsingPost_id || [])
 
     const [addComment] = useMutation(ADD_COMMENT, {
         refetchQueries: [
@@ -82,17 +82,18 @@ function Comments({ id }) {
                     ))}
                 </div>
             )}
-            <form className="flex items-center p-4 border-t">
-                <EmojiHappyIcon className="h-7" />
-                <input
-                    type="text"
-                    value={comment}
-                    onChange={e => setComment(e.target.value)}
-                    placeholder="Add a comment..."
-                    className="border-none bg-base-100 flex-1 focus:ring-0 outline-none"
-                />
-                <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Comment</button>
-            </form>
+            {showAddComment &&
+                <form className="flex items-center p-4 border-t">
+                    <EmojiHappyIcon className="h-7" />
+                    <input
+                        type="text"
+                        value={comment}
+                        onChange={e => setComment(e.target.value)}
+                        placeholder="Add a comment..."
+                        className="border-none bg-base-100 flex-1 focus:ring-0 outline-none"
+                    />
+                    <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Comment</button>
+                </form>}
         </div>
     )
 }

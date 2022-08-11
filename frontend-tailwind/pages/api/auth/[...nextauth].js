@@ -1,6 +1,5 @@
 import NextAuth from 'next-auth'
 import GitHubProvider from "next-auth/providers/github";
-import GoogleProvider from 'next-auth/providers/google';
 import TwitterProvider from "next-auth/providers/twitter";
 import DiscordProvider from "next-auth/providers/discord";
 
@@ -10,10 +9,6 @@ const options = {
         GitHubProvider({
             clientId: process.env.NEXT_PUBLIC_GITHUB_ID,
             clientSecret: process.env.NEXT_PUBLIC_GITHUB_SECRET
-        }),
-        GoogleProvider({
-            clientId: process.env.NEXT_PUBLIC_GOOGLE_ID,
-            clientSecret: process.env.NEXT_PUBLIC_GOOGLE_SECRET,
         }),
         TwitterProvider({
             clientId: process.env.NEXT_PUBLIC_TWITTER_ID,

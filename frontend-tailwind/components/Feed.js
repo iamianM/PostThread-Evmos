@@ -7,9 +7,9 @@ import { useQuery } from "@apollo/client"
 import { GET_ALL_POSTS, GET_USER_BY_USERNAME } from "../graphql/queries"
 import { useSession } from 'next-auth/react'
 import { useEffect } from "react"
-import { useAppContext } from "../context/AppContext"
 import { ADD_USER } from "../graphql/mutations";
 import client from "../apollo-client"
+import { JellyTriangle } from "@uiball/loaders"
 
 function Feed() {
 
@@ -47,25 +47,39 @@ function Feed() {
         if (session) { registerUser() }
     }, [session])
 
-    return (
-        <main className={`grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
-        xl:max-w-6xl mx-auto`}>
-            <section className="col-span-2">
-                {session && <PostBox />}
-                <Posts posts={posts} />
-            </section>
-            <section className="hidden lg:inline-grid md:col-span-1 ">
-                <div className="mt-1">
-                    {session &&
-                        <>
-                            <MiniProfile />
-                            <Suggestions />
-                        </>}
-                    <Trending />
-                </div>
-            </section>
-        </main>
-    )
+    if (!posts.length) {
+        return (
+            <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
+                <JellyTriangle
+                    size={50}
+                    speed={1.4}
+                    color="black"
+                />
+            </div>
+        )
+    } else {
+        return (
+            <main className="grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
+            xl:max-w-6xl mx-auto">
+                <section className="col-span-2">
+                    {session && <PostBox />}
+                    <Posts posts={posts} />
+                </section>
+                <section className="hidden lg:inline-grid md:col-span-1 ">
+                    <div>
+                        {session &&
+                            <>
+                                <MiniProfile image={session.user.image} name={session.user.name} />
+                                <Suggestions />
+                            </>}
+                        <Trending />
+                    </div>
+                </section>
+            </main>
+        )
+    }
+
+
 }
 
 export default Feed

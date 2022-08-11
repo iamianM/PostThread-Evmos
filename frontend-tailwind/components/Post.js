@@ -95,7 +95,6 @@ function Post({ post }) {
         const votes = voteData?.getVoteUsingPost_id
         const vote = votes?.find(vote => vote.user_id === user_id)?.up
         setVote(vote)
-
     }, [voteData])
 
     if (!post) {
@@ -110,13 +109,15 @@ function Post({ post }) {
         )
     } else {
         return (
-            <div className={`bg-base-100 my-7 max-w-3xl border rounded-t-2xl rounded-b-2xl shadow-sm cursor-pointer`}>
+            <div className="bg-base-100 my-7 max-w-3xl border rounded-t-2xl rounded-b-2xl shadow-sm cursor-pointer">
                 <Link href={`/post/${post.id}`}>
                     <div>
                         <div className="flex items-center p-5">
                             <img src={post?.user?.profile_pic} className="rounded-full h-12 object-contain border p-1 mr-3" />
                             <div className="flex-col flex-1">
-                                <p className="font-bold">{post?.user?.username}</p>
+                                <Link href={`/user/${post?.user?.username}`}>
+                                    <p className="font-bold cursor-pointer hover:text-info hover:underline">{post?.user?.username}</p>
+                                </Link>
                                 <Link href={`/category/${post?.category?.name}`}>
                                     <p className="text-sm cursor-pointer hover:text-info hover:underline">p/{post?.category?.name}</p>
                                 </Link>
@@ -145,12 +146,14 @@ function Post({ post }) {
                         </div>
 
                         {comments.length > 0 && (
-                            <div className="ml-6 h-20 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
+                            <div className="ml-6 h-auto max-h-40 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
                                 {comments.map(comment => (
                                     <div key={comment.id} className="flex items-center space-x-2 mb-3">
                                         <img className="h-7 rounded-full" src={comment?.user?.profile_pic} />
                                         <p className="text-sm flex-1">
-                                            <span className="font-bold">{comment?.user?.username}</span>
+                                            <Link href={`/user/${comment?.user?.username}`}>
+                                                <span className="font-bold hover:text-info hover:underline cursor-pointer">{comment?.user?.username}</span>
+                                            </Link>
                                             {" "}{comment.body}
                                         </p>
                                         <TimeAgo className="text-sm px-4" date={comment?.created_at} />

@@ -64,6 +64,61 @@ export const GET_USER_BY_USERNAME = gql`
   }
 `;
 
+export const GET_CATEGORIES_LIST_LIMIT = gql`
+  query getCategoryListLimit($limit: Int!) {
+    getCategoryListLimit(limit: $limit) {
+      id
+      created_at
+      name
+    }
+  }
+`;
+
+export const GET_USER_LIST_LIMIT = gql`
+  query getUserListLimit($limit: Int!) {
+    getUserListLimit(limit: $limit) {
+      id
+      profile_pic
+      username
+    }
+  }
+`;
+
+export const GET_USER_PROFILE_BY_USERNAME = gql`
+  query getUserByUsername($username: String!) {
+    getUserByUsername(username: $username) {
+      id
+      postList {
+        body
+        category {
+          name
+          id
+        }
+        id
+        title
+        url
+        created_at
+        user {
+          profile_pic
+          username
+        }
+        commentList {
+          body
+          created_at
+          user {
+            profile_pic
+            username
+          }
+          id
+        }
+      }
+      profile_pic
+      username
+      created_at
+    }
+  }
+`;
+
 export const GET_COMMENTS_BY_POST_ID = gql`
   query getCommentUsingPost_id($id: ID!) {
     getCommentUsingPost_id(id: $id) {
@@ -84,6 +139,28 @@ export const GET_VOTES_BY_POST_ID = gql`
       up
       post_id
       user_id
+    }
+  }
+`;
+
+export const GET_FOLLOWINGS_BY_USER_ID = gql`
+  query getFollowingsByUser_id($id: ID!) {
+    getFollowingsByUser_id(id: $id) {
+      following {
+        username
+        id
+      }
+    }
+  }
+`;
+
+export const GET_FOLLOWERS_BY_USER_ID = gql`
+  query getFollowersByUser_id($id: ID!) {
+    getFollowersByUser_id(id: $id) {
+      follower {
+        username
+        id
+      }
     }
   }
 `;
