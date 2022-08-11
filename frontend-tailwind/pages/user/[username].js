@@ -17,15 +17,19 @@ function ProfilePage() {
         }
     })
 
-    const posts = data?.getUserByUsername.postList || []
+    const posts = data?.getUserByUsername?.postList || []
     let comments = []
-    posts?.map(post => (post?.commentList?.map(comment => { if (comment.user.username === router.query.username) comments.push(comment) }))) || []
+    posts?.map(post => (post?.commentList?.map(comment => { if (comment?.user?.username === router.query.username) comments.push(comment) }))) || []
 
     return (
         <div className='bg-base-200 h-auto'>
             <main className="flex flex-col justify-center lg:grid lg:grid-cols-3 lg:gap-10 max-w-sm md:max-w-2xl lg:max-w-5xl xl:max-w-6xl mx-auto">
                 <section className="lg:col-span-1 sticky">
-                    <ProfileCard username={data?.getUserByUsername.username} profile_pic={data?.getUserByUsername.profile_pic} created_at={data?.getUserByUsername.created_at} />
+                    <ProfileCard
+                        username={data?.getUserByUsername?.username}
+                        profile_pic={data?.getUserByUsername?.profile_pic}
+                        created_at={data?.getUserByUsername?.created_at}
+                        id={data?.getUserByUsername?.id} />
                 </section>
                 <section className="lg:col-span-2 mb-10 mt-5">
                     <ul className="flex border-b border-gray-100">

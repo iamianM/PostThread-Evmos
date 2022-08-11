@@ -139,22 +139,44 @@ query getVoteUsingPost_id(
   }
 }`
 
+export const GET_FOLLOWINGS_BY_USER_ID = gql`
+query getFollowingsByUser_id(
+  $id: ID!) {
+    getFollowingsByUser_id(id: $id) {
+    following {
+      username
+      id
+    }
+  }
+  }`
+
+export const GET_FOLLOWERS_BY_USER_ID = gql`
+query getFollowersByUser_id(
+  $id: ID!) {
+    getFollowersByUser_id(id: $id) {
+    follower {
+      username
+      id
+    }
+  }
+  }`
+
 export const GET_POSTS_BY_CATEGORY = gql`
 query getPostListByCategory(
-    $name: String!) { 
-      getPostListByCategory(name: $name) {
-        body
+  $name: String!) {
+  getPostListByCategory(name: $name) {
+    body
         category {
-          name
-        }
-        title
-        url
+      name
+    }
+    title
+    url
         user {
-          username
-          profile_pic
-        }
-        created_at
-        id
+      username
+      profile_pic
+    }
+    created_at
+    id
   }
-}`
+} `
 

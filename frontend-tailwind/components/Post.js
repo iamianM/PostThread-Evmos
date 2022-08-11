@@ -95,7 +95,6 @@ function Post({ post }) {
         const votes = voteData?.getVoteUsingPost_id
         const vote = votes?.find(vote => vote.user_id === user_id)?.up
         setVote(vote)
-
     }, [voteData])
 
     if (!post) {

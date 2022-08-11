@@ -1,6 +1,7 @@
 import { GET_USER_LIST_LIMIT } from "../graphql/queries";
 import { useQuery } from '@apollo/client';
 import Link from "next/link";
+import SuggestionRow from "./SuggestionRow";
 
 function Suggestions() {
 
@@ -20,15 +21,7 @@ function Suggestions() {
             </div>
             {
                 suggestions.map(profile => (
-                    <div key={profile.id} className="flex items-center justify-between mt-3">
-                        <img className="w-10 h-10 rounded-full border p-[2px]" src={profile.profile_pic} />
-                        <Link href={`/user/${profile.username}`}>
-                            <div className="flex-1 ml-4 hover:text-info hover:underline cursor-pointer">
-                                <h2 className="font-semibold text-sm">{profile.username}</h2>
-                            </div>
-                        </Link>
-                        <button className="text-primary text-xs font-semibold">Follow</button>
-                    </div>
+                    <SuggestionRow profile={profile} />
                 ))
             }
         </div>
