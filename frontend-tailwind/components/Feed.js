@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react'
 import { useEffect } from "react"
 import { ADD_USER } from "../graphql/mutations";
 import client from "../apollo-client"
-import { NewtonsCradle } from "@uiball/loaders"
+import { JellyTriangle } from "@uiball/loaders"
 
 function Feed() {
 
@@ -50,7 +50,7 @@ function Feed() {
     if (!posts.length) {
         return (
             <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
-                <NewtonsCradle
+                <JellyTriangle
                     size={50}
                     speed={1.4}
                     color="black"
@@ -59,17 +59,17 @@ function Feed() {
         )
     } else {
         return (
-            <main className={`grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
-            xl:max-w-6xl mx-auto`}>
+            <main className="grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
+            xl:max-w-6xl mx-auto">
                 <section className="col-span-2">
                     {session && <PostBox />}
                     <Posts posts={posts} />
                 </section>
                 <section className="hidden lg:inline-grid md:col-span-1 ">
-                    <div className="mt-1">
+                    <div>
                         {session &&
                             <>
-                                <MiniProfile />
+                                <MiniProfile image={session.user.image} name={session.user.name} />
                                 <Suggestions />
                             </>}
                         <Trending />

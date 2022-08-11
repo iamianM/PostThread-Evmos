@@ -1,31 +1,16 @@
-import { useEffect } from "react"
-import { useState } from "react"
-import { faker } from "@faker-js/faker";
-
+import { GET_USER_LIST_LIMIT } from "../graphql/queries";
+import { useQuery } from '@apollo/client';
+import Link from "next/link";
 
 function Suggestions() {
 
-    const [suggestions, setSuggestions] = useState([])
-
-    useEffect(() => {
-        function createRandomUser() {
-            return {
-                username: faker.internet.userName(),
-                email: faker.internet.email(),
-                avatar: faker.image.avatar(),
-                password: faker.internet.password(),
-                birthdate: faker.date.birthdate(),
-                registeredAt: faker.date.past(),
-            };
+    const { data } = useQuery(GET_USER_LIST_LIMIT, {
+        variables: {
+            limit: 10
         }
+    })
 
-        const users = [...Array(5)].map((_, i) => ({
-            ...createRandomUser(),
-            id: i,
-        }))
-
-        setSuggestions(users)
-    }, [])
+    const suggestions = data?.getUserListLimit || []
 
     return (
         <div className="mt-4 bg-base-100 ml-10 my-7 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">
@@ -36,10 +21,12 @@ function Suggestions() {
             {
                 suggestions.map(profile => (
                     <div key={profile.id} className="flex items-center justify-between mt-3">
-                        <img className="w-10 h-10 rounded-full border p-[2px]" src={profile.avatar} />
-                        <div className="flex-1 ml-4">
-                            <h2 className="font-semibold text-sm">{profile.username}</h2>
-                        </div>
+                        <img className="w-10 h-10 rounded-full border p-[2px]" src={profile.profile_pic} />
+                        <Link href={`/user/${profile.username}`}>
+                            <div className="flex-1 ml-4 hover:text-info hover:underline cursor-pointer">
+                                <h2 className="font-semibold text-sm">{profile.username}</h2>
+                            </div>
+                        </Link>
                         <button className="text-primary text-xs font-semibold">Follow</button>
                     </div>
                 ))

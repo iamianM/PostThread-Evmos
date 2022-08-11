@@ -147,12 +147,14 @@ function Post({ post }) {
                         </div>
 
                         {comments.length > 0 && (
-                            <div className="ml-6 h-20 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
+                            <div className="ml-6 h-auto max-h-40 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
                                 {comments.map(comment => (
                                     <div key={comment.id} className="flex items-center space-x-2 mb-3">
                                         <img className="h-7 rounded-full" src={comment?.user?.profile_pic} />
                                         <p className="text-sm flex-1">
-                                            <span className="font-bold">{comment?.user?.username}</span>
+                                            <Link href={`/user/${comment?.user?.username}`}>
+                                                <span className="font-bold hover:text-info hover:underline cursor-pointer">{comment?.user?.username}</span>
+                                            </Link>
                                             {" "}{comment.body}
                                         </p>
                                         <TimeAgo className="text-sm px-4" date={comment?.created_at} />

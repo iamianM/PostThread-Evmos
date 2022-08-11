@@ -12,7 +12,7 @@ import { ADD_COMMENT, ADD_VOTE } from '../graphql/mutations'
 import { GET_COMMENTS_BY_POST_ID, GET_VOTES_BY_POST_ID } from '../graphql/queries'
 import { useMutation, useQuery } from '@apollo/client';
 import Link from "next/link";
-import { NewtonsCradle } from '@uiball/loaders'
+import { JellyTriangle } from '@uiball/loaders'
 import Post from "./Post";
 import Suggestions from "./Suggestions";
 
@@ -64,7 +64,7 @@ function ShowPost({ post }) {
     if (!post) {
         return (
             <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
-                <NewtonsCradle
+                <JellyTriangle
                     size={50}
                     speed={1.4}
                     color="black"

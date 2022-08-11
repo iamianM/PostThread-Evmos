@@ -8,7 +8,7 @@ function ProfileCard({ username, profile_pic, created_at }) {
                 <div className="flex flex-col items-center p-5">
                     <img src={profile_pic} className="object-cover w-full rounded-md" />
                     <div className="flex-col flex-1 mt-3">
-                        <h4 className="font-bold text-3xl text-center">{username}</h4>
+                        <h4 className="font-bold text-3xl">{username}</h4>
                     </div>
                     <p className='text-sm'>Profile created: {' '}
                         <TimeAgo className="text-sm" date={created_at} />

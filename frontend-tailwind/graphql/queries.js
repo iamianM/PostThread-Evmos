@@ -62,6 +62,24 @@ query getUserByUsername(
     }
 }`
 
+export const GET_CATEGORIES_LIST_LIMIT = gql`
+query getCategoryListLimit($limit: Int!) { 
+  getCategoryListLimit(limit: $limit) {
+        id
+        created_at
+        name
+    }
+}`
+
+export const GET_USER_LIST_LIMIT = gql`
+query getUserListLimit($limit: Int!) { 
+  getUserListLimit(limit: $limit) {
+        id
+        profile_pic
+        username
+    }
+}`
+
 export const GET_USER_PROFILE_BY_USERNAME = gql`
 query getUserByUsername(
     $username: String!) { 

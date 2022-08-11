@@ -85,6 +85,28 @@ type Query {
       table: "category"
       configuration: "postgresql_config"
     )
+  
+  getCategoryListLimit(limit: Int!): [Category]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "category"
+      order by "created_at" desc
+      limit $1
+      """
+      configuration: "postgresql_config"
+    )
+
+  getUserListLimit(limit: Int!): [User]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "user"
+      order by "created_at" desc
+      limit $1
+      """
+      configuration: "postgresql_config"
+    )
     
   getCategory(id: ID!): Category
     @dbquery(

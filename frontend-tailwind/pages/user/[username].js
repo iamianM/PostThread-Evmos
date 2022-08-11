@@ -2,11 +2,9 @@ import { useQuery } from '@apollo/client'
 import { useRouter } from 'next/router'
 import Posts from '../../components/Posts'
 import { useState } from 'react'
-import ShowPost from '../../components/ShowPost'
 import { GET_USER_PROFILE_BY_USERNAME } from '../../graphql/queries'
 import { CollectionIcon, ChatAlt2Icon } from "@heroicons/react/outline"
 import Comments from '../../components/Comments'
-import { comment } from 'postcss'
 import ProfileCard from '../../components/ProfileCard'
 
 function ProfilePage() {
@@ -24,7 +22,7 @@ function ProfilePage() {
     posts?.map(post => (post?.commentList?.map(comment => { if (comment.user.username === router.query.username) comments.push(comment) }))) || []
 
     return (
-        <div>
+        <div className='bg-base-200 h-auto'>
             <main className="flex flex-col justify-center lg:grid lg:grid-cols-3 lg:gap-10 max-w-sm md:max-w-2xl lg:max-w-5xl xl:max-w-6xl mx-auto">
                 <section className="lg:col-span-1 sticky">
                     <ProfileCard username={data?.getUserByUsername.username} profile_pic={data?.getUserByUsername.profile_pic} created_at={data?.getUserByUsername.created_at} />
