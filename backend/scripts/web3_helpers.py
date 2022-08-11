@@ -74,7 +74,7 @@ def get_msa_id(wallet, create=False, wait_for_inclusion=True, wait_for_finalizat
 
     return msa_id
 
-delegate_msa_id = get_msa_id(delegate)
+delegate_msa_id = get_msa_id(delegate, create=True)
 print(delegate_msa_id)
 
 def create_msa_with_delegator(delegator_wallet, wait_for_inclusion=True, wait_for_finalization=False):

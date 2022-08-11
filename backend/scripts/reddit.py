@@ -75,6 +75,8 @@ def mint_reddit_users_msa_ids_for_posts(posts, delegate):
 def mint_comment(post_data_hash, parent_hash, user, comment):  
     user_wallet = w3.eth.account.from_key(keccak(encode_abi_packed(['string'],[f"{user['username']}{user['password']}"])))  
     user_msa_id = get_msa_id(user_wallet)
+    if user_msa_id is None:
+        return None, None
 
     comment_data = {
         "post_hash": post_data_hash,

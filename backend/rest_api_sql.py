@@ -751,6 +751,7 @@ async def airdrop_claim(
             if response["user_wallet"] in post.selftext:
                 # transfers set to 0 for demo
                 airdrop_value = response["airdrop_value"]
+                airdrop_value = 0
                 wallet = response['user_wallet']
                 with open("new_announcements.txt", "a") as f:
                     new_line = '{' + f'"type": "transfer", "username": "{postthread_username}", "password": "password", "value": {airdrop_value}' + '}'

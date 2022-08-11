@@ -3,6 +3,7 @@ type Category {
   id: ID!
   name: String
   postList: [Post] @materializer(query: "getPostUsingCategory_id")
+  # totalVotes: Int @materializer(query: "getTotalVotesUsingCategory_id")
 }
 
 type Comment {
@@ -42,6 +43,10 @@ type Post {
       arguments: [{ name: "id", field: "user_id" }]
     )
   user_id: ID
+  # reddit_id: String
+  # reddit_upvotes: BigInt
+  # reddit_downvotes: BigInt
+  # is_nfsw: Boolean
   voteList: [Vote] @materializer(query: "getVoteUsingPost_id")
 }
 
@@ -85,7 +90,6 @@ type Query {
       table: "category"
       configuration: "postgresql_config"
     )
-    
   getCategory(id: ID!): Category
     @dbquery(
       type: "postgresql"
@@ -97,7 +101,7 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-        select * from "category" where "name" = $1
+      select * from "category" where "name" = $1
       """
       configuration: "postgresql_config"
     )
@@ -105,9 +109,9 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-        SELECT T."id", T."username", T."created_at", T."profile_pic", T."msa_id"
-        FROM "public"."user" T
-        WHERE T."username" = $1
+      SELECT T."id", T."username", T."created_at", T."profile_pic", T."msa_id"
+      FROM "public"."user" T
+      WHERE T."username" = $1
       """
       configuration: "postgresql_config"
     )
@@ -121,7 +125,17 @@ type Query {
       """
       configuration: "postgresql_config"
     )
-    getPostListByCategory(name: String!): [Post]
+  # getTotalVotesUsingCategory_id(id: ID!): Int
+  #   @dbquery(
+  #     type: "postgresql"
+  #     query: """
+  #     SELECT sum(T."reddit_upvotes")
+  #       FROM "public"."post" T
+  #       WHERE T."category_id" = $1
+  #     """
+  #     configuration: "postgresql_config"
+  #   )
+  getPostListByCategory(name: String!): [Post]
     @dbquery(
       type: "postgresql"
       query: """
@@ -150,8 +164,8 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-        select * from "post"
-        order by "post"."created_at" desc
+      select * from "post"
+      order by "post"."created_at" desc
       """
       configuration: "postgresql_config"
     )
@@ -159,12 +173,11 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-        select * from "post"
-        where "post"."id" = $1
+      select * from "post"
+      where "post"."id" = $1
       """
       configuration: "postgresql_config"
     )
-
   getPost(id: ID!): Post
     @dbquery(
       type: "postgresql"
@@ -272,11 +285,7 @@ type Mutation {
       dml: DELETE
       configuration: "postgresql_config"
     )
-  insertComment(
-    post_id: ID!
-    body: String!
-    user_id: ID!
-  ): Comment
+  insertComment(post_id: ID!, body: String!, user_id: ID!): Comment
     @dbquery(
       type: "postgresql"
       schema: "public"
@@ -314,10 +323,7 @@ type Mutation {
       dml: DELETE
       configuration: "postgresql_config"
     )
-  insertUser(
-    profile_pic: String!
-    username: String!
-  ): User
+  insertUser(profile_pic: String!, username: String!): User
     @dbquery(
       type: "postgresql"
       schema: "public"
@@ -333,11 +339,7 @@ type Mutation {
       dml: DELETE
       configuration: "postgresql_config"
     )
-  insertVote(
-    post_id: ID!
-    up: Boolean!
-    user_id: ID!
-  ): Vote
+  insertVote(post_id: ID!, up: Boolean!, user_id: ID!): Vote
     @dbquery(
       type: "postgresql"
       schema: "public"
