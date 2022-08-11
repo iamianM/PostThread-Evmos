@@ -101,11 +101,11 @@ type Query {
       """
       configuration: "postgresql_config"
     )
-  getUserByUsername(username: String!): Category
+  getUserByUsername(username: String!): User
     @dbquery(
       type: "postgresql"
       query: """
-        SELECT T."id", T."username", T."created_at", T."profile_pic", T."msa_id"
+        SELECT *
         FROM "public"."user" T
         WHERE T."username" = $1
       """

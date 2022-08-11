@@ -110,13 +110,15 @@ function Post({ post }) {
         )
     } else {
         return (
-            <div className={`bg-base-100 my-7 max-w-3xl border rounded-t-2xl rounded-b-2xl shadow-sm cursor-pointer`}>
+            <div className="bg-base-100 my-7 max-w-3xl border rounded-t-2xl rounded-b-2xl shadow-sm cursor-pointer">
                 <Link href={`/post/${post.id}`}>
                     <div>
                         <div className="flex items-center p-5">
                             <img src={post?.user?.profile_pic} className="rounded-full h-12 object-contain border p-1 mr-3" />
                             <div className="flex-col flex-1">
-                                <p className="font-bold">{post?.user?.username}</p>
+                                <Link href={`/user/${post?.user?.username}`}>
+                                    <p className="font-bold cursor-pointer hover:text-info hover:underline">{post?.user?.username}</p>
+                                </Link>
                                 <Link href={`/category/${post?.category?.name}`}>
                                     <p className="text-sm cursor-pointer hover:text-info hover:underline">p/{post?.category?.name}</p>
                                 </Link>

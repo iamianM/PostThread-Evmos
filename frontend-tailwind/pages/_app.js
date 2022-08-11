@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
                 <ApolloProvider client={client} >
                     <RecoilRoot>
                         <Header />
-                        <Component {...pageProps} />
+                        <Component {...pageProps} className="bg-base-200" />
                     </RecoilRoot>
                 </ApolloProvider >
             </SessionProvider>

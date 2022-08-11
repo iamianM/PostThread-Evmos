@@ -23,7 +23,7 @@ function PostPage() {
                     <ShowPost post={post} />
                 </section>
                 <section className="lg:col-span-1 mb-10">
-                    <Comments id={router.query.postId} />
+                    <Comments id={router.query.postId} showAddComment={true} />
                 </section>
             </main>
         </div>

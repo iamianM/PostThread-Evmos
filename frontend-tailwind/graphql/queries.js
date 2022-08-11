@@ -62,6 +62,41 @@ query getUserByUsername(
     }
 }`
 
+export const GET_USER_PROFILE_BY_USERNAME = gql`
+query getUserByUsername(
+    $username: String!) { 
+      getUserByUsername(username: $username) {
+    id
+    postList {
+      body
+      category {
+        name
+        id
+      }
+      id
+      title
+      url
+      created_at
+      user {
+        profile_pic
+        username
+      }
+      commentList {
+        body
+        created_at
+        user {
+          profile_pic
+          username
+        }
+        id
+      }
+    }
+    profile_pic
+    username
+    created_at
+  }
+}`
+
 export const GET_COMMENTS_BY_POST_ID = gql`
 query getCommentUsingPost_id(
     $id: ID!) { 
