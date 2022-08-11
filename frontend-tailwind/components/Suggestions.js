@@ -21,7 +21,7 @@ function Suggestions() {
             </div>
             {
                 suggestions.map(profile => (
-                    <SuggestionRow profile={profile} />
+                    <SuggestionRow key={profile.id} profile={profile} />
                 ))
             }
         </div>

@@ -4,11 +4,19 @@ import { UserAddIcon, UserRemoveIcon } from '@heroicons/react/outline'
 import { useMutation, useQuery } from '@apollo/client'
 import { GET_FOLLOWINGS_BY_USER_ID } from '../graphql/queries'
 import { ADD_FOLLOW, REMOVE_FOLLOW } from '../graphql/mutations'
+import { useSession } from 'next-auth/react'
 
 function ProfileCard({ username, profile_pic, created_at, id }) {
 
-    const user_id = localStorage.getItem("user_id")
     const [isFollowing, setIsFollowing] = useState(null)
+    const [user_id, setUser_id] = useState(0)
+    const { data: session } = useSession()
+
+    useEffect(() => {
+        if (session?.user) {
+            setUser_id(localStorage?.getItem("user_id"))
+        }
+    }, [session])
 
     const { data: followData } = useQuery(GET_FOLLOWINGS_BY_USER_ID, {
         variables: { id: user_id }
@@ -63,8 +71,8 @@ function ProfileCard({ username, profile_pic, created_at, id }) {
                 setIsFollowing(false)
             }
         }
-    }
-        , [followData])
+    }, [followData])
+
 
     return (
         <div className="bg-base-100 my-7 max-w-3xl border rounded-t-2xl rounded-b-2xl shadow-sm cursor-pointer">
