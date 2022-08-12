@@ -2671,7 +2671,7 @@ pretty-format@^3.8.0:
   resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-3.8.0.tgz#bfbed56d5e9a776645f4b1ff7aa1a3ac4fa3c385"
   integrity sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==
 
-prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -2734,12 +2734,12 @@ react-hot-toast@^2.3.0:
   dependencies:
     goober "^2.1.10"
 
-react-infinite-scroll-component@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/react-infinite-scroll-component/-/react-infinite-scroll-component-6.1.0.tgz#7e511e7aa0f728ac3e51f64a38a6079ac522407f"
-  integrity sha512-SQu5nCqy8DxQWpnUVLx7V7b7LcA37aM7tvoWjTLZp1dk6EJibM5/4EJKzOnl07/BsM1Y40sKLuqjCwwH/xV0TQ==
+react-infinite-scroller@^1.2.6:
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/react-infinite-scroller/-/react-infinite-scroller-1.2.6.tgz#8b80233226dc753a597a0eb52621247f49b15f18"
+  integrity sha512-mGdMyOD00YArJ1S1F3TVU9y4fGSfVVl6p5gh/Vt4u99CJOptfVu/q5V/Wlle72TMgYlBwIhbxK5wF0C/R33PXQ==
   dependencies:
-    throttle-debounce "^2.1.0"
+    prop-types "^15.5.8"
 
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
@@ -2752,6 +2752,11 @@ react-native-fetch-api@^2.0.0:
   integrity sha512-GOA8tc1EVYLnHvma/TU9VTgLOyralO7eATRuCDchQveXW9Fr9vXygyq9iwqmM7YRZ8qRJfEt9xOS7OYMdJvRFw==
   dependencies:
     p-defer "^3.0.0"
+
+react-scroll-to-top@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-scroll-to-top/-/react-scroll-to-top-3.0.0.tgz#002984419d4d10fdb5654c9e3dd3341f81209a60"
+  integrity sha512-I/k45Ujai097du59tHBbzGxN7Lyc6K8Uc3IChq6HMXaBfB8N/rrfm055T5Yv0DWfVpf6pOFaBmhD3LOfH5unGw==
 
 react-timeago@^7.1.0:
   version "7.1.0"
@@ -3097,11 +3102,6 @@ theme-change@^2.0.2:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/theme-change/-/theme-change-2.2.0.tgz#dcc48ffe6b806258bc5f1caf8220527589e354c0"
   integrity sha512-vvgZEEfmH3yZGq2bWHyzs2AOG1SRfNnCvWbEnPzGpdvvCmAWtOsEdg4H6k/OMapegG+LEQvQ76tQoN9B+FT7rg==
-
-throttle-debounce@^2.1.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-2.3.0.tgz#fd31865e66502071e411817e241465b3e9c372e2"
-  integrity sha512-H7oLPV0P7+jgvrk+6mwwwBDmxTaxnu9HMXmloNLXwnNO0ZxZ31Orah2n8lU1eMPvsaowP2CX+USCgyovXfdOFQ==
 
 timeout-abort-controller@^3.0.0:
   version "3.0.0"

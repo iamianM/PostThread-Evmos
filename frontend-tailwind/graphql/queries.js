@@ -251,51 +251,22 @@ export const GET_TOP_POSTS_WITH_LIMIT = gql`
   }`
 
 export const GET_LATEST_POSTS = gql`
-  query getLatestPosts($first: Int!) {
-    postsCollection(
-      first: $first,
-      orderBy: {created_at: DescNullsLast}
-    ) {
-    edges {
-      node {
-        id
-        body
-        categories {
-          name
-        }
-        title
-        url
-        users {
-          username
-          profile_pic
-        }
-        created_at
-      }
-      cursor
+  query getLatestPosts($limit: Int!, $offset: Int!) {
+    getLatestPosts(limit: $limit, offset: $offset) {
+    id
+    body
+    categories {
+      name
     }
-    pageInfo {
-      endCursor
-      hasNextPage
-      hasPreviousPage
-      startCursor
+    title
+    url
+    users {
+      username
+      profile_pic
     }
+    created_at
   }
-  }`
-
-export const GET_LATEST_CATEGORIES = gql`
-  query getLatestCategories($first: Int!) {
-    categoriesCollection(
-      first: $first,
-      orderBy: {created_at: DescNullsLast}
-    ) {
-      edges {
-      node {
-        id
-        name
-      }
-    }
-  }
-  }`
+}`
 
 export const GET_LATEST_USERS = gql`
   query getLatestUsers($first: Int!) {

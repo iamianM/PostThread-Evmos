@@ -200,6 +200,18 @@ type Query {
       table: "comment"
       configuration: "postgresql_config"
     )
+
+  getLatestPosts(offset: Int!, limit: Int!): [Post]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "posts"
+      order by "created_at" desc
+      offset $1
+      limit $2
+      """
+      configuration: "postgresql_config"
+    )
   getPostList: [Post]
     @dbquery(
       type: "postgresql"
