@@ -17,9 +17,10 @@ function ProfilePage() {
         }
     })
 
-    const posts = data?.getUserByUsername?.postList || []
+    console.log(data?.getUserByUsername)
+    const posts = data?.getUserByUsername?.postsList || []
     let comments = []
-    posts?.map(post => (post?.commentList?.map(comment => { if (comment?.user?.username === router.query.username) comments.push(comment) }))) || []
+    posts?.map(post => (post?.commentsList?.map(comment => { if (comment?.users?.username === router.query.username) comments.push(comment) }))) || []
 
     return (
         <div className='bg-base-200 h-auto'>

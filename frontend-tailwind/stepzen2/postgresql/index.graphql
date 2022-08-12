@@ -1,0 +1,451 @@
+type Categories {
+  created_at: DateTime
+  id: ID!
+  name: String
+  postsList: [Posts] @materializer(query: "getPostsUsingCategory_id")
+}
+
+type Comments {
+  body: String
+  created_at: DateTime
+  depth: ID
+  id: ID!
+  post_id: ID
+  posts: Posts
+    @materializer(
+      query: "getPosts"
+      arguments: [{ name: "id", field: "post_id" }]
+    )
+  postthread_downvotes: ID
+  postthread_upvotes: ID
+  reddit_downvotes: ID
+  reddit_id: String
+  reddit_upvotes: ID
+  user_id: ID
+  users: Users
+    @materializer(
+      query: "getUsers"
+      arguments: [{ name: "id", field: "user_id" }]
+    )
+}
+
+type Follows {
+  created_at: DateTime
+  follower_id: ID
+  following_id: ID
+  id: ID!
+  follower: Users
+    @materializer(
+      query: "getUsers"
+      arguments: [{ name: "id", field: "follower_id" }]
+    )
+  following: Users
+    @materializer(
+      query: "getUsers"
+      arguments: [{ name: "id", field: "following_id" }]
+    )
+}
+
+type Posts {
+  body: String
+  categories: Categories
+    @materializer(
+      query: "getCategories"
+      arguments: [{ name: "id", field: "category_id" }]
+    )
+  category_id: ID
+  commentsList: [Comments] @materializer(query: "getCommentsUsingPost_id")
+  created_at: DateTime
+  id: ID!
+  is_nsfw: Boolean
+  postthread_downvotes: ID
+  postthread_upvotes: ID
+  profile_pic: String
+  reddit_downvotes: ID
+  reddit_id: String
+  reddit_upvotes: ID
+  title: String
+  url: String
+  user_id: ID
+  users: Users
+    @materializer(
+      query: "getUsers"
+      arguments: [{ name: "id", field: "user_id" }]
+    )
+  votesList: [Votes] @materializer(query: "getVotesUsingPost_id")
+}
+
+type Users {
+  commentsList: [Comments] @materializer(query: "getCommentsUsingUser_id")
+  created_at: DateTime
+  followsListUsingFollower_id: [Follows]
+    @materializer(query: "getFollowsUsingFollower_id")
+  followsListUsingFollowing_id: [Follows]
+    @materializer(query: "getFollowsUsingFollowing_id")
+  id: ID!
+  msa_id: ID
+  postsList: [Posts] @materializer(query: "getPostsUsingUser_id")
+  profile_pic: String!
+  username: String
+  votesList: [Votes] @materializer(query: "getVotesUsingUser_id")
+}
+
+type Votes {
+  created_at: DateTime
+  id: ID!
+  post_id: ID
+  posts: Posts
+    @materializer(
+      query: "getPosts"
+      arguments: [{ name: "id", field: "post_id" }]
+    )
+  up: Boolean
+  user_id: ID
+  users: Users
+    @materializer(
+      query: "getUsers"
+      arguments: [{ name: "id", field: "user_id" }]
+    )
+}
+
+"""
+These are some examples of queries generated from the schema. Feel free to modify them or add your own.
+"""
+type Query {
+  getCategoriesList: [Categories]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "categories"
+      configuration: "postgresql_config"
+    )
+  getCategories(id: ID!): Categories
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "categories"
+      configuration: "postgresql_config"
+    )
+  getCategoryByName(name: String!): Categories
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "categories" where "name" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getPostsUsingCategory_id(id: ID!): [Posts]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."body", T."category_id", T."created_at", T."id", T."is_nsfw", T."postthread_downvotes", T."postthread_upvotes", T."profile_pic", T."reddit_downvotes", T."reddit_id", T."reddit_upvotes", T."title", T."url", T."user_id"
+        FROM "public"."posts" T
+        WHERE T."category_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getCommentsList: [Comments]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      configuration: "postgresql_config"
+    )
+  getComments(id: ID!): Comments
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      configuration: "postgresql_config"
+    )
+  getFollowsList: [Follows]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "follows"
+      configuration: "postgresql_config"
+    )
+  getFollows(id: ID!): Follows
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "follows"
+      configuration: "postgresql_config"
+    )
+  getPostsList: [Posts]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      configuration: "postgresql_config"
+    )
+  getPostListByCategory(name: String!): [Posts]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select *, "posts".id as id from "posts"
+      join "categories" on "categories"."id" = "posts"."category_id"
+      where "categories"."name" = $1
+      order by "posts"."created_at" desc
+      """
+      configuration: "postgresql_config"
+    )
+  getPosts(id: ID!): Posts
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      configuration: "postgresql_config"
+    )
+  getCommentsUsingPost_id(id: ID!): [Comments]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."body", T."created_at", T."depth", T."id", T."post_id", T."postthread_downvotes", T."postthread_upvotes", T."reddit_downvotes", T."reddit_id", T."reddit_upvotes", T."user_id"
+        FROM "public"."comments" T
+        WHERE T."post_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getVotesUsingPost_id(id: ID!): [Votes]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."created_at", T."id", T."post_id", T."up", T."user_id"
+        FROM "public"."votes" T
+        WHERE T."post_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getUsersList: [Users]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      configuration: "postgresql_config"
+    )
+  getUsers(id: ID!): Users
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      configuration: "postgresql_config"
+    )
+
+  getUserByUsername(username: String!): Users
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT *
+      FROM "public"."users" T
+      WHERE T."username" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getCommentsUsingUser_id(id: ID!): [Comments]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."body", T."created_at", T."depth", T."id", T."post_id", T."postthread_downvotes", T."postthread_upvotes", T."reddit_downvotes", T."reddit_id", T."reddit_upvotes", T."user_id"
+        FROM "public"."comments" T
+        WHERE T."user_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getFollowsUsingFollower_id(id: ID!): [Follows]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."created_at", T."follower_id", T."following_id", T."id"
+        FROM "public"."follows" T
+        WHERE T."follower_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getFollowsUsingFollowing_id(id: ID!): [Follows]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."created_at", T."follower_id", T."following_id", T."id"
+        FROM "public"."follows" T
+        WHERE T."following_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getFollowingsByUser_id(id: ID!): [Follows]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "follows"
+      where "follower_id" = $1
+      order by "created_at" desc
+      """
+      configuration: "postgresql_config"
+    )
+  getFollowersByUser_id(id: ID!): [Follows]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "follows"
+      where "following_id" = $1
+      order by "created_at" desc
+      """
+      configuration: "postgresql_config"
+    )
+  getPostsUsingUser_id(id: ID!): [Posts]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."body", T."category_id", T."created_at", T."id", T."is_nsfw", T."postthread_downvotes", T."postthread_upvotes", T."profile_pic", T."reddit_downvotes", T."reddit_id", T."reddit_upvotes", T."title", T."url", T."user_id"
+        FROM "public"."posts" T
+        WHERE T."user_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getVotesUsingUser_id(id: ID!): [Votes]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT T."created_at", T."id", T."post_id", T."up", T."user_id"
+        FROM "public"."votes" T
+        WHERE T."user_id" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  getVotesList: [Votes]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "votes"
+      configuration: "postgresql_config"
+    )
+  getVotes(id: ID!): Votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "votes"
+      configuration: "postgresql_config"
+    )
+}
+
+"""
+These are some examples of mutations generated from the schema. Feel free to modify them or add your own.
+"""
+type Mutation {
+  insertCategories(name: String!): Categories
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "categories"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  deleteCategories(id: ID!): Categories
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "categories"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertComments(
+    body: String!
+    post_id: ID!
+    user_id: ID!
+  ): Comments
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  deleteComments(id: ID!): Comments
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "comments"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertFollows(
+    follower_id: ID!
+    following_id: ID!
+  ): Follows
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "follows"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  deleteFollows(follower_id: ID!, following_id: ID!): Follows
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "follows"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertPosts(
+    body: String!
+    category_id: ID!
+    user_id: ID!
+    title: String!
+    url: String!
+  ): Posts
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  deletePosts(id: ID!): Posts
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "posts"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertUsers(
+    profile_pic: String!
+    username: String!
+  ): Users
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  deleteUsers(id: ID!): Users
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+  insertVotes(
+    post_id: ID!
+    up: Boolean!
+    user_id: ID!
+  ): Votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "votes"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  deleteVotes(id: ID!): Votes
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "votes"
+      dml: DELETE
+      configuration: "postgresql_config"
+    )
+}

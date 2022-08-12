@@ -4,7 +4,7 @@ import Suggestions from "./Suggestions"
 import Trending from "./Trending"
 import PostBox from "./PostBox"
 import { useQuery } from "@apollo/client"
-import { GET_ALL_POSTS, GET_USER_BY_USERNAME } from "../graphql/queries"
+import { GET_ALL_POSTS, GET_USER_BY_USERNAME, GET_LATEST_POSTS } from "../graphql/queries"
 import { useSession } from 'next-auth/react'
 import { useEffect } from "react"
 import { ADD_USER } from "../graphql/mutations";
@@ -13,8 +13,19 @@ import { JellyTriangle } from "@uiball/loaders"
 
 function Feed() {
 
-    const { data, error } = useQuery(GET_ALL_POSTS)
-    const posts = data?.getPostList || []
+    // const { data, error } = useQuery(GET_ALL_POSTS)
+    const { data, error } = useQuery(GET_LATEST_POSTS, {
+        variables: {
+            first: 10,
+        }
+    })
+
+    const endCursor = data?.getPostList?.pageInfo?.endCursor
+    const hasNextPage = data?.postsCollection?.pageInfo?.hasNextPage
+
+    // const posts = data?.getPostList || []
+    console.log(data)
+    const posts = data?.postsCollection?.edges || []
     const { data: session } = useSession()
 
     useEffect(() => {
@@ -30,7 +41,7 @@ function Feed() {
             console.log("user " + getUserByUsername)
 
             if (!userExists) {
-                const { data: { insertUser: newUser } } = await client.mutate({
+                const { data: { insertUsers: newUser } } = await client.mutate({
                     mutation: ADD_USER,
                     variables: {
                         username: session.user.username,

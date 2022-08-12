@@ -7,7 +7,7 @@ mutation AddPost(
     $title: String!,
     $category_id: ID!,
     $user_id: ID! ) { 
-    insertPost(
+    insertPosts(
         body: $body,
         url: $url,
         title: $title,
@@ -27,7 +27,7 @@ mutation AddPost(
 export const ADD_CATEGORY = gql`
 mutation AddCategory(
     $name: String! ) { 
-    insertCategory(name: $name) {
+    insertCategories(name: $name) {
        id
        name
        created_at
@@ -38,7 +38,7 @@ export const ADD_USER = gql`
 mutation AddUser(
     $username: String!, 
     $profile_pic: String!) { 
-    insertUser(username: $username, profile_pic: $profile_pic) {
+    insertUsers(username: $username, profile_pic: $profile_pic) {
        id
        username
        profile_pic
@@ -51,7 +51,7 @@ mutation AddComment(
     $post_id: ID!,
     $body: String!,
     $user_id: ID!) { 
-    insertComment(
+    insertComments(
     post_id: $post_id,
     body: $body
     user_id: $user_id
@@ -69,7 +69,7 @@ mutation AddVote(
     $post_id: ID!,
     $up: Boolean!,
     $user_id: ID!) { 
-    insertVote(
+    insertVotes(
     post_id: $post_id,
     up: $up
     user_id: $user_id
@@ -86,7 +86,7 @@ export const ADD_FOLLOW = gql`
 mutation AddFollow(
     $follower_id: ID!,
     $following_id: ID!) { 
-    insertFollow(
+    insertFollows(
     follower_id: $follower_id,
     following_id: $following_id
   ) {
@@ -101,7 +101,7 @@ export const REMOVE_FOLLOW = gql`
 mutation deleteFollow(
     $follower_id: ID!,
     $following_id: ID!) { 
-    deleteFollow(
+    deleteFollows(
     follower_id: $follower_id,
     following_id: $following_id
   ) {

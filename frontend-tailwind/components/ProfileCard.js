@@ -82,9 +82,9 @@ function ProfileCard({ username, profile_pic, created_at, id }) {
                     <div className="flex-col flex-1 mt-3">
                         <h4 className="font-bold text-3xl">{username}</h4>
                     </div>
-                    <p className='text-sm'>Profile created: {' '}
+                    {created_at && <p className='text-sm'>Profile created: {' '}
                         <TimeAgo className="text-sm" date={created_at} />
-                    </p>
+                    </p>}
                     {user_id !== id && isFollowing ? (
                         <button
                             className='flex text-lg items-center rounded-xl shadow-md p-2 px-5 bg-primary hover:bg-primary-focus border-primary text-inherit mt-5 space-x-2'

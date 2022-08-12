@@ -27,7 +27,7 @@ function CategoryPage() {
         }
     }, [])
 
-    if (!posts.length) {
+    if (!posts.length > 0) {
         return (
             <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
                 <JellyTriangle

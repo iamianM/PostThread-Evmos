@@ -1,17 +1,17 @@
-import { GET_USER_LIST_LIMIT } from "../graphql/queries";
+import { GET_LATEST_USERS } from "../graphql/queries";
 import { useQuery } from '@apollo/client';
 import Link from "next/link";
 import SuggestionRow from "./SuggestionRow";
 
 function Suggestions() {
 
-    const { data } = useQuery(GET_USER_LIST_LIMIT, {
+    const { data } = useQuery(GET_LATEST_USERS, {
         variables: {
-            limit: 10
+            first: 10
         }
     })
 
-    const suggestions = data?.getUserListLimit || []
+    const suggestions = data?.usersCollection?.edges || []
 
     return (
         <div className="mt-4 bg-base-100 ml-10 my-7 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">
@@ -21,7 +21,7 @@ function Suggestions() {
             </div>
             {
                 suggestions.map(profile => (
-                    <SuggestionRow key={profile.id} profile={profile} />
+                    <SuggestionRow key={profile.node.id} profile={profile.node} />
                 ))
             }
         </div>

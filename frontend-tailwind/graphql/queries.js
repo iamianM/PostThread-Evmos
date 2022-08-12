@@ -20,23 +20,23 @@ export const GET_ALL_POSTS = gql`
 `;
 
 export const GET_POST_BY_ID = gql`
-  query getPostByPostId($id: ID!) {
-    getPostByPostId(id: $id) {
+  query getPosts($id: ID!) {
+    getPosts(id: $id) {
       body
-      category {
+      categories {
         name
       }
-      commentList {
+      commentsList {
         body
         created_at
-        user {
+        users {
           username
           profile_pic
         }
       }
       title
       url
-      user {
+      users {
         username
         profile_pic
       }
@@ -88,9 +88,9 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
   query getUserByUsername($username: String!) {
     getUserByUsername(username: $username) {
       id
-      postList {
+      postsList {
         body
-        category {
+        categories {
           name
           id
         }
@@ -98,14 +98,14 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
         title
         url
         created_at
-        user {
+        users {
           profile_pic
           username
         }
-        commentList {
+        commentsList {
           body
           created_at
-          user {
+          users {
             profile_pic
             username
           }
@@ -120,20 +120,21 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
 `;
 
 export const GET_COMMENTS_BY_POST_ID = gql`
-  query getCommentUsingPost_id($id: ID!) {
-    getCommentUsingPost_id(id: $id) {
-      user {
+  query getCommentsUsingPost_id($id: ID!) {
+    getCommentsUsingPost_id(id: $id) {
+      body
+      users {
+        profile_pic
         username
       }
-      body
-      created_at
-    }
+    created_at
+  }
   }
 `;
 
 export const GET_VOTES_BY_POST_ID = gql`
-  query getVoteUsingPost_id($id: ID!) {
-    getVoteUsingPost_id(id: $id) {
+  query getVotesUsingPost_id($id: ID!) {
+    getVotesUsingPost_id(id: $id) {
       id
       created_at
       up
@@ -169,43 +170,145 @@ export const GET_POSTS_BY_CATEGORY = gql`
   query getPostListByCategory($name: String!) {
     getPostListByCategory(name: $name) {
       body
-      category {
-        name
-      }
       title
       url
-      user {
+      users {
         username
         profile_pic
       }
       created_at
       id
+      categories {
+        name
+      }
     }
   }
 `;
 
 export const GET_TOP_POSTS = gql`
-  query getTopPosts {
-    topPosts: postsCollection(
+  query getTopPosts($limit: Int!, $startCursor:Cursor, $startDate:Datetime) {
+    postsCollection(
       first: $limit
       orderBy: { reddit_upvotes: DescNullsLast }
       after: $startCursor
       filter: { created_at: { gte: $startDate } }
     ) {
-      edges {
-        cursor
-        node {
-          id
-          reddit_upvotes
-          created_at
+    edges {
+      node {
+        id
+        body
+        categories {
+          name
         }
+        title
+        url
+        users {
+          username
+          profile_pic
+        }
+        created_at
       }
-      pageInfo {
-        endCursor
-        startCursor
-        hasNextPage
-        hasPreviousPage
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+  }
+  }`
+
+export const GET_TOP_POSTS_WITH_LIMIT = gql`
+  query getTopPosts($limit: Int!) {
+    postsCollection(
+      first: $limit
+    ) {
+    edges {
+      node {
+        id
+        body
+        categories {
+          name
+        }
+        title
+        url
+        users {
+          username
+          profile_pic
+        }
+        created_at
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+  }
+  }`
+
+export const GET_LATEST_POSTS = gql`
+  query getLatestPosts($first: Int!) {
+    postsCollection(
+      first: $first,
+      orderBy: {created_at: DescNullsLast}
+    ) {
+    edges {
+      node {
+        id
+        body
+        categories {
+          name
+        }
+        title
+        url
+        users {
+          username
+          profile_pic
+        }
+        created_at
+      }
+      cursor
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+      hasPreviousPage
+      startCursor
+    }
+  }
+  }`
+
+export const GET_LATEST_CATEGORIES = gql`
+  query getLatestCategories($first: Int!) {
+    categoriesCollection(
+      first: $first,
+      orderBy: {created_at: DescNullsLast}
+    ) {
+      edges {
+      node {
+        id
+        name
       }
     }
   }
-`;
+  }`
+
+export const GET_LATEST_USERS = gql`
+  query getLatestUsers($first: Int!) {
+    usersCollection(
+      first: $first,
+      orderBy: {created_at: DescNullsLast}
+    ) {
+      edges {
+      node {
+        id
+        username
+        profile_pic
+      }
+    }
+  }
+  }`

@@ -5,7 +5,7 @@ function Posts({ posts }) {
     return (
         <div>
             {posts.map(post => (
-                <Post key={post.id} post={post} />
+                <Post key={post.node?.id ?? post.id} post={post.node ?? post} showAddComment={true} />
             ))}
         </div>
     )

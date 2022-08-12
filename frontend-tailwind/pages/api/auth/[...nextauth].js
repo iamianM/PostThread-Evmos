@@ -31,7 +31,7 @@ const options = {
 
     callbacks: {
         async session({ session, token, user }) {
-            session.user.username = session.user.name.split(' ').join('').toLocaleLowerCase()
+            session.user.username = session.user.name
             session.user.uid = token.sub
             return session
         }
