@@ -14,6 +14,7 @@ import { modalState } from "../atoms/modalAtom"
 import ThemeSelector from "./ThemeSelector";
 import { useSession } from "next-auth/react"
 import { signIn } from "next-auth/react"
+import SearchBar from "./SearchBar"
 
 
 function Header() {
@@ -40,13 +41,7 @@ function Header() {
                 </div>
                 {/* Middle */}
                 <div className="max-w-lg flex items-center">
-                    <div className="relative p-3 rounded-md">
-                        <div className="absolute inset-y-0 pl-3 flex items-center pointer-events-none">
-                            <SearchIcon className="h-5 w-5 text-gray-500 " />
-                        </div>
-                        <input type="text" placeholder="Search"
-                            className="bg-base-100 block w-full pl-10 sm:text-sm border-base-200 rounded-md focus:ring-black focus:border-black" />
-                    </div>
+                    <SearchBar placeholder="Search an user..." />
                     <div className="hidden lg:inline-block">
                         <ThemeSelector />
                     </div>

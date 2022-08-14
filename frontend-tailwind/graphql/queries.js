@@ -283,3 +283,13 @@ export const GET_LATEST_USERS = gql`
     }
   }
   }`
+
+export const SEARCH_USERS_BY_USERNAME = gql`
+  query searchUsersByUsername($username: String!) {
+    searchUsersByUsername(username: $username) {
+    username
+    id
+    profile_pic
+    }
+  }`
+

@@ -212,7 +212,7 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-      SELECT T."body", T."created_at", T."depth", T."id", T."post_id", T."postthread_downvotes", T."postthread_upvotes", T."reddit_downvotes", T."reddit_id", T."reddit_upvotes", T."user_id"
+      SELECT *
         FROM "public"."comments" T
         WHERE T."post_id" = $1
       """
@@ -250,6 +250,17 @@ type Query {
       SELECT *
       FROM "public"."users" T
       WHERE T."username" = $1
+      """
+      configuration: "postgresql_config"
+    )
+  searchUsersByUsername(username: String!): [Users]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      SELECT *
+      FROM "public"."users" T
+      WHERE lower(T."username") LIKE $1
+      limit 10
       """
       configuration: "postgresql_config"
     )

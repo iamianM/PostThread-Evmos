@@ -9,7 +9,7 @@ const Home = () => {
                 <title>PostThread</title>
                 <link rel="icon" href="/postthreadicon.png" />
             </Head>
-            <Feed />
+            {/* <Feed /> */}
         </div>
     )
 }
