@@ -128,7 +128,7 @@ function Post({ post, showAddComment }) {
 
                         <div className="p-7">
                             <h1 className="text-base-content text-lg font-semibold">{post?.title}</h1>
-                            <p className="m-5">{post?.body}</p>
+                            <p className="m-5 truncate">{post?.body}</p>
                         </div>
 
                         <img src={post?.url} className="p-4 object-cover w-full" />

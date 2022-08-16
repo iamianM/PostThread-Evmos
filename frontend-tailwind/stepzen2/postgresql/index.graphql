@@ -318,7 +318,7 @@ type Query {
     @dbquery(
       type: "postgresql"
       query: """
-      SELECT T."body", T."category_id", T."created_at", T."id", T."is_nsfw", T."postthread_downvotes", T."postthread_upvotes", T."profile_pic", T."reddit_downvotes", T."reddit_id", T."reddit_upvotes", T."title", T."url", T."user_id"
+      SELECT *
         FROM "public"."posts" T
         WHERE T."user_id" = $1
       """

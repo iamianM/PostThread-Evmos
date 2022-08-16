@@ -6,12 +6,13 @@ import PostBox from "./PostBox"
 import { useQuery } from "@apollo/client"
 import { GET_USER_BY_USERNAME, GET_LATEST_POSTS } from "../graphql/queries"
 import { useSession } from 'next-auth/react'
-import { useEffect, useState } from "react"
+import { useEffect, useRef } from "react"
 import { ADD_USER } from "../graphql/mutations";
 import client from "../apollo-client"
 import { JellyTriangle, Ring } from "@uiball/loaders"
 import InfiniteScroll from 'react-infinite-scroller';
 import ScrollToTop from "react-scroll-to-top";
+
 
 function Feed() {
 
@@ -22,7 +23,7 @@ function Feed() {
         }
     })
 
-    console.log(data)
+    console.log(data?.getLatestPosts.length)
     const { data: session } = useSession()
 
     useEffect(() => {
@@ -35,7 +36,6 @@ function Feed() {
             })
 
             const userExists = getUserByUsername?.id > 0
-            console.log("user " + getUserByUsername)
 
             if (!userExists) {
                 const { data: { insertUsers: newUser } } = await client.mutate({
@@ -69,7 +69,7 @@ function Feed() {
         return (
             <main className="grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
             xl:max-w-6xl mx-auto scrollbar-hide">
-                <section className="col-span-2 scrollbar-hide">
+                <section className="col-span-2 h-screen scrollbar-hide overflow-auto">
                     <InfiniteScroll
                         pageStart={0}
                         loadMore={() => {
@@ -86,8 +86,8 @@ function Feed() {
                                 }
                             })
                         }}
-                        hasMore={true}
-                        loader={<Ring className="flex justify-center"
+                        hasMore={data?.getLatestPosts.length > 0}
+                        loader={<Ring
                             size={40}
                             lineWeight={5}
                             speed={2}
@@ -95,7 +95,7 @@ function Feed() {
                         />}
                         useWindow={false}>
                         {session && <PostBox />}
-                        <Posts posts={data?.getLatestPosts || []} />
+                        {<Posts posts={data?.getLatestPosts} />}
                     </InfiniteScroll>
                 </section>
                 <section className="hidden lg:inline-grid md:col-span-1 ">

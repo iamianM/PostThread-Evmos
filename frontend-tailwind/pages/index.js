@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Feed from '../components/Feed'
 import Modal from '../components/Modal'
+import Header from '../components/Header'
 
 const Home = () => {
     return (
@@ -9,7 +10,8 @@ const Home = () => {
                 <title>PostThread</title>
                 <link rel="icon" href="/postthreadicon.png" />
             </Head>
-            {/* <Feed /> */}
+            <Header />
+            <Feed />
         </div>
     )
 }
