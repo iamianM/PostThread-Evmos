@@ -1,5 +1,4 @@
 import '../styles/globals.css'
-import { RecoilRoot } from 'recoil';
 import { themeChange } from 'theme-change'
 import { useEffect, useState } from 'react';
 import { ApolloProvider } from '@apollo/client';
@@ -18,9 +17,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
             <Toaster />
             <SessionProvider session={session}>
                 <ApolloProvider client={client} >
-                    <RecoilRoot>
-                        <Component {...pageProps} className="bg-base-200" />
-                    </RecoilRoot>
+                    <Component {...pageProps} className="bg-base-200" />
                 </ApolloProvider>
             </SessionProvider>
         </>

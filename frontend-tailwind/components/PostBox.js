@@ -9,7 +9,7 @@ import client from "../apollo-client"
 import { useSession } from 'next-auth/react';
 import { create } from 'ipfs-http-client';
 
-function PostBox({ category }) {
+function PostBox({ category, refetch }) {
 
     const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
     const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
@@ -105,6 +105,7 @@ function PostBox({ category }) {
                 toast.success("Post created!", {
                     id: "post-toast",
                 })
+                refetch()
             }
 
         } catch (error) {

@@ -16,7 +16,7 @@ import ScrollToTop from "react-scroll-to-top";
 
 function Feed() {
 
-    const { data, fetchMore } = useQuery(GET_LATEST_POSTS, {
+    const { data, fetchMore, previousData } = useQuery(GET_LATEST_POSTS, {
         variables: {
             limit: 10,
             offset: 0
@@ -86,17 +86,13 @@ function Feed() {
                                 }
                             })
                         }}
-                        hasMore={data?.getLatestPosts.length > 0}
-                        loader={<Ring
-                            size={40}
-                            lineWeight={5}
-                            speed={2}
-                            color="black"
-                        />}
+                        hasMore={data?.getLatestPosts.length > previousData?.getLatestPosts.length}
                         useWindow={false}>
                         {session && <PostBox />}
                         {<Posts posts={data?.getLatestPosts} />}
+                        <ScrollToTop />
                     </InfiniteScroll>
+
                 </section>
                 <section className="hidden lg:inline-grid md:col-span-1 ">
                     <div>

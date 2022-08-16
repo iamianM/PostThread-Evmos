@@ -6,6 +6,7 @@ import { GET_USER_PROFILE_BY_USERNAME } from '../../graphql/queries'
 import { CollectionIcon, ChatAlt2Icon } from "@heroicons/react/outline"
 import Comments from '../../components/Comments'
 import ProfileCard from '../../components/ProfileCard'
+import Header from '../../components/Header'
 
 function ProfilePage() {
 
@@ -19,11 +20,12 @@ function ProfilePage() {
 
     console.log(data?.getUserByUsername)
     const posts = data?.getUserByUsername?.postsList || []
-    let comments = []
-    posts?.map(post => (post?.commentsList?.map(comment => { if (comment?.users?.username === router.query.username) comments.push(comment) }))) || []
+    let userComments = []
+    posts?.map(post => (post?.commentsList?.map(comment => { if (comment?.users?.username === router.query.username) userComments.push(comment) }))) || []
 
     return (
         <div className='bg-base-200 h-auto'>
+            <Header />
             <main className="flex flex-col justify-center lg:grid lg:grid-cols-3 lg:gap-10 max-w-sm md:max-w-2xl lg:max-w-5xl xl:max-w-6xl mx-auto">
                 <section className="lg:col-span-1 sticky">
                     <ProfileCard
@@ -56,7 +58,7 @@ function ProfilePage() {
                         </li>
                     </ul>
                     {activeTab === 'posts' && <Posts posts={posts} />}
-                    {activeTab === 'comments' && <Comments commentsToShow={comments} />}
+                    {activeTab === 'comments' && <Comments commentsToShow={userComments} />}
                 </section>
             </main>
         </div >

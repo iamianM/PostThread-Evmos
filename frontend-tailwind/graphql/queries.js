@@ -167,8 +167,8 @@ export const GET_FOLLOWERS_BY_USER_ID = gql`
 `;
 
 export const GET_POSTS_BY_CATEGORY = gql`
-  query getPostListByCategory($name: String!) {
-    getPostListByCategory(name: $name) {
+  query getPostListByCategory($name: String!, $offset: Int!, $limit: Int!) {
+    getPostListByCategory(name: $name, offset: $offset, limit: $limit) {
       body
       title
       url

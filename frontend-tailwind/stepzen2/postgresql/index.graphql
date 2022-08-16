@@ -16,8 +16,6 @@ type Comments {
       query: "getPosts"
       arguments: [{ name: "id", field: "post_id" }]
     )
-  postthread_downvotes: ID
-  postthread_upvotes: ID
   reddit_downvotes: ID
   reddit_id: String
   reddit_upvotes: ID
@@ -58,9 +56,6 @@ type Posts {
   created_at: DateTime
   id: ID!
   is_nsfw: Boolean
-  postthread_downvotes: ID
-  postthread_upvotes: ID
-  profile_pic: String
   reddit_downvotes: ID
   reddit_id: String
   reddit_upvotes: ID
@@ -179,7 +174,7 @@ type Query {
       table: "posts"
       configuration: "postgresql_config"
     )
-  getPostListByCategory(name: String!): [Posts]
+  getPostListByCategory(name: String!, offset: Int!, limit: Int!): [Posts]
     @dbquery(
       type: "postgresql"
       query: """
@@ -187,6 +182,8 @@ type Query {
       join "categories" on "categories"."id" = "posts"."category_id"
       where "categories"."name" = $1
       order by "posts"."created_at" desc
+      offset $2
+      limit $3
       """
       configuration: "postgresql_config"
     )

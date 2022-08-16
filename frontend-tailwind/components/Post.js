@@ -13,10 +13,17 @@ import { GET_COMMENTS_BY_POST_ID, GET_VOTES_BY_POST_ID } from '../graphql/querie
 import { useMutation, useQuery } from '@apollo/client';
 import Link from "next/link";
 import { NewtonsCradle } from '@uiball/loaders'
+import { v4 as uuidv4 } from 'uuid';
 
-function Post({ post, showAddComment }) {
+
+function Post({ post, showAddComment, showComments }) {
 
     const { data: session } = useSession()
+    const [imageError, setImageError] = useState(false);
+
+    const onImageNotFound = () => {
+        setImageError(true);
+    }
 
     const { data, loading } = useQuery(GET_COMMENTS_BY_POST_ID, {
         variables: { id: post?.id }
@@ -130,14 +137,15 @@ function Post({ post, showAddComment }) {
                             <h1 className="text-base-content text-lg font-semibold">{post?.title}</h1>
                             <p className="m-5 truncate">{post?.body}</p>
                         </div>
-
-                        <img src={post?.url} className="p-4 object-cover w-full" />
-
+                        <div className="flex justify-center">
+                            {
+                                post?.url && (
+                                    <img src={imageError ? 'https://reactnative-examples.com/wp-content/uploads/2022/02/error-image.png' : post?.url} onError={() => onImageNotFound()} className="p-4 object-cover w-2/3" />
+                                )
+                            }
+                        </div>
                         <div>
                             <div className="p-5 truncate">
-                                {/* {likes.length > 0 && (
-                        <p className="font-bold mb-1">{likes.length} likes</p>
-                    )} */}
                                 {
                                     comments?.length > 0 && (
                                         <p className="font-semibold text-sm mb-1">{comments?.length} comments</p>
@@ -146,10 +154,10 @@ function Post({ post, showAddComment }) {
                             </div>
                         </div>
 
-                        {comments?.length > 0 && (
+                        {showComments && comments?.length > 0 && (
                             <div className="ml-6 h-auto max-h-40 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
                                 {comments.map(comment => (
-                                    <div key={comment.id} className="flex items-center space-x-2 mb-3">
+                                    <div key={uuidv4()} className="flex items-center space-x-2 mb-3">
                                         <img className="h-7 rounded-full" src={comment?.users?.profile_pic} />
                                         <p className="text-sm flex-1">
                                             <Link href={`/user/${comment?.users?.username}`}>
@@ -168,7 +176,7 @@ function Post({ post, showAddComment }) {
                 {
                     session &&
                     <>
-                        <div className="flex justify-between items-center bg-base-100 text-base-content border-t">
+                        <div className="flex justify-between items-center bg-base-100 rounded-b-2xl text-base-content border-t">
                             <div className={`flex space-x-1 items-center hover:bg-base-200 flex-grow justify-center p-2 rounded-xl cursor-pointer hover:text-success ${vote && 'text-success'}`}
                                 onClick={() => upVote(true)}>
                                 {vote ? <ThumbUpIconFilled className="h-4" /> : <ThumbUpIcon className="h-4" />}

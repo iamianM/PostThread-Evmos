@@ -9,8 +9,6 @@ import {
 } from "@heroicons/react/outline"
 import { HomeIcon } from "@heroicons/react/solid"
 import { useRouter } from "next/router"
-import { useRecoilState } from "recoil"
-import { modalState } from "../atoms/modalAtom"
 import ThemeSelector from "./ThemeSelector";
 import { useSession } from "next-auth/react"
 import { signIn } from "next-auth/react"
@@ -19,10 +17,8 @@ import SearchBar from "./SearchBar"
 
 function Header() {
 
-    const [open, setOpen] = useRecoilState(modalState)
     const router = useRouter()
     const { data: session } = useSession()
-
 
     return (
         <div className="shadow-sm borderb-b bg-primary sticky top-0 z-50 ">
@@ -57,7 +53,6 @@ function Header() {
                                 <div
                                     className="absolute -top-2 -right-3 text-xs w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-pulse text-white">3</div>
                             </div>
-                            <PlusCircleIcon onClick={() => setOpen(true)} className="navBtn" />
                             <UserGroupIcon className="navBtn" />
                             <div className="relative navBtn">
                                 <BellIcon className="navBtn" />

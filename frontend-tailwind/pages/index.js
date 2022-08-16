@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import Feed from '../components/Feed'
-import Modal from '../components/Modal'
 import Header from '../components/Header'
 
 const Home = () => {
