@@ -7,7 +7,7 @@ function Trending() {
 
     const { data } = useQuery(GET_LATEST_CATEGORIES, {
         variables: {
-            limit: 5
+            limit: 4
         }
     })
 

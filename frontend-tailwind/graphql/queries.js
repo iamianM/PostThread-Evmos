@@ -41,6 +41,7 @@ export const GET_POST_BY_ID = gql`
         profile_pic
       }
       id
+      transaction_hash
     }
   }
 `;
@@ -265,6 +266,7 @@ export const GET_LATEST_POSTS = gql`
       profile_pic
     }
     created_at
+    transaction_hash
   }
 }`
 

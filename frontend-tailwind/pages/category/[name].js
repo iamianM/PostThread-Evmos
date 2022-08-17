@@ -46,7 +46,7 @@ function CategoryPage() {
     } else {
 
         return (
-            <div className='bg-base-200 scrollbar-hide'>
+            <div className='bg-base-200 h-full scrollbar-hide'>
                 <Header />
                 <div className='h-24 bg-secondary p-8'>
                     <div className='-mx-8 mt-10 bg-base-100'>

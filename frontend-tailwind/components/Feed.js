@@ -11,10 +11,12 @@ import { ADD_USER } from "../graphql/mutations";
 import client from "../apollo-client"
 import { JellyTriangle, Ring } from "@uiball/loaders"
 import InfiniteScroll from 'react-infinite-scroller';
-import ScrollToTop from "react-scroll-to-top";
-
+import ScrollToTop from "./ScrollToTop"
 
 function Feed() {
+
+    const feedRef = useRef(null)
+    const executeScroll = () => feedRef.current.scrollIntoView()
 
     const { data, fetchMore } = useQuery(GET_LATEST_POSTS, {
         variables: {
@@ -33,7 +35,7 @@ function Feed() {
             const { data: { getUserByUsername } } = await client.query({
                 query: GET_USER_BY_USERNAME,
                 variables: {
-                    username: session.user.username ?? session.user[0].username
+                    username: session?.user?.username ?? session?.user[0]?.username
                 }
             })
 
@@ -44,8 +46,8 @@ function Feed() {
                 const { data: { insertUsers: newUser } } = await client.mutate({
                     mutation: ADD_USER,
                     variables: {
-                        username: session.user.username ?? session.user[0].username,
-                        profile_pic: session.user.image ?? session.user[0].profile_pic
+                        username: session?.user?.username ?? session?.user[0]?.username,
+                        profile_pic: session?.user?.image ?? session?.user[0]?.profile_pic
                     }
                 })
 
@@ -74,7 +76,7 @@ function Feed() {
         return (
             <main className="grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
             xl:max-w-6xl mx-auto scrollbar-hide">
-                <section className="col-span-2 h-screen scrollbar-hide overflow-auto">
+                <section className="col-span-2 h-screen rounded-b-2xl scrollbar-hide overflow-auto">
                     <InfiniteScroll
                         pageStart={0}
                         loadMore={() => {
@@ -91,13 +93,12 @@ function Feed() {
                                 }
                             })
                         }}
+                        loader={<h1>Loading...</h1>}
                         hasMore={data?.getLatestPosts.length > 0}
                         useWindow={false}>
-                        {session && <PostBox />}
+                        {session && <PostBox ref={feedRef} />}
                         {<Posts posts={data?.getLatestPosts} />}
-                        {/* <ScrollToTop /> */}
                     </InfiniteScroll>
-
                 </section>
                 <section className="hidden lg:inline-grid md:col-span-1 ">
                     <div>
@@ -106,6 +107,7 @@ function Feed() {
                                 <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name ?? session?.user[0]?.username} />
                                 <Suggestions />
                             </>}
+                        <button onClick={executeScroll}> Click to scroll </button>
                         <Trending />
                     </div>
                 </section>

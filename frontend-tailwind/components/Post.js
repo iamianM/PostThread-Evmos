@@ -1,9 +1,10 @@
 import {
     EmojiHappyIcon,
 } from "@heroicons/react/outline"
-import { ShareIcon, ThumbUpIcon, ThumbDownIcon } from "@heroicons/react/outline";
+import { ShareIcon, ThumbUpIcon, ThumbDownIcon, ClockIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react"
 import { ThumbUpIcon as ThumbUpIconFilled } from "@heroicons/react/solid"
+import { ShieldCheckIcon } from "@heroicons/react/solid"
 import { ThumbDownIcon as ThumbDownIconFilled } from "@heroicons/react/solid"
 import { useEffect, useState } from "react"
 import TimeAgo from 'react-timeago'
@@ -130,7 +131,13 @@ function Post({ post, showAddComment, showComments, showFull }) {
                                     <p className="text-sm cursor-pointer hover:text-info hover:underline">p/{post?.categories?.name}</p>
                                 </Link>
                             </div>
-                            <TimeAgo className="text-sm" date={post?.created_at} />
+                            <div className="flex space-x-2">
+                                <TimeAgo className="text-sm" date={post?.created_at} />
+                                {post.transaction_hash ?
+                                    <ShieldCheckIcon className="h-5 text-success" /> :
+                                    <ClockIcon className="h-5 text-base-300" />
+                                }
+                            </div>
                         </div>
 
                         <div className="p-7">

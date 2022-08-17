@@ -7,7 +7,7 @@ function Suggestions() {
 
     const { data } = useQuery(GET_LATEST_USERS, {
         variables: {
-            first: 5
+            first: 4
         }
     })
 

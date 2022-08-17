@@ -68,6 +68,7 @@ type Posts {
       arguments: [{ name: "id", field: "user_id" }]
     )
   votesList: [Votes] @materializer(query: "getVotesUsingPost_id")
+  transaction_hash: String
 }
 
 type Users {
