@@ -15,7 +15,7 @@ function CategoryPage() {
     const { data: session } = useSession();
     const { query: { name } } = useRouter()
     const [avatar, setAvatar] = useState(null)
-    const { data, fetchMore, previousData, refetch } = useQuery(GET_POSTS_BY_CATEGORY, {
+    const { data, fetchMore, refetch } = useQuery(GET_POSTS_BY_CATEGORY, {
         variables: {
             name: name,
             offset: 0,
@@ -81,7 +81,7 @@ function CategoryPage() {
                                 }
                             })
                         }}
-                        hasMore={data?.getPostListByCategory.length > previousData?.getPostListByCategory.length}
+                        hasMore={data?.getPostListByCategory.length > 0}
                         useWindow={false}>
                         {session && <PostBox category={name} refetch={refetch} />}
                         {<Posts posts={data?.getPostListByCategory} />}

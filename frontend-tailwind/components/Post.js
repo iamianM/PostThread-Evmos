@@ -16,7 +16,7 @@ import { NewtonsCradle } from '@uiball/loaders'
 import { v4 as uuidv4 } from 'uuid';
 
 
-function Post({ post, showAddComment, showComments }) {
+function Post({ post, showAddComment, showComments, showFull }) {
 
     const { data: session } = useSession()
     const [imageError, setImageError] = useState(false);
@@ -135,12 +135,12 @@ function Post({ post, showAddComment, showComments }) {
 
                         <div className="p-7">
                             <h1 className="text-base-content text-lg font-semibold">{post?.title}</h1>
-                            <p className="m-5 truncate">{post?.body}</p>
+                            <p className={`m-5 ${!showFull && "truncate"} ${showFull && "text-ellipsis"}`}>{post?.body}</p>
                         </div>
                         <div className="flex justify-center">
                             {
                                 post?.url && (
-                                    <img src={imageError ? 'https://reactnative-examples.com/wp-content/uploads/2022/02/error-image.png' : post?.url} onError={() => onImageNotFound()} className="p-4 object-cover w-2/3" />
+                                    <img src={imageError ? 'https://reactnative-examples.com/wp-content/uploads/2022/02/error-image.png' : post?.url} onError={() => onImageNotFound()} className={`p-4 object-cover ${showFull ? "w-full" : "w-2/3"}`} />
                                 )
                             }
                         </div>

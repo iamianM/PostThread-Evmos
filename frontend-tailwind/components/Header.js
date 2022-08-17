@@ -62,7 +62,7 @@ function Header() {
                             <div className="hidden lg:flex cursor-pointer">
                                 <div className="relative flex-shrink-0">
                                     <img
-                                        src={session?.user?.image}
+                                        src={session?.user?.image ?? session?.user?.profile_pic}
                                         className="rounded-full h-6 w-6 cursor-pointer" />
                                 </div>
                             </div>

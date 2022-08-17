@@ -22,7 +22,7 @@ function PostPage() {
             <main className={`flex flex-col justify-center lg:grid lg:grid-cols-2 lg:gap-10 max-w-sm md:max-w-2xl lg:max-w-5xl 
         xl:max-w-6xl mx-auto`}>
                 <section className="lg:col-span-1">
-                    <Post post={post} showAddComment={false} showComments={false} />
+                    <Post post={post} showAddComment={false} showComments={false} showFull={true} />
                 </section>
                 <section className="lg:col-span-1 mb-10">
                     <Comments id={router.query.postId} showAddComment={true} />

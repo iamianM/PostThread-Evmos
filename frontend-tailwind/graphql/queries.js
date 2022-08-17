@@ -284,6 +284,15 @@ export const GET_LATEST_USERS = gql`
   }
   }`
 
+export const GET_LATEST_CATEGORIES = gql`
+query getLatestCategories($limit: Int!) {
+  getLatestCategories(limit: $limit) {
+  id
+  name
+}
+}`
+
+
 export const SEARCH_USERS_BY_USERNAME = gql`
   query searchUsersByUsername($username: String!) {
     searchUsersByUsername(username: $username) {

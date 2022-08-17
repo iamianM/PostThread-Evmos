@@ -205,6 +205,16 @@ type Query {
       """
       configuration: "postgresql_config"
     )
+    getLatestCategories(limit: Int!): [Categories]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "categories"
+      order by "created_at" desc
+      limit $1
+      """
+      configuration: "postgresql_config"
+    )
   getCommentsUsingPost_id(id: ID!): [Comments]
     @dbquery(
       type: "postgresql"

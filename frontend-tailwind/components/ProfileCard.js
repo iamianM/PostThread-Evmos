@@ -64,6 +64,7 @@ function ProfileCard({ username, profile_pic, created_at, id }) {
 
     useEffect(() => {
         if (followData?.getFollowingsByUser_id) {
+            console.log(followData?.getFollowingsByUser_id)
             const following = followData.getFollowingsByUser_id.find(follow => follow.following.id === id)
             if (following) {
                 setIsFollowing(true)

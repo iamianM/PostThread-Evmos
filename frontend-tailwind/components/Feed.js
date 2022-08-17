@@ -16,7 +16,7 @@ import ScrollToTop from "react-scroll-to-top";
 
 function Feed() {
 
-    const { data, fetchMore, previousData } = useQuery(GET_LATEST_POSTS, {
+    const { data, fetchMore } = useQuery(GET_LATEST_POSTS, {
         variables: {
             limit: 10,
             offset: 0
@@ -25,26 +25,31 @@ function Feed() {
 
     console.log(data?.getLatestPosts.length)
     const { data: session } = useSession()
+    console.log(session)
 
     useEffect(() => {
+        console.log("registering")
         const registerUser = async () => {
             const { data: { getUserByUsername } } = await client.query({
                 query: GET_USER_BY_USERNAME,
                 variables: {
-                    username: session.user.username
+                    username: session.user.username ?? session.user[0].username
                 }
             })
 
+            console.log("get user")
             const userExists = getUserByUsername?.id > 0
 
             if (!userExists) {
                 const { data: { insertUsers: newUser } } = await client.mutate({
                     mutation: ADD_USER,
                     variables: {
-                        username: session.user.username,
-                        profile_pic: session.user.image
+                        username: session.user.username ?? session.user[0].username,
+                        profile_pic: session.user.image ?? session.user[0].profile_pic
                     }
                 })
+
+                console.log("insert user")
 
                 localStorage.setItem("user_id", newUser.id)
             } else {
@@ -86,11 +91,11 @@ function Feed() {
                                 }
                             })
                         }}
-                        hasMore={data?.getLatestPosts.length > previousData?.getLatestPosts.length}
+                        hasMore={data?.getLatestPosts.length > 0}
                         useWindow={false}>
                         {session && <PostBox />}
                         {<Posts posts={data?.getLatestPosts} />}
-                        <ScrollToTop />
+                        {/* <ScrollToTop /> */}
                     </InfiniteScroll>
 
                 </section>
@@ -98,10 +103,10 @@ function Feed() {
                     <div>
                         {session &&
                             <>
-                                <MiniProfile image={session.user.image} name={session.user.name} />
+                                <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name ?? session?.user?.username} />
                                 <Suggestions />
                             </>}
-                        {/* <Trending /> */}
+                        <Trending />
                     </div>
                 </section>
 

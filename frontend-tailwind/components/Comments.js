@@ -13,8 +13,6 @@ import { useSession } from "next-auth/react";
 
 function Comments({ id, showAddComment }) {
 
-    console.log(commentsToShow)
-
     const { data: session } = useSession()
     const [user_id, setUser_id] = useState(0)
 

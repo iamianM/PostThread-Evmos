@@ -146,7 +146,7 @@ function PostBox({ category, refetch }) {
             <div className="flex space-x-4 items-center p-4">
                 <img
                     className="rounded-full cursor-pointer w-10 h-10"
-                    src={session?.user?.image}
+                    src={session?.user?.image ?? session?.user[0]?.profile_pic}
                 />
                 <input
                     {...register('title', { required: true })}
