@@ -107,7 +107,7 @@ function Feed() {
                                 <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name ?? session?.user[0]?.username} />
                                 <Suggestions />
                             </>}
-                        <button onClick={executeScroll}> Click to scroll </button>
+                        {/* <button onClick={executeScroll}> Click to scroll </button> */}
                         <Trending />
                     </div>
                 </section>
