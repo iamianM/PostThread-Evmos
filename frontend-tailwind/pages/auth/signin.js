@@ -15,13 +15,13 @@ const Signin = ({ providers }) => {
         const username = event.target.username.value
         const password = event.target.password.value
 
-        await signIn("credentials", { username, password, redirect: false, callbackUrl: "/" });
+        await signIn("credentials", { username, password, callbackUrl: "/" });
     }
 
     return (
-        <div className="h-screen bg-base-200 mb-10 px-4">
+        <div className="h-screen bg-base-200 px-4">
             <div className="flex flex-col items-center justify-center">
-                <div className="bg-base-100 border rounded-t-2xl rounded-b-2xl shadow-sm lg:w-1/3  md:w-1/2 w-full p-10 mt-10 mb-10">
+                <div className="bg-base-100 border rounded-t-2xl rounded-b-2xl shadow-sm lg:w-1/3  md:w-1/2 w-full p-10 mt-5 mb-10">
                     <div className="flex justify-center">
                         <Image src="/postthreadicon.png" height={80} width={80} />
                     </div>
@@ -31,13 +31,13 @@ const Signin = ({ providers }) => {
                             <div>
                                 <label className="block">Username</label>
                                 <input type="text" id="username" placeholder="Username"
-                                    className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                                    className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-primary" />
                                 {/* <span className="text-xs tracking-wide text-red-600">Email field is required </span> */}
                             </div>
                             <div className="mt-4">
                                 <label className="block">Password</label>
                                 <input type="password" id="password" placeholder="Password"
-                                    className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                                    className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-primary" />
                             </div>
                             <div className="flex items-baseline justify-between">
                                 <button type="submit" className="px-6 py-2 mt-4 text-base-content bg-primary rounded-lg hover:bg-primary-focus">Login</button>

@@ -103,7 +103,7 @@ function Feed() {
                     <div>
                         {session &&
                             <>
-                                <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name ?? session?.user?.username} />
+                                <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name ?? session?.user[0]?.username} />
                                 <Suggestions />
                             </>}
                         <Trending />
