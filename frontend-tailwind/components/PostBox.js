@@ -2,14 +2,14 @@ import { useForm } from 'react-hook-form';
 import { CameraIcon } from "@heroicons/react/solid"
 import { useRef, useState } from "react"
 import toast from "react-hot-toast"
-import { GET_CATEGORY_BY_NAME, GET_USER_BY_USERNAME, GET_ALL_POSTS } from "../graphql/queries"
+import { GET_CATEGORY_BY_NAME, GET_USER_BY_USERNAME, GET_ALL_POSTS, GET_LATEST_POSTS } from "../graphql/queries"
 import { useMutation } from '@apollo/client';
 import { ADD_POST, ADD_CATEGORY } from "../graphql/mutations";
 import client from "../apollo-client"
 import { useSession } from 'next-auth/react';
 import { create } from 'ipfs-http-client';
 
-function PostBox({ category }) {
+function PostBox({ category, refetch }) {
 
     const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
     const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
@@ -29,10 +29,11 @@ function PostBox({ category }) {
     const filepickerRef = useRef(null)
     const [imageToPost, setImageToPost] = useState(null)
     const [imageToIpfs, setImageToIpfs] = useState(null)
+
     const [addPost] = useMutation(ADD_POST, {
         refetchQueries: [
-            GET_ALL_POSTS,
-            'getPostList'
+            GET_LATEST_POSTS,
+            'postsCollection'
         ]
     })
     const [addCategory] = useMutation(ADD_CATEGORY)
@@ -52,65 +53,66 @@ function PostBox({ category }) {
             id: "post-toast",
         })
 
-        // try {
+        try {
 
-        const { data: { getCategoryByName } } = await client.query({
-            query: GET_CATEGORY_BY_NAME,
-            variables: {
-                name: category || data.category
+            const { data: { getCategoryByName } } = await client.query({
+                query: GET_CATEGORY_BY_NAME,
+                variables: {
+                    name: category || data.category
+                }
+            })
+
+            const categoryExists = getCategoryByName?.id > 0
+            console.log(categoryExists)
+            let url = ''
+
+            if (imageToIpfs) {
+                const added = await ipfsClient.add(imageToIpfs)
+                console.log(added)
+                url = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
             }
-        })
 
-        const categoryExists = getCategoryByName?.id > 0
-        console.log(categoryExists)
-        let url = ''
+            if (!categoryExists) {
+                const { data: { insertCategories: newCategory } } = await addCategory({
+                    variables: {
+                        name: data.category
+                    }
+                })
 
-        if (imageToIpfs) {
-            const added = await ipfsClient.add(imageToIpfs)
-            console.log(added)
-            url = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
-        }
+                const { data: { insertPosts: newPost } } = await addPost({
+                    variables: {
+                        body: data.body,
+                        url: url,
+                        title: data.title,
+                        user_id: localStorage.getItem('user_id'),
+                        category_id: newCategory.id
+                    }
+                })
 
-        if (!categoryExists) {
-            const { data: { insertCategory: newCategory } } = await addCategory({
-                variables: {
-                    name: data.category
-                }
-            })
+                console.log(newPost)
+            } else {
+                const { data: { insertPosts: newPost } } = await addPost({
+                    variables: {
+                        body: data.body,
+                        url: url,
+                        title: data.title,
+                        category_id: getCategoryByName.id,
+                        user_id: localStorage.getItem('user_id')
+                    }
+                })
 
-            const { data: { insertPost: newPost } } = await addPost({
-                variables: {
-                    body: data.body,
-                    url: url,
-                    title: data.title,
-                    user_id: localStorage.getItem('user_id'),
-                    category_id: newCategory.id
-                }
-            })
+                console.log(newPost)
+                toast.success("Post created!", {
+                    id: "post-toast",
+                })
+                refetch()
+            }
 
-            console.log(newPost)
-        } else {
-            const { data: { insertPost: newPost } } = await addPost({
-                variables: {
-                    body: data.body,
-                    url: url,
-                    title: data.title,
-                    category_id: getCategoryByName.id,
-                    user_id: localStorage.getItem('user_id')
-                }
-            })
-
-            console.log(newPost)
-            toast.success("Post created!", {
+        } catch (error) {
+            toast.error("Whoops! Something went wrong.", {
                 id: "post-toast",
             })
         }
-
-        // } catch (error) {
-        //     toast.error("Whoops! Something went wrong.", {
-        //         id: "post-toast",
-        //     })
-        // }
 
         setValue("body", "")
         setValue("title", "")
@@ -144,7 +146,7 @@ function PostBox({ category }) {
             <div className="flex space-x-4 items-center p-4">
                 <img
                     className="rounded-full cursor-pointer w-10 h-10"
-                    src={session?.user?.image}
+                    src={session?.user?.image ?? session?.user[0]?.profile_pic}
                 />
                 <input
                     {...register('title', { required: true })}

@@ -277,6 +277,12 @@ input usersUpdateInput {
   username: String
   profile_pic: String
   msa_id: BigInt
+  daily_payout_claimed: Boolean
+  reddit_username: String
+  discord_username: String
+  github_username: String
+  email: String
+  wallet_address_provided: String
 }
 
 input votesFilter {

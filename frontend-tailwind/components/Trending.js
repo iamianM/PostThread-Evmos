@@ -1,17 +1,17 @@
 import { faker } from "@faker-js/faker";
-import { GET_CATEGORIES_LIST_LIMIT } from "../graphql/queries";
+import { GET_LATEST_CATEGORIES } from "../graphql/queries";
 import { useQuery } from '@apollo/client';
 import Link from "next/link";
 
 function Trending() {
 
-    const { data } = useQuery(GET_CATEGORIES_LIST_LIMIT, {
+    const { data } = useQuery(GET_LATEST_CATEGORIES, {
         variables: {
-            limit: 10
+            limit: 4
         }
     })
 
-    const topics = data?.getCategoryListLimit || []
+    const topics = data?.getLatestCategories || []
 
     return (
         <div className="mt-4 ml-10 my-7 bg-base-100 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">

@@ -20,27 +20,28 @@ export const GET_ALL_POSTS = gql`
 `;
 
 export const GET_POST_BY_ID = gql`
-  query getPostByPostId($id: ID!) {
-    getPostByPostId(id: $id) {
+  query getPosts($id: ID!) {
+    getPosts(id: $id) {
       body
-      category {
+      categories {
         name
       }
-      commentList {
+      commentsList {
         body
         created_at
-        user {
+        users {
           username
           profile_pic
         }
       }
       title
       url
-      user {
+      users {
         username
         profile_pic
       }
       id
+      transaction_hash
     }
   }
 `;
@@ -88,9 +89,9 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
   query getUserByUsername($username: String!) {
     getUserByUsername(username: $username) {
       id
-      postList {
+      postsList {
         body
-        category {
+        categories {
           name
           id
         }
@@ -98,14 +99,14 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
         title
         url
         created_at
-        user {
+        users {
           profile_pic
           username
         }
-        commentList {
+        commentsList {
           body
           created_at
-          user {
+          users {
             profile_pic
             username
           }
@@ -115,25 +116,29 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
       profile_pic
       username
       created_at
+      level
+      reddit_airdrop_claimed
+      reddit_airdrop_value
     }
   }
 `;
 
 export const GET_COMMENTS_BY_POST_ID = gql`
-  query getCommentUsingPost_id($id: ID!) {
-    getCommentUsingPost_id(id: $id) {
-      user {
+  query getCommentsUsingPost_id($id: ID!) {
+    getCommentsUsingPost_id(id: $id) {
+      body
+      users {
+        profile_pic
         username
       }
-      body
       created_at
     }
   }
 `;
 
 export const GET_VOTES_BY_POST_ID = gql`
-  query getVoteUsingPost_id($id: ID!) {
-    getVoteUsingPost_id(id: $id) {
+  query getVotesUsingPost_id($id: ID!) {
+    getVotesUsingPost_id(id: $id) {
       id
       created_at
       up
@@ -166,50 +171,176 @@ export const GET_FOLLOWERS_BY_USER_ID = gql`
 `;
 
 export const GET_POSTS_BY_CATEGORY = gql`
-  query getPostListByCategory($name: String!) {
-    getPostListByCategory(name: $name) {
+  query getPostListByCategory($name: String!, $offset: Int!, $limit: Int!) {
+    getPostListByCategory(name: $name, offset: $offset, limit: $limit) {
       body
-      category {
-        name
-      }
       title
       url
-      user {
+      users {
         username
         profile_pic
       }
       created_at
       id
+      categories {
+        name
+      }
     }
   }
 `;
 
 export const GET_TOP_POSTS = gql`
-  query getTopPosts(
-    $limit: Int = 10
-    $startCursor: Cursor
-    $startDate: Datetime!
-  ) {
-    topPosts: postsCollection(
+  query getTopPosts($limit: Int!, $startCursor: Cursor, $startDate: Datetime) {
+    postsCollection(
       first: $limit
       orderBy: { reddit_upvotes: DescNullsLast }
       after: $startCursor
       filter: { created_at: { gte: $startDate } }
     ) {
       edges {
-        cursor
         node {
           id
-          reddit_upvotes
+          body
+          categories {
+            name
+          }
+          title
+          url
+          users {
+            username
+            profile_pic
+          }
           created_at
         }
+        cursor
       }
       pageInfo {
         endCursor
-        startCursor
         hasNextPage
         hasPreviousPage
+        startCursor
       }
+    }
+  }
+`;
+
+export const GET_TOP_POSTS_WITH_LIMIT = gql`
+  query getTopPosts($limit: Int!) {
+    postsCollection(first: $limit) {
+      edges {
+        node {
+          id
+          body
+          categories {
+            name
+          }
+          title
+          url
+          users {
+            username
+            profile_pic
+          }
+          created_at
+        }
+        cursor
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+    }
+  }
+`;
+
+export const GET_LATEST_POSTS = gql`
+  query getLatestPosts($limit: Int!, $offset: Int!) {
+    getLatestPosts(limit: $limit, offset: $offset) {
+      id
+      body
+      categories {
+        name
+      }
+      title
+      url
+      users {
+        username
+        profile_pic
+      }
+      created_at
+      transaction_hash
+    }
+  }
+`;
+
+export const GET_LATEST_USERS = gql`
+  query getLatestUsers($first: Int!) {
+    usersCollection(first: $first, orderBy: { created_at: DescNullsLast }) {
+      edges {
+        node {
+          id
+          username
+          profile_pic
+        }
+      }
+    }
+  }
+`;
+
+export const GET_LATEST_CATEGORIES = gql`
+  query getLatestCategories($limit: Int!) {
+    getLatestCategories(limit: $limit) {
+      id
+      name
+    }
+  }
+`;
+
+export const SEARCH_USERS_BY_USERNAME = gql`
+  query searchUsersByUsername($username: String!) {
+    searchUsersByUsername(username: $username) {
+      username
+      id
+      profile_pic
+    }
+  }
+`;
+
+export const GET_PAYOUT_BY_USER_ID = gql`
+  query getPayoutByUserId($id: ID!) {
+    getPayoutByUserId(id: $id) {
+      id
+      payout_amount
+      user_id
+      users {
+        username
+      }
+    }
+  }
+`;
+
+export const GET_USER_PROFILE_CARD_BY_USER_ID = gql`
+  query getUserProfileCardByUser_id($id: ID!) {
+    getUsers(id: $id) {
+      daily_payout_claimed
+      created_at
+      level
+      username
+      profile_pic
+      reddit_airdrop_claimed
+      reddit_airdrop_value
+    }
+  }
+`;
+
+export const GET_USER_SOCIAL_INFO = gql`
+  query getUserSocialInfo($id: ID!) {
+    getUsers(id: $id) {
+      discord_username
+      reddit_username
+      github_username
+      email
     }
   }
 `;
