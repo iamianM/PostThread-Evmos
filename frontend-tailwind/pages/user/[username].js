@@ -90,10 +90,8 @@ function ProfilePage() {
                     </ul>
                     {activeTab === 'posts' && (!posts.length > 0 ? <h1 className='text-center mt-10 font-semibold text-2xl'>No posts to show</h1> : <Posts posts={posts} />)}
                     {activeTab === 'comments' && (!userComments.length > 0 ? <h1 className='text-center mt-10 font-semibold text-2xl'>No comments to show</h1> : <Comments commentsToShow={userComments} />)}
-                    {user_id === id ?
-                        (activeTab === 'airdrop' && <AirdropCard />) ||
-                        (activeTab === 'settings' && <Settings id={id} />)
-                        : <></>}
+                    {activeTab === 'airdrop' && <AirdropCard />}
+                    {activeTab === 'settings' && <Settings id={id} />}
                 </section>
             </main>
         </div >

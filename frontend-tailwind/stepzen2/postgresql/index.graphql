@@ -386,6 +386,13 @@ type Query {
       """
       configuration: "postgresql_config"
     )
+  getAllFollows: [Follows]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "follows"
+      configuration: "postgresql_config"
+    )
 }
 
 """
