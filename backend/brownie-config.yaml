@@ -17,3 +17,5 @@ wallets:
   from_key:
     - ${PRIVATE_KEY_1}
     - ${PRIVATE_KEY_2}
+    - ${PRIVATE_KEY_3}
+    - ${PRIVATE_KEY_4}

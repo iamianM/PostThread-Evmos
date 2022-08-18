@@ -185,7 +185,11 @@ export const GET_POSTS_BY_CATEGORY = gql`
 `;
 
 export const GET_TOP_POSTS = gql`
-  query getTopPosts {
+  query getTopPosts(
+    $limit: Int = 10
+    $startCursor: Cursor
+    $startDate: Datetime!
+  ) {
     topPosts: postsCollection(
       first: $limit
       orderBy: { reddit_upvotes: DescNullsLast }

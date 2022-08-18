@@ -1,4 +1,4 @@
-from brownie import network, config, PostThread
+from brownie import network, config, PostThread, Thread
 import json
 
 
@@ -9,7 +9,7 @@ def deploy_contracts(accounts, use_previous=False, publish=False, testnet=False)
     previous = json.load(open("previous.json"))
 
     if not testnet:
-        from_dict1 = {"from": accounts.add(config["wallets"]["from_key"][1])}
+        from_dict1 = {"from": accounts.add(config["wallets"]["from_key"][3])}
     else:
         from_dict1 = {"from": accounts[0]}
 
@@ -25,22 +25,26 @@ def deploy_contracts(accounts, use_previous=False, publish=False, testnet=False)
 
     if use_previous:
         postthread = PostThread.at(previous[cur_network]["postthread"])
+        thread = Thread.at(previous[cur_network]["thread"])
 
-        return postthread
+        return postthread, thread, account
     else:
         postthread = PostThread.deploy(from_dict1)
+        thread = Thread.deploy(from_dict1)
 
     if cur_network not in previous:
         previous[cur_network] = {}
 
     previous[cur_network] = {
         "postthread": postthread.address,
+        "thread": thread.address,
     }
 
     json.dump(previous, open("previous.json", "w"))
 
     if publish and not network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         PostThread.publish_source(postthread)
+        Thread.publish_source(thread)
 
 
-    return postthread, account
+    return postthread, thread, account
