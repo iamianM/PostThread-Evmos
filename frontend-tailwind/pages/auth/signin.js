@@ -2,7 +2,9 @@ import { signIn, getProviders, signOut, useSession } from 'next-auth/react'
 import Login from '../../components/Login'
 import Image from 'next/image'
 import Link from 'next/link'
-import Header from '../../components/Header'
+import { GET_USER_BY_USERNAME } from '../../graphql/queries'
+import { ADD_USER } from '../../graphql/mutations'
+import client from '@apollo/client'
 
 const Signin = ({ providers }) => {
 

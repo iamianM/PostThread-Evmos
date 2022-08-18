@@ -11,12 +11,8 @@ import { ADD_USER } from "../graphql/mutations";
 import client from "../apollo-client"
 import { JellyTriangle, Ring } from "@uiball/loaders"
 import InfiniteScroll from 'react-infinite-scroller';
-import ScrollToTop from "./ScrollToTop"
 
 function Feed() {
-
-    const feedRef = useRef(null)
-    const executeScroll = () => feedRef.current.scrollIntoView()
 
     const { data, fetchMore } = useQuery(GET_LATEST_POSTS, {
         variables: {
@@ -30,7 +26,6 @@ function Feed() {
     console.log(session)
 
     useEffect(() => {
-        console.log("registering")
         const registerUser = async () => {
             const { data: { getUserByUsername } } = await client.query({
                 query: GET_USER_BY_USERNAME,
@@ -39,7 +34,6 @@ function Feed() {
                 }
             })
 
-            console.log("get user")
             const userExists = getUserByUsername?.id > 0
 
             if (!userExists) {
@@ -51,7 +45,7 @@ function Feed() {
                     }
                 })
 
-                console.log("insert user")
+                console.log("creating new user")
 
                 localStorage.setItem("user_id", newUser.id)
             } else {
@@ -93,10 +87,16 @@ function Feed() {
                                 }
                             })
                         }}
-                        loader={<h1>Loading...</h1>}
+                        loader={
+                            <div className="flex justify-center">
+                                <Ring
+                                    size={50}
+                                    speed={1.4}
+                                    color="black" />
+                            </div>}
                         hasMore={data?.getLatestPosts.length > 0}
                         useWindow={false}>
-                        {session && <PostBox ref={feedRef} />}
+                        {session && <PostBox />}
                         {<Posts posts={data?.getLatestPosts} />}
                     </InfiniteScroll>
                 </section>
@@ -107,11 +107,9 @@ function Feed() {
                                 <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name ?? session?.user[0]?.username} />
                                 <Suggestions />
                             </>}
-                        {/* <button onClick={executeScroll}> Click to scroll </button> */}
                         <Trending />
                     </div>
                 </section>
-
             </main>
         )
     }

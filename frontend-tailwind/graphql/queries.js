@@ -116,6 +116,9 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
       profile_pic
       username
       created_at
+      level
+      reddit_airdrop_claimed
+      reddit_airdrop_value
     }
   }
 `;
@@ -303,4 +306,41 @@ export const SEARCH_USERS_BY_USERNAME = gql`
     profile_pic
     }
   }`
+
+
+export const GET_PAYOUT_BY_USER_ID = gql`
+ query getPayoutByUserId($id: ID!) {
+    getPayoutByUserId(id: $id) {
+    id
+    payout_amount
+    user_id
+    users {
+      username
+    }
+  }
+ }`
+
+export const GET_USER_PROFILE_CARD_BY_USER_ID = gql`
+  query getUserProfileCardByUser_id($id: ID!) {
+    getUsers(id: $id) {
+    daily_payout_claimed
+    created_at
+    level
+    username
+    profile_pic
+    reddit_airdrop_claimed
+    reddit_airdrop_value
+  }
+  }`
+
+export const GET_USER_SOCIAL_INFO = gql`
+  query getUserSocialInfo($id: ID!) {
+    getUsers(id: $id) {
+    discord_username
+    reddit_username
+    github_username
+    email
+  }
+  }`
+
 

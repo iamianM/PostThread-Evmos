@@ -108,3 +108,53 @@ mutation deleteFollow(
     id
   }
 }`
+
+export const UPDATE_USER_DAILY_PAYOUT_CLAIMED = gql`
+mutation updateUserDailyPayoutClaimed($id: BigInt!, $claimed: Boolean!) {
+    updateusersCollection(set: {daily_payout_claimed: $claimed}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`
+
+export const UPDATE_USER_DISCORD = gql`
+mutation updateUserInfo($id: BigInt!, $value: String!) {
+    updateusersCollection(set: {discord_username: $value}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`
+
+export const UPDATE_USER_REDDIT = gql`
+mutation updateUserInfo($id: BigInt!, $value: String!) {
+    updateusersCollection(set: {reddit_username: $value}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`
+
+export const UPDATE_USER_EMAIL = gql`
+mutation updateUserInfo($id: BigInt!, $value: String!) {
+    updateusersCollection(set: {email: $value}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`
+
+export const UPDATE_USER_GITHUB = gql`
+mutation updateUserInfo($id: BigInt!, $value: String!) {
+    updateusersCollection(set: {github_username: $value}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`
