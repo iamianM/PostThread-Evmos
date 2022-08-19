@@ -189,74 +189,9 @@ export const GET_POSTS_BY_CATEGORY = gql`
   }
 `;
 
-export const GET_TOP_POSTS = gql`
-  query getTopPosts($limit: Int!, $startCursor: Cursor, $startDate: Datetime) {
-    postsCollection(
-      first: $limit
-      orderBy: { reddit_upvotes: DescNullsLast }
-      after: $startCursor
-      filter: { created_at: { gte: $startDate } }
-    ) {
-      edges {
-        node {
-          id
-          body
-          categories {
-            name
-          }
-          title
-          url
-          users {
-            username
-            profile_pic
-          }
-          created_at
-        }
-        cursor
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-    }
-  }
-`;
-
-export const GET_TOP_POSTS_WITH_LIMIT = gql`
-  query getTopPosts($limit: Int!) {
-    postsCollection(first: $limit) {
-      edges {
-        node {
-          id
-          body
-          categories {
-            name
-          }
-          title
-          url
-          users {
-            username
-            profile_pic
-          }
-          created_at
-        }
-        cursor
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
-        hasPreviousPage
-        startCursor
-      }
-    }
-  }
-`;
-
-export const GET_LATEST_POSTS = gql`
-  query getLatestPosts($limit: Int!, $offset: Int!) {
-    getLatestPosts(limit: $limit, offset: $offset) {
+export const GET_FILTERED_POSTS = gql`
+  query getFilteredPosts($limit: Int!, $offset: Int!, $order_by: String!) {
+    getFilteredPosts(limit: $limit, offset: $offset, order_by: $order_by) {
       id
       body
       categories {
@@ -270,6 +205,8 @@ export const GET_LATEST_POSTS = gql`
       }
       created_at
       transaction_hash
+      reddit_upvotes
+      reddit_downvotes
     }
   }
 `;

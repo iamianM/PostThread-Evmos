@@ -231,12 +231,12 @@ type Query {
       table: "posts"
       configuration: "postgresql_config"
     )
-  getLatestPosts(offset: Int!, limit: Int!): [Posts]
+  getFilteredPosts(offset: Int!, limit: Int!, order_by: String!): [Posts]
     @dbquery(
       type: "postgresql"
       query: """
       select * from "posts"
-      order by "created_at" desc
+      order by $3 desc
       offset $1
       limit $2
       """

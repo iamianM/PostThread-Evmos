@@ -3,7 +3,7 @@ import {
 } from "@heroicons/react/outline"
 import { ShareIcon, ThumbUpIcon, ThumbDownIcon, ClockIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react"
-import { ThumbUpIcon as ThumbUpIconFilled } from "@heroicons/react/solid"
+import { ThumbUpIcon as ThumbUpIconFilled, ArrowCircleUpIcon, ArrowCircleDownIcon } from "@heroicons/react/solid"
 import { ShieldCheckIcon } from "@heroicons/react/solid"
 import { ThumbDownIcon as ThumbDownIconFilled } from "@heroicons/react/solid"
 import { useEffect, useState } from "react"
@@ -137,6 +137,16 @@ function Post({ post, showAddComment, showComments, showFull }) {
                                     <ShieldCheckIcon className="h-5 text-success" /> :
                                     <ClockIcon className="h-5 text-base-300" />
                                 }
+                            </div>
+                        </div>
+                        <div className="flex justify-end mr-10 space-x-3">
+                            <div className="flex items-center space-x-1">
+                                <ArrowCircleUpIcon className="h-5 text-success" />
+                                <p>{post?.reddit_upvotes}</p>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                                <ArrowCircleDownIcon className="h-5 text-error" />
+                                <p>{post?.reddit_downvotes}</p>
                             </div>
                         </div>
 
