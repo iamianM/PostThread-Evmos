@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract PostThread {
+contract PostThread is Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private msaIds;
     Counters.Counter public schemaIds;
 
     mapping(address => uint) public addressToMsaId;
+    mapping(address => uint[]) public addressToDelegatedMsaIds;
 
     event MsaRegistered(address sender, uint msaId);
     event Signatures(address givenSig, address expectedSig, bytes32 message);
@@ -16,9 +18,7 @@ contract PostThread {
         uint onBehalfOf;
         uint schemaId;
         string payload;
-        uint blockNumber;
         uint timestamp;
-        uint providerMsaId;
     }
 
     mapping(uint => Message[]) public schemaIdToMessages;
@@ -75,13 +75,86 @@ contract PostThread {
         return addressToMsaId[userAddress];
     }
 
-    function createSponsoredAccountWithDelegation(address delegatorAddress, address providerAddress, bytes memory sig) public returns (uint) {
-        uint delegatorMsaId = createMsaId(delegatorAddress);
+    function delegateMsaId(address delegatorAddress, address providerAddress) internal {
+        require(delegatorAddress != providerAddress, "User cannot delegate to self");
+        uint providerMsaId = addressToMsaId[providerAddress];
+        uint delegatorMsaId = addressToMsaId[delegatorAddress];
+        require(providerMsaId != 0, "Provider does not have msaId");
+        require(delegatorMsaId != 0, "Delegator does not have msaId");
+
+        uint[] memory delegatedMsaIds = addressToDelegatedMsaIds[providerAddress];
+        for (uint i = 0; i < delegatedMsaIds.length; i++) {
+            require(delegatedMsaIds[i] != delegatorMsaId, "msaId already delegated to provider");
+        }
+
+        addressToDelegatedMsaIds[providerAddress].push(delegatorMsaId);
+    }
+
+    function getDelegatedMsaId(address providerAddress) public view returns (uint[] memory) {
+        return addressToDelegatedMsaIds[providerAddress];
+    }
+
+    function createSponsoredAccountsWithDelegation(address[] memory delegatorAddresses, bytes[] memory sigs) public returns (uint[] memory) {
+        address providerAddress = msg.sender;
         uint providerMsaId = addressToMsaId[providerAddress];
         require(providerMsaId != 0, "Provider does not have msaId");
         
-        require(isValidUser(providerMsaId, sig, delegatorAddress), "Invalid signature");
-        return delegatorMsaId;
+        uint[] memory delegatorMsaIds = new uint[](delegatorAddresses.length);
+        for (uint i = 0; i < delegatorAddresses.length; i++) {
+            delegatorMsaIds[i] = createMsaId(delegatorAddresses[i]);
+            require(isValidUser(providerMsaId, sigs[i], delegatorAddresses[i]), "Invalid signature");
+            delegateMsaId(delegatorAddresses[i], providerAddress);
+        }
+
+        return delegatorMsaIds;
+    }
+
+    function addProviderToMsa(address providerAddress, bytes memory sig) public returns (bool) {
+        uint providerMsaId = addressToMsaId[providerAddress];
+        require(providerMsaId != 0, "Provider does not have msaId");
+        
+        uint delegatorMsaId = addressToMsaId[msg.sender];
+        require(isValidUser(providerMsaId, sig, providerAddress), "Invalid signature");
+        delegateMsaId(msg.sender, providerAddress);
+
+        return true;
+    }
+
+    function revokeMsaDelegationByDelegator(address providerAddress) public returns (bool) {
+        uint providerMsaId = addressToMsaId[providerAddress];
+        require(providerMsaId != 0, "Provider does not have msaId");
+        uint delegatorMsaId = addressToMsaId[msg.sender];
+        require(delegatorMsaId != 0, "Delegator does not have msaId");
+
+        uint[] memory delegatedMsaIds = addressToDelegatedMsaIds[providerAddress];
+        for (uint i = 0; i < delegatedMsaIds.length; i++) {
+            if(delegatedMsaIds[i] == delegatorMsaId) {
+                addressToDelegatedMsaIds[providerAddress][i] = addressToDelegatedMsaIds[providerAddress][delegatedMsaIds.length - 1];
+                addressToDelegatedMsaIds[providerAddress].pop();
+                return true;
+            }
+        }
+        require(false, "Delegator is not delegated to provider");
+        return false;
+    }
+
+    function revokeMsaDelegationByProvider(address delegatorAddress) public returns (bool) {
+        address providerAddress = msg.sender;
+        uint providerMsaId = addressToMsaId[providerAddress];
+        require(providerMsaId != 0, "Provider does not have msaId");
+        uint delegatorMsaId = addressToMsaId[delegatorAddress];
+        require(delegatorMsaId != 0, "Delegator does not have msaId");
+
+        uint[] memory delegatedMsaIds = addressToDelegatedMsaIds[providerAddress];
+        for (uint i = 0; i < delegatedMsaIds.length; i++) {
+            if(delegatedMsaIds[i] == delegatorMsaId) {
+                addressToDelegatedMsaIds[providerAddress][i] = addressToDelegatedMsaIds[providerAddress][delegatedMsaIds.length - 1];
+                addressToDelegatedMsaIds[providerAddress].pop();
+                return true;
+            }
+        }
+        require(false, "Delegator is not delegated to provider");
+        return false;
     }
 
     // Schema
@@ -101,14 +174,56 @@ contract PostThread {
     }
 
     // Message
-    function addMessage(uint providerMsaId, uint onBehalfOf, uint schemaId, string memory payload) public returns (bool) {
+    function addMessagesByProvider(uint[] memory onBehalfOfs, uint schemaId, string[] memory payloads) public returns (bool) {
         require(bytes(idToSchema[schemaId]).length != 0, "Schema does not exist");
-        require(providerMsaId < msaIds.current() + 1, "Provider MsaId does not exist");
-        require(onBehalfOf < msaIds.current() + 1, "Delegator MsaId does not exist");
+        uint providerMsaId = addressToMsaId[msg.sender];
+        require(providerMsaId != 0, "Provider does not have msaId");
+        uint[] memory delegatedMsaIds = addressToDelegatedMsaIds[msg.sender];
+        require(delegatedMsaIds.length != 0, "Provider is not delegated any msaIds");
 
-        schemaIdToMessages[schemaId].push(Message(
-            onBehalfOf, schemaId, payload, block.number, block.timestamp, providerMsaId
-        ));
+        uint lastBehalfOf = 0;
+        for (uint i = 0; i < payloads.length; i++) {
+            bool isDelegated = false;
+            if (onBehalfOfs[i] == lastBehalfOf) {
+                isDelegated = true;
+            } 
+            uint j = 0;
+            while (j < delegatedMsaIds.length && !isDelegated) {
+                if(onBehalfOfs[j] == delegatedMsaIds[j]) {
+                    isDelegated = true;
+                }
+                j++;
+            }
+            require(isDelegated, "Delegator is not delegated to provider");
+
+            schemaIdToMessages[schemaId].push(Message(
+                onBehalfOfs[i], schemaId, payloads[i], block.timestamp
+            ));
+        }
+        return true;
+    }
+
+    function addMessagesByUser(uint schemaId, string[] memory payloads) public returns (bool) {
+        require(bytes(idToSchema[schemaId]).length != 0, "Schema does not exist");
+        uint msaId = addressToMsaId[msg.sender];
+        require(msaId != 0, "User does not have msaId");
+
+        for (uint i = 0; i < payloads.length; i++) {
+            schemaIdToMessages[schemaId].push(Message(
+                msaId, schemaId, payloads[i], block.timestamp
+            ));
+        }
+        return true;
+    }
+    
+    function addMessagesByOwner(uint[] memory onBehalfOfs, uint schemaId, string[] memory payloads) public onlyOwner returns (bool) {
+        require(bytes(idToSchema[schemaId]).length != 0, "Schema does not exist");
+
+        for (uint i = 0; i < payloads.length; i++) {
+            schemaIdToMessages[schemaId].push(Message(
+                onBehalfOfs[i], schemaId, payloads[i], block.timestamp
+            ));
+        }
         return true;
     }
 

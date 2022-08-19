@@ -131,8 +131,8 @@ export const GET_COMMENTS_BY_POST_ID = gql`
         profile_pic
         username
       }
-    created_at
-  }
+      created_at
+    }
   }
 `;
 
@@ -190,158 +190,157 @@ export const GET_POSTS_BY_CATEGORY = gql`
 `;
 
 export const GET_TOP_POSTS = gql`
-  query getTopPosts($limit: Int!, $startCursor:Cursor, $startDate:Datetime) {
+  query getTopPosts($limit: Int!, $startCursor: Cursor, $startDate: Datetime) {
     postsCollection(
       first: $limit
       orderBy: { reddit_upvotes: DescNullsLast }
       after: $startCursor
       filter: { created_at: { gte: $startDate } }
     ) {
-    edges {
-      node {
-        id
-        body
-        categories {
-          name
+      edges {
+        node {
+          id
+          body
+          categories {
+            name
+          }
+          title
+          url
+          users {
+            username
+            profile_pic
+          }
+          created_at
         }
-        title
-        url
-        users {
-          username
-          profile_pic
-        }
-        created_at
+        cursor
       }
-      cursor
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-      hasPreviousPage
-      startCursor
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
     }
   }
-  }`
+`;
 
 export const GET_TOP_POSTS_WITH_LIMIT = gql`
   query getTopPosts($limit: Int!) {
-    postsCollection(
-      first: $limit
-    ) {
-    edges {
-      node {
-        id
-        body
-        categories {
-          name
+    postsCollection(first: $limit) {
+      edges {
+        node {
+          id
+          body
+          categories {
+            name
+          }
+          title
+          url
+          users {
+            username
+            profile_pic
+          }
+          created_at
         }
-        title
-        url
-        users {
-          username
-          profile_pic
-        }
-        created_at
+        cursor
       }
-      cursor
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-      hasPreviousPage
-      startCursor
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
     }
   }
-  }`
+`;
 
 export const GET_LATEST_POSTS = gql`
   query getLatestPosts($limit: Int!, $offset: Int!) {
     getLatestPosts(limit: $limit, offset: $offset) {
-    id
-    body
-    categories {
-      name
-    }
-    title
-    url
-    users {
-      username
-      profile_pic
-    }
-    created_at
-    transaction_hash
-  }
-}`
-
-export const GET_LATEST_USERS = gql`
-  query getLatestUsers($first: Int!) {
-    usersCollection(
-      first: $first,
-      orderBy: {created_at: DescNullsLast}
-    ) {
-      edges {
-      node {
-        id
+      id
+      body
+      categories {
+        name
+      }
+      title
+      url
+      users {
         username
         profile_pic
       }
+      created_at
+      transaction_hash
     }
   }
-  }`
+`;
+
+export const GET_LATEST_USERS = gql`
+  query getLatestUsers($first: Int!) {
+    usersCollection(first: $first, orderBy: { created_at: DescNullsLast }) {
+      edges {
+        node {
+          id
+          username
+          profile_pic
+        }
+      }
+    }
+  }
+`;
 
 export const GET_LATEST_CATEGORIES = gql`
-query getLatestCategories($limit: Int!) {
-  getLatestCategories(limit: $limit) {
-  id
-  name
-}
-}`
-
+  query getLatestCategories($limit: Int!) {
+    getLatestCategories(limit: $limit) {
+      id
+      name
+    }
+  }
+`;
 
 export const SEARCH_USERS_BY_USERNAME = gql`
   query searchUsersByUsername($username: String!) {
     searchUsersByUsername(username: $username) {
-    username
-    id
-    profile_pic
-    }
-  }`
-
-
-export const GET_PAYOUT_BY_USER_ID = gql`
- query getPayoutByUserId($id: ID!) {
-    getPayoutByUserId(id: $id) {
-    id
-    payout_amount
-    user_id
-    users {
       username
+      id
+      profile_pic
     }
   }
- }`
+`;
+
+export const GET_PAYOUT_BY_USER_ID = gql`
+  query getPayoutByUserId($id: ID!) {
+    getPayoutByUserId(id: $id) {
+      id
+      payout_amount
+      user_id
+      users {
+        username
+      }
+    }
+  }
+`;
 
 export const GET_USER_PROFILE_CARD_BY_USER_ID = gql`
   query getUserProfileCardByUser_id($id: ID!) {
     getUsers(id: $id) {
-    daily_payout_claimed
-    created_at
-    level
-    username
-    profile_pic
-    reddit_airdrop_claimed
-    reddit_airdrop_value
+      daily_payout_claimed
+      created_at
+      level
+      username
+      profile_pic
+      reddit_airdrop_claimed
+      reddit_airdrop_value
+    }
   }
-  }`
+`;
 
 export const GET_USER_SOCIAL_INFO = gql`
   query getUserSocialInfo($id: ID!) {
     getUsers(id: $id) {
-    discord_username
-    reddit_username
-    github_username
-    email
+      discord_username
+      reddit_username
+      github_username
+      email
+    }
   }
-  }`
-
-
-
+`;
