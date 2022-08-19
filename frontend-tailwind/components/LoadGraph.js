@@ -21,9 +21,9 @@ export const LoadGraph = () => {
         }
     })
 
-
+    const loadGraph = useLoadGraph();
     useEffect(() => {
-        const loadGraph = useLoadGraph();
+
         const graph = new Graph();
         graph.addNode("John", { x: 0, y: 10, size: 5, label: "John", color: "blue" });
 
