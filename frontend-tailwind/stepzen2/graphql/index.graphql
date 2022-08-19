@@ -284,6 +284,7 @@ input usersUpdateInput {
   email: String
   wallet_address_provided: String
   wallet_address_personal: String
+  reddit_airdrop_claimed: String
 }
 
 input votesFilter {

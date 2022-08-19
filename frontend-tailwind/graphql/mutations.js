@@ -169,3 +169,13 @@ mutation updateUserInfo($id: BigInt!, $value: String!) {
     }
     }
 }`
+
+export const UPDATE_USER_AIRDROP_STATUS = gql`
+mutation updateUserAirdropStatus($id: BigInt!, $value: String!) {
+    updateusersCollection(set: {reddit_airdrop_claimed: $value}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`

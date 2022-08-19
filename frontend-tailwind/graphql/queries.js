@@ -341,6 +341,17 @@ export const GET_USER_SOCIAL_INFO = gql`
       reddit_username
       github_username
       email
+      wallet_address_personal
+      reddit_airdrop_value
+      reddit_airdrop_claimed
     }
   }
 `;
+
+export const GET_AIRDROP_INFO = gql`
+  query getVariables {
+    getVariables {
+      variable_name
+      variable_value
+    }
+}`

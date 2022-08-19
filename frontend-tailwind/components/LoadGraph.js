@@ -9,7 +9,7 @@ export const LoadGraph = () => {
     const [xOffset, setXOffset] = useState(5);
     const [yOffset, setYOffset] = useState(5);
 
-    const { data: followers } = useQuery(GET_FOLLOWERS_BY_USER_ID, {
+    const { data: followers } = (GET_FOLLOWERS_BY_USER_ID, {
         variables: {
             id: "318"
         }

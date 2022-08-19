@@ -126,6 +126,11 @@ type Payouts {
     )
 }
 
+type Variables {
+  variable_name: String
+  variable_value: String
+}
+
 """
 These are some examples of queries generated from the schema. Feel free to modify them or add your own.
 """
@@ -169,6 +174,15 @@ type Query {
       table: "comments"
       configuration: "postgresql_config"
     )
+
+  getVariables: [Variables]
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "variables"
+      configuration: "postgresql_config"
+    )
+
   getComments(id: ID!): Comments
     @dbquery(
       type: "postgresql"

@@ -1,9 +1,10 @@
 import { ethers } from "ethers";
 import toast from "react-hot-toast"
 import MetamaskIcon from "./icons/MetamaskIcon";
-import { useState } from "react";
 import { UPDATE_USER_WALLET } from "../graphql/mutations";
 import client from "../apollo-client";
+import { useState } from "react";
+import { PencilIcon } from "@heroicons/react/solid"
 
 const verifyMessage = async ({ message, address, signature }) => {
     try {
@@ -43,7 +44,9 @@ const signMessage = async ({ message }) => {
     }
 };
 
-export default function SignMessage() {
+export default function SignMessage({ wallet }) {
+
+    const [disabled, setDisabled] = useState(wallet)
 
     const handleSign = async (e) => {
         e.preventDefault();
@@ -81,10 +84,20 @@ export default function SignMessage() {
             <MetamaskIcon />
             <button
                 onClick={(e) => handleSign(e)}
+                disabled={disabled}
                 className="rounded-xl h-12 bg-primary hover:bg-primary-focus border border-primary focus:ring-primary focus:border-primary flex-grow px-5 font-semibold text-lg focus:outline-none disabled:bg-base-200"
             >
-                Verify wallet
+                {disabled ? wallet : "Verify wallet"}
             </button>
+            {
+                disabled &&
+                <button type='submit' onClick={(e) => {
+                    e.preventDefault()
+                    setDisabled(false)
+                }}>
+                    <PencilIcon className="h-6 cursor-pointer text-neutral" />
+                </button>
+            }
         </div>
     );
 }

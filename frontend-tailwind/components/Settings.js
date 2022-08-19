@@ -18,7 +18,7 @@ function Settings({ id }) {
             <SettingRow social="reddit" value={data?.getUsers?.reddit_username} id={id} />
             <SettingRow social="discord" value={data?.getUsers?.discord_username} id={id} />
             <SettingRow social="github" value={data?.getUsers?.github_username} id={id} />
-            <SignMessage />
+            <SignMessage wallet={data?.getUsers?.wallet_address_personal} />
         </form>
     )
 }
