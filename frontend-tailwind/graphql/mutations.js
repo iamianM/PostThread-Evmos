@@ -158,3 +158,14 @@ mutation updateUserInfo($id: BigInt!, $value: String!) {
     }
     }
 }`
+
+
+export const UPDATE_USER_WALLET = gql`
+mutation updateUserInfo($id: BigInt!, $value: String!) {
+    updateusersCollection(set: {wallet_address_personal: $value}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`

@@ -64,7 +64,7 @@ function ProfilePage() {
                             </a>
                         </li>
                         {
-                            !(data?.getUserByUsername?.reddit_airdrop_claimed) && user_id === id &&
+                            !(data?.getUserByUsername?.reddit_airdrop_claimed === "claimed") && user_id === id &&
                             <li className="flex-1 cursor-pointer">
                                 <a className="relative block p-4" onClick={() => setActiveTab('airdrop')}>
                                     {activeTab === 'airdrop' && <span className="absolute inset-x-0 w-full h-px bg-primary -bottom-px"></span>}

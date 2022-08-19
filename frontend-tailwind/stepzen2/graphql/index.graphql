@@ -283,6 +283,7 @@ input usersUpdateInput {
   github_username: String
   email: String
   wallet_address_provided: String
+  wallet_address_personal: String
 }
 
 input votesFilter {

@@ -85,11 +85,13 @@ type Users {
   username: String
   level: Int
   daily_payout_claimed: Boolean
-  reddit_airdrop_claimed: Boolean
+  reddit_airdrop_claimed: String
   reddit_airdrop_value: Int
   discord_username: String
   reddit_username: String
   github_username: String
+  wallet_address_personal: String
+  wallet_address_provided: String
   email: String
   votesList: [Votes] @materializer(query: "getVotesUsingUser_id")
 }

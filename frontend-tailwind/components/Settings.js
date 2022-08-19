@@ -2,6 +2,7 @@ import { useSession } from 'next-auth/react';
 import SettingRow from './SettingRow';
 import { useQuery } from '@apollo/client'
 import { GET_USER_SOCIAL_INFO } from '../graphql/queries'
+import SignMessage from './SignMessage';
 
 function Settings({ id }) {
 
@@ -17,6 +18,7 @@ function Settings({ id }) {
             <SettingRow social="reddit" value={data?.getUsers?.reddit_username} id={id} />
             <SettingRow social="discord" value={data?.getUsers?.discord_username} id={id} />
             <SettingRow social="github" value={data?.getUsers?.github_username} id={id} />
+            <SignMessage />
         </form>
     )
 }
