@@ -3,6 +3,7 @@ import { PencilIcon, CheckCircleIcon } from "@heroicons/react/solid"
 import { useState } from 'react'
 import { UPDATE_USER_DISCORD, UPDATE_USER_EMAIL, UPDATE_USER_GITHUB, UPDATE_USER_REDDIT } from '../graphql/mutations'
 import client from '../apollo-client';
+import { GET_USER_SOCIAL_INFO } from '../graphql/queries';
 import toast from "react-hot-toast"
 
 function SettingRow({ social, value, id }) {
@@ -21,7 +22,8 @@ function SettingRow({ social, value, id }) {
                     variables: {
                         id: id,
                         value: text
-                    }
+                    },
+                    refetchQueries: [{ query: GET_USER_SOCIAL_INFO, variables: { id: id } }]
                 })
                 break;
             case "reddit":
@@ -30,7 +32,8 @@ function SettingRow({ social, value, id }) {
                     variables: {
                         id: id,
                         value: text
-                    }
+                    },
+                    refetchQueries: [{ query: GET_USER_SOCIAL_INFO, variables: { id: id } }]
                 })
                 break;
             case "email":
@@ -39,7 +42,8 @@ function SettingRow({ social, value, id }) {
                     variables: {
                         id: id,
                         value: text
-                    }
+                    },
+                    refetchQueries: [{ query: GET_USER_SOCIAL_INFO, variables: { id: id } }]
                 })
             case "github":
                 await client.mutate({
@@ -47,13 +51,13 @@ function SettingRow({ social, value, id }) {
                     variables: {
                         id: id,
                         value: text
-                    }
+                    },
+                    refetchQueries: [{ query: GET_USER_SOCIAL_INFO, variables: { id: id } }]
                 })
             default:
                 break;
         }
 
-        console.log("updated user info")
         toast.success("Info updated!")
     }
 

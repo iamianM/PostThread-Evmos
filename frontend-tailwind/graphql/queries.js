@@ -228,6 +228,7 @@ export const GET_LATEST_POSTS = gql`
       users {
         username
         profile_pic
+        reddit_username
       }
       created_at
       transaction_hash

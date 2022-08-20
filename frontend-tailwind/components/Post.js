@@ -53,7 +53,7 @@ function Post({ post, showAddComment, showComments, showFull }) {
     const comments = data?.getCommentsUsingPost_id || []
     const [vote, setVote] = useState()
     const [user_id, setUser_id] = useState(0)
-    const username = post?.users?.username ?? post?.users?.reddit_username
+    const username = post?.users?.username || post?.users?.reddit_username
 
     useEffect(() => {
         if (session?.user) {

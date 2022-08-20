@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import toast from "react-hot-toast"
 import MetamaskIcon from "./icons/MetamaskIcon";
 import { UPDATE_USER_WALLET } from "../graphql/mutations";
+import { GET_USER_SOCIAL_INFO, GET_USER_PROFILE_CARD_BY_USER_ID } from "../graphql/queries";
 import client from "../apollo-client";
 import { useState } from "react";
 import { PencilIcon } from "@heroicons/react/solid"
@@ -67,7 +68,9 @@ export default function SignMessage({ wallet }) {
                         variables: {
                             id: localStorage.getItem("user_id"),
                             value: sig.address
-                        }
+                        },
+                        refetchQueries: [{ query: GET_USER_SOCIAL_INFO, variables: { id: localStorage.getItem("user_id") } },
+                        { query: GET_USER_PROFILE_CARD_BY_USER_ID, variables: { id: localStorage.getItem("user_id") } }]
                     })
                     toast.success("Wallet address verified!")
                 } catch (err) {

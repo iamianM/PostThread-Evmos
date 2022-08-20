@@ -12,7 +12,7 @@ function ScrollPosts({ data, fetchMore, order_by, setFilter, refetch }) {
     return (
         <>
             {session && <PostBox refetch={refetch} />}
-            <ul className="flex border shadow-sm mt-7 border-gray-100 bg-base-100">
+            {/* <ul className="flex border shadow-sm mt-7 border-gray-100 bg-base-100">
                 <li className="flex-1 cursor-pointer hover:bg-base-200">
                     <a className="relative block p-4" onClick={() => {
                         setFilter('reddit_upvotes')
@@ -37,7 +37,7 @@ function ScrollPosts({ data, fetchMore, order_by, setFilter, refetch }) {
                         </div>
                     </a>
                 </li>
-            </ul>
+            </ul> */}
             <InfiniteScroll
                 pageStart={0}
                 loadMore={() => {
