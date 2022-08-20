@@ -204,7 +204,7 @@ function Post({ post, showAddComment, showComments, showFull }) {
                                     <div key={uuidv4()} className="flex items-center space-x-2 mb-3">
                                         <img className="h-7 rounded-full" src={comment?.users?.profile_pic} />
                                         <p className="text-sm flex-1">
-                                            <Link href={`/user/${username}`}>
+                                            <Link href={`/user/${comment?.users?.username ?? comment?.users?.reddit_username}`}>
                                                 <span className="font-bold hover:text-info hover:underline cursor-pointer">{comment?.users?.username ?? comment?.users?.reddit_username}</span>
                                             </Link>
                                             {" "}{comment.body}

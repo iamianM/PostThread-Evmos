@@ -14,11 +14,23 @@ export const DisplayGraph = ({ id, username }) => {
       { ssr: false },
     );
     return (
-      <div className="h-4/5 mt-5 w-full">
-        <SigmaContainer graph={MultiDirectedGraph}>
-          <LoadGraph id={id} username={username} />
-        </SigmaContainer>
-      </div>
+      <>
+        <div className="h-4/5 mt-5 w-full">
+          <SigmaContainer graph={MultiDirectedGraph}>
+            <LoadGraph id={id} username={username} />
+          </SigmaContainer>
+        </div>
+        <div className='flex mt-5 items-center justify-between'>
+          <div className='flex space-x-2 items-center'>
+            <div className='rounded-full bg-red-500 w-4 h-4' />
+            <p>Following</p>
+          </div>
+          <div className='flex space-x-2 items-center'>
+            <div className='rounded-full bg-green-500 w-4 h-4' />
+            <p>Follower</p>
+          </div>
+        </div>
+      </>
     );
   } else return <p>NOT AVAILABLE</p>;
 

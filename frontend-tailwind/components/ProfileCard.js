@@ -52,7 +52,7 @@ function ProfileCard({ id }) {
             }
             toast.success("Tokens successfully requested!")
         } else {
-            toast.error("You need to have a personal wallet address to claim tokens!")
+            toast.error("You need to have a personal wallet address to claim tokens! Go to the Settings tab")
         }
     }
 

@@ -157,6 +157,7 @@ export const GET_FOLLOWINGS_BY_USER_ID = gql`
       following {
         username
         id
+        reddit_username
       }
     }
   }
@@ -168,6 +169,7 @@ export const GET_FOLLOWERS_BY_USER_ID = gql`
       follower {
         username
         id
+        reddit_username
       }
     }
   }
