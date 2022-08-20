@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { CameraIcon } from "@heroicons/react/solid"
 import { useRef, useState } from "react"
 import toast from "react-hot-toast"
-import { GET_CATEGORY_BY_NAME, GET_USER_BY_USERNAME, GET_ALL_POSTS, GET_LATEST_POSTS } from "../graphql/queries"
+import { GET_CATEGORY_BY_NAME } from "../graphql/queries"
 import { useMutation } from '@apollo/client';
 import { ADD_POST, ADD_CATEGORY } from "../graphql/mutations";
 import client from "../apollo-client"
@@ -30,12 +30,7 @@ function PostBox({ category, refetch }) {
     const [imageToPost, setImageToPost] = useState(null)
     const [imageToIpfs, setImageToIpfs] = useState(null)
 
-    const [addPost] = useMutation(ADD_POST, {
-        refetchQueries: [
-            GET_LATEST_POSTS,
-            'postsCollection'
-        ]
-    })
+    const [addPost] = useMutation(ADD_POST)
     const [addCategory] = useMutation(ADD_CATEGORY)
     const { data: session } = useSession()
 
@@ -65,12 +60,14 @@ function PostBox({ category, refetch }) {
             const categoryExists = getCategoryByName?.id > 0
             console.log(categoryExists)
             let url = ''
+            let category_id = getCategoryByName.id ?? 0
 
             if (imageToIpfs) {
                 const added = await ipfsClient.add(imageToIpfs)
                 console.log(added)
                 url = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
             }
+
 
             if (!categoryExists) {
                 const { data: { insertCategories: newCategory } } = await addCategory({
@@ -79,35 +76,40 @@ function PostBox({ category, refetch }) {
                     }
                 })
 
-                const { data: { insertPosts: newPost } } = await addPost({
-                    variables: {
-                        body: data.body,
-                        url: url,
-                        title: data.title,
-                        user_id: localStorage.getItem('user_id'),
-                        category_id: newCategory.id
-                    }
-                })
-
-                console.log(newPost)
-            } else {
-                const { data: { insertPosts: newPost } } = await addPost({
-                    variables: {
-                        body: data.body,
-                        url: url,
-                        title: data.title,
-                        category_id: getCategoryByName.id,
-                        user_id: localStorage.getItem('user_id')
-                    }
-                })
-
-                console.log(newPost)
-                toast.success("Post created!", {
-                    id: "post-toast",
-                })
-                refetch()
+                category_id = newCategory.id
             }
 
+            const post = JSON.stringify({
+                body: data.body,
+                url: url,
+                title: data.title,
+                user_id: localStorage.getItem('user_id'),
+                category_id: category_id
+            })
+
+            const added = await ipfsClient.add(post)
+            console.log(added)
+            const postUrl = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
+
+            console.log(postUrl)
+
+            const { data: { insertPosts: newPost } } = await addPost({
+                variables: {
+                    body: data.body,
+                    url: url,
+                    title: data.title,
+                    user_id: localStorage.getItem('user_id'),
+                    category_id: category_id,
+                    ipfs_hash: postUrl
+                }
+            })
+
+            console.log(newPost)
+
+            refetch()
+            toast.success("Post created!", {
+                id: "post-toast",
+            })
         } catch (error) {
             toast.error("Whoops! Something went wrong.", {
                 id: "post-toast",

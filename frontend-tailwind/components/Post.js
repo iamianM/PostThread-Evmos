@@ -15,22 +15,37 @@ import { useMutation, useQuery } from '@apollo/client';
 import Link from "next/link";
 import { NewtonsCradle } from '@uiball/loaders'
 import { v4 as uuidv4 } from 'uuid';
-
+import { create } from 'ipfs-http-client';
 
 function Post({ post, showAddComment, showComments, showFull }) {
 
     const { data: session } = useSession()
     const [imageError, setImageError] = useState(false);
 
+    const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
+    const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
+    const projectIdAndSecret = `${projectId}:${projectSecret}`
+
+    const ipfsClient = create({
+        host: 'ipfs.infura.io',
+        port: 5001,
+        protocol: 'https',
+        headers: {
+            authorization: `Basic ${Buffer.from(projectIdAndSecret).toString(
+                'base64'
+            )}`,
+        },
+    })
+
     const onImageNotFound = () => {
         setImageError(true);
     }
 
-    const { data, loading } = useQuery(GET_COMMENTS_BY_POST_ID, {
+    const { data } = useQuery(GET_COMMENTS_BY_POST_ID, {
         variables: { id: post?.id }
     })
 
-    const { data: voteData, loading: voteLoading } = useQuery(GET_VOTES_BY_POST_ID, {
+    const { data: voteData } = useQuery(GET_VOTES_BY_POST_ID, {
         variables: { id: post?.id }
     })
 
@@ -38,6 +53,7 @@ function Post({ post, showAddComment, showComments, showFull }) {
     const comments = data?.getCommentsUsingPost_id || []
     const [vote, setVote] = useState()
     const [user_id, setUser_id] = useState(0)
+    const username = post?.users?.username ?? post?.users?.reddit_username
 
     useEffect(() => {
         if (session?.user) {
@@ -81,12 +97,23 @@ function Post({ post, showAddComment, showComments, showFull }) {
         const commentToSend = comment
         setComment("")
 
+        const commentToIpfs = JSON.stringify({
+            body: commentToSend,
+            post_id: post.id,
+            user_id: user_id
+        })
+
+        const added = await ipfsClient.add(commentToIpfs)
+        console.log(added)
+        const commentUrl = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
+
         try {
             await addComment({
                 variables: {
                     body: commentToSend,
                     post_id: post.id,
-                    user_id: user_id
+                    user_id: user_id,
+                    ipfs_hash: commentUrl
                 }
             })
 
@@ -124,8 +151,8 @@ function Post({ post, showAddComment, showComments, showFull }) {
                         <div className="flex items-center p-5">
                             <img src={post?.users?.profile_pic} className="rounded-full h-12 object-contain border p-1 mr-3" />
                             <div className="flex-col flex-1">
-                                <Link href={`/user/${post?.users?.username}`}>
-                                    <p className="font-bold cursor-pointer hover:text-info hover:underline">{post?.users?.username}</p>
+                                <Link href={`/user/${username}`}>
+                                    <p className="font-bold cursor-pointer hover:text-info hover:underline">{username}</p>
                                 </Link>
                                 <Link href={`/category/${post?.categories?.name}`}>
                                     <p className="text-sm cursor-pointer hover:text-info hover:underline">p/{post?.categories?.name}</p>
@@ -142,11 +169,11 @@ function Post({ post, showAddComment, showComments, showFull }) {
                         <div className="flex justify-end mr-10 space-x-3">
                             <div className="flex items-center space-x-1">
                                 <ArrowCircleUpIcon className="h-5 text-success" />
-                                <p>{post?.reddit_upvotes}</p>
+                                <p>{post?.reddit_upvotes ?? 0} </p>
                             </div>
                             <div className="flex items-center space-x-1">
                                 <ArrowCircleDownIcon className="h-5 text-error" />
-                                <p>{post?.reddit_downvotes}</p>
+                                <p>{post?.reddit_downvotes ?? 0}</p>
                             </div>
                         </div>
 
@@ -177,12 +204,18 @@ function Post({ post, showAddComment, showComments, showFull }) {
                                     <div key={uuidv4()} className="flex items-center space-x-2 mb-3">
                                         <img className="h-7 rounded-full" src={comment?.users?.profile_pic} />
                                         <p className="text-sm flex-1">
-                                            <Link href={`/user/${comment?.users?.username}`}>
-                                                <span className="font-bold hover:text-info hover:underline cursor-pointer">{comment?.users?.username}</span>
+                                            <Link href={`/user/${username}`}>
+                                                <span className="font-bold hover:text-info hover:underline cursor-pointer">{comment?.users?.username ?? comment?.users?.reddit_username}</span>
                                             </Link>
                                             {" "}{comment.body}
                                         </p>
-                                        <TimeAgo className="text-sm px-4" date={comment?.created_at} />
+                                        <div className="flex items-center space-x-2">
+                                            <TimeAgo className="text-sm" date={comment?.created_at} />
+                                            {comment.transaction_hash ?
+                                                <ShieldCheckIcon className="h-3 text-success px-2" /> :
+                                                <ClockIcon className="h-3 text-base-300 px-2" />
+                                            }
+                                        </div>
                                     </div>
                                 ))}
                             </div>

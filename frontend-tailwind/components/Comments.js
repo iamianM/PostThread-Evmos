@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useState } from "react"
-import { faker } from "@faker-js/faker";
+import { ShieldCheckIcon } from "@heroicons/react/solid"
+import { ClockIcon } from "@heroicons/react/outline"
 import {
     EmojiHappyIcon,
 } from "@heroicons/react/outline"
@@ -10,8 +11,24 @@ import TimeAgo from 'react-timeago'
 import toast from "react-hot-toast"
 import { ADD_COMMENT } from '../graphql/mutations'
 import { useSession } from "next-auth/react";
+import { create } from 'ipfs-http-client';
 
 function Comments({ id, showAddComment }) {
+
+    const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
+    const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
+    const projectIdAndSecret = `${projectId}:${projectSecret}`
+
+    const ipfsClient = create({
+        host: 'ipfs.infura.io',
+        port: 5001,
+        protocol: 'https',
+        headers: {
+            authorization: `Basic ${Buffer.from(projectIdAndSecret).toString(
+                'base64'
+            )}`,
+        },
+    })
 
     const { data: session } = useSession()
     const [user_id, setUser_id] = useState(0)
@@ -46,12 +63,23 @@ function Comments({ id, showAddComment }) {
         const commentToSend = comment
         setComment("")
 
+        const commentToIpfs = JSON.stringify({
+            body: commentToSend,
+            post_id: post.id,
+            user_id: user_id
+        })
+
+        const added = await ipfsClient.add(commentToIpfs)
+        console.log(added)
+        const commentUrl = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
+
         try {
             await addComment({
                 variables: {
                     body: commentToSend,
                     post_id: id,
-                    user_id: user_id
+                    user_id: user_id,
+                    ipfs_hash: commentUrl
                 }
             })
 
@@ -78,10 +106,16 @@ function Comments({ id, showAddComment }) {
                         <div key={comment.id} className="flex items-center space-x-2 mb-3">
                             <img className="h-7 rounded-full" src={comment?.users?.profile_pic} />
                             <p className="text-sm flex-1">
-                                <span className="font-bold">{comment?.users?.username}</span>
+                                <span className="font-bold">{comment?.users?.username ?? comment?.users?.reddit_username}</span>
                                 {" "}{comment.body}
                             </p>
-                            <TimeAgo className="text-sm px-4" date={comment?.created_at} />
+                            <div className="flex items-center space-x-2">
+                                <TimeAgo className="text-sm px-4" date={comment?.created_at} />
+                                {comment.transaction_hash ?
+                                    <ShieldCheckIcon className="h-3 text-success px-2" /> :
+                                    <ClockIcon className="h-3 text-base-300 px-2" />
+                                }
+                            </div>
                         </div>
                     ))}
                 </div>

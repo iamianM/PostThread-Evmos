@@ -1,10 +1,8 @@
-import { GET_FOLLOWERS_BY_USER_ID, GET_FOLLOWINGS_BY_USER_ID } from "../graphql/queries"
-import { useQuery } from "@apollo/client"
-import { useEffect } from "react";
 import dynamic from 'next/dynamic'
 import "@react-sigma/core/lib/react-sigma.min.css";
+import { MultiDirectedGraph } from "graphology";
 
-export const DisplayGraph = () => {
+export const DisplayGraph = ({ id, username }) => {
   const isBrowser = () => typeof window !== "undefined"
   if (isBrowser) {
     const SigmaContainer = dynamic(
@@ -12,13 +10,13 @@ export const DisplayGraph = () => {
       { ssr: false },
     );
     const LoadGraph = dynamic(
-      import("../components/LoadGraph"),
+      import("./LoadGraph"),
       { ssr: false },
     );
     return (
-      <div className="h-screen w-full">
-        <SigmaContainer  >
-          <LoadGraph />
+      <div className="h-4/5 mt-5 w-full">
+        <SigmaContainer graph={MultiDirectedGraph}>
+          <LoadGraph id={id} username={username} />
         </SigmaContainer>
       </div>
     );

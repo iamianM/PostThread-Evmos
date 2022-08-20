@@ -11,7 +11,7 @@ function ScrollPosts({ data, fetchMore, order_by, setFilter, refetch }) {
 
     return (
         <>
-            {session && <PostBox />}
+            {session && <PostBox refetch={refetch} />}
             <ul className="flex border shadow-sm mt-7 border-gray-100 bg-base-100">
                 <li className="flex-1 cursor-pointer hover:bg-base-200">
                     <a className="relative block p-4" onClick={() => {
@@ -44,13 +44,12 @@ function ScrollPosts({ data, fetchMore, order_by, setFilter, refetch }) {
                     fetchMore({
                         variables: {
                             limit: 10,
-                            offset: data?.getFilteredPosts.length,
-                            order_by: order_by
+                            offset: data?.getLatestPosts.length,
                         },
                         updateQuery: (prev, { fetchMoreResult }) => {
                             if (!fetchMoreResult) return prev
                             return Object.assign({}, prev, {
-                                getFilteredPosts: [...prev.getFilteredPosts, ...fetchMoreResult.getFilteredPosts]
+                                getLatestPosts: [...prev.getLatestPosts, ...fetchMoreResult.getLatestPosts]
                             })
                         }
                     })
@@ -62,9 +61,9 @@ function ScrollPosts({ data, fetchMore, order_by, setFilter, refetch }) {
                             speed={1.4}
                             color="black" />
                     </div>}
-                hasMore={data?.getFilteredPosts.length > 0}
+                hasMore={data?.getLatestPosts.length > 0}
                 useWindow={false}>
-                {<Posts posts={data?.getFilteredPosts} />}
+                {<Posts posts={data?.getLatestPosts} />}
             </InfiniteScroll>
         </>
     )

@@ -1,16 +1,13 @@
-import Posts from "./Posts"
 import MiniProfile from "./MiniProfile"
 import Suggestions from "./Suggestions"
 import Trending from "./Trending"
-import PostBox from "./PostBox"
 import { useQuery } from "@apollo/client"
-import { GET_USER_BY_USERNAME, GET_FILTERED_POSTS } from "../graphql/queries"
+import { GET_USER_BY_USERNAME, GET_FILTERED_POSTS, GET_LATEST_POSTS, GET_TOP_POSTS } from "../graphql/queries"
 import { useSession } from 'next-auth/react'
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { ADD_USER } from "../graphql/mutations";
 import client from "../apollo-client"
-import { JellyTriangle, Ring } from "@uiball/loaders"
-import InfiniteScroll from 'react-infinite-scroller';
+import { JellyTriangle } from "@uiball/loaders"
 import { useState } from "react"
 import ScrollPosts from "./ScrollPosts"
 
@@ -19,11 +16,27 @@ function Feed() {
     const { data: session } = useSession()
     const [filter, setFilter] = useState("created_at")
 
-    const { data, fetchMore, refetch } = useQuery(GET_FILTERED_POSTS, {
+    // switch (filter) {
+    //     case "created_at":
+    //         const { data: latestData, fetchMore: latestFetchMore, refetch: latestRefetch } = useQuery(GET_LATEST_POSTS, {
+    //             variables: {
+    //                 limit: 10,
+    //                 offset: 0,
+    //             }
+    //         })
+    //     case "reddit_upvotes":
+    //         const { data: topData, fetchMore: topFetchMore, refetch: topRefetch } = useQuery(GET_TOP_POSTS, {
+    //             variables: {
+    //                 limit: 10,
+    //                 offset: 0,
+    //             }
+    //         })
+    // }
+
+    const { data, fetchMore, refetch } = useQuery(GET_LATEST_POSTS, {
         variables: {
             limit: 10,
             offset: 0,
-            order_by: filter
         }
     })
 
@@ -62,7 +75,7 @@ function Feed() {
         <main className="grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
             xl:max-w-6xl mx-auto scrollbar-hide">
             <section className="col-span-2 h-screen rounded-b-2xl scrollbar-hide overflow-auto">
-                {!data?.getFilteredPosts.length > 0 ? (
+                {!data?.getLatestPosts.length > 0 ? (
                     <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
                         <JellyTriangle
                             size={50}

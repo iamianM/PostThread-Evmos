@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import TimeAgo from 'react-timeago'
 import { UserAddIcon, UserRemoveIcon } from '@heroicons/react/outline'
 import { useMutation, useQuery } from '@apollo/client'
-import { GET_FOLLOWINGS_BY_USER_ID, GET_PAYOUT_BY_USER_ID, GET_USER_PROFILE_CARD_BY_USER_ID } from '../graphql/queries'
-import { ADD_FOLLOW, REMOVE_FOLLOW, UPDATE_USER_DAILY_PAYOUT_CLAIMED } from '../graphql/mutations'
+import { GET_FOLLOWINGS_BY_USER_ID, GET_USER_PROFILE_CARD_BY_USER_ID } from '../graphql/queries'
+import { ADD_FOLLOW, REMOVE_FOLLOW, UPDATE_USER_TOKENS_CLAIMED } from '../graphql/mutations'
 import { useSession } from 'next-auth/react'
+import toast from 'react-hot-toast'
 
 function ProfileCard({ id }) {
 
@@ -29,13 +30,10 @@ function ProfileCard({ id }) {
         variables: { id: user_id }
     })
 
-    const { data: payoutData } = useQuery(GET_PAYOUT_BY_USER_ID, {
-        variables: { id: user_id }
-    })
+    const dailyReward = userData?.getUsers?.tokens_to_claim || 0
+    const percentageToNextLevel = (userData?.getUsers?.exp * 100) / userData?.getUsers?.exp_to_next_level
 
-    const dailyReward = payoutData?.getPayoutByUserId?.payout_amount || 0
-
-    const [claimReward] = useMutation(UPDATE_USER_DAILY_PAYOUT_CLAIMED, {
+    const [claimReward] = useMutation(UPDATE_USER_TOKENS_CLAIMED, {
         variables: {
             id: user_id,
             claimed: true
@@ -47,8 +45,15 @@ function ProfileCard({ id }) {
     })
 
     const claim = async () => {
-        await claimReward()
-        console.log("Claimed")
+        if (userData?.getUsers?.wallet_address_personal) {
+            try { await claimReward() } catch (e) {
+                toast.error("Something went wrong. Please try again later.")
+                return
+            }
+            toast.success("Tokens successfully requested!")
+        } else {
+            toast.error("You need to have a personal wallet address to claim tokens!")
+        }
     }
 
     const [addFollow] = useMutation(ADD_FOLLOW, {
@@ -112,15 +117,16 @@ function ProfileCard({ id }) {
                 <div className="flex flex-col items-center p-5">
                     <img src={userData?.getUsers?.profile_pic} className="object-cover w-full rounded-md" />
                     <div className="flex-col flex-1 mt-3">
-                        <h4 className="font-bold text-3xl">{userData?.getUsers?.username}</h4>
+                        <h4 className="font-bold text-3xl">{userData?.getUsers?.username ?? userData?.getUsers?.reddit_username}</h4>
                     </div>
                     {userData?.getUsers?.created_at && <p className='text-sm'>Profile created: {' '}
                         <TimeAgo className="text-sm" date={userData?.getUsers?.created_at} />
                     </p>}
                     {user_id === id ? (
                         <>
-                            <button className="w-auto bg-primary p-2 rounded-xl text-inherit font-semibold text-sm gap-3 mt-5 flex-1 disabled:bg-primary-focus" onClick={claim} disabled={userData?.getUsers?.daily_payout_claimed}>
-                                {userData?.getUsers?.daily_payout_claimed ? "Daily reward already claimed" : `Get daily reward💰 ${dailyReward}`}
+                            <button className="w-auto bg-primary p-2 rounded-xl text-inherit font-semibold text-sm gap-3 mt-5 flex-1 disabled:bg-primary-focus"
+                                onClick={claim} disabled={userData?.getUsers?.tokens_claimed}>
+                                {userData?.getUsers?.tokens_claimed ? "Daily reward already claimed" : `Get daily reward💰 ${dailyReward}`}
                             </button >
                         </>
                     ) : (
@@ -141,7 +147,7 @@ function ProfileCard({ id }) {
                     )
                     }
                     <h1 className='font-semibold mt-4 '>Level: {userData?.getUsers?.level}</h1>
-
+                    <progress className="progress w-56 progress-primary" value={percentageToNextLevel} max="100"></progress>
                 </div>
             </div>
         </div>

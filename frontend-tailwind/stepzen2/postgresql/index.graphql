@@ -19,6 +19,8 @@ type Comments {
   reddit_downvotes: ID
   reddit_id: String
   reddit_upvotes: ID
+  ipfs_hash: String
+  transaction_hash: String
   user_id: ID
   users: Users
     @materializer(
@@ -69,6 +71,7 @@ type Posts {
     )
   votesList: [Votes] @materializer(query: "getVotesUsingPost_id")
   transaction_hash: String
+  ipfs_hash: String
 }
 
 type Users {
@@ -87,6 +90,11 @@ type Users {
   daily_payout_claimed: Boolean
   reddit_airdrop_claimed: String
   reddit_airdrop_value: Int
+  exp: Float
+  exp_to_next_level: Float
+  tokens_to_claim: Float
+  tokens_claimed: Boolean
+  social_score: Float
   discord_username: String
   reddit_username: String
   github_username: String
@@ -231,12 +239,43 @@ type Query {
       table: "posts"
       configuration: "postgresql_config"
     )
-  getFilteredPosts(offset: Int!, limit: Int!, order_by: String!): [Posts]
+  getFilteredPosts(offset: Int!, limit: Int!): [Posts]
     @dbquery(
       type: "postgresql"
       query: """
       select * from "posts"
-      order by $3 desc
+      offset $1
+      limit $2
+      """
+      configuration: "postgresql_config"
+    )
+    getLatestPosts(offset: Int!, limit: Int!): [Posts]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "posts"
+      order by "created_at" desc
+      offset $1
+      limit $2
+      """
+      configuration: "postgresql_config"
+    )
+    getLatestUsers(limit: Int!): [Users]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "users"
+      order by "created_at" desc
+      limit $1
+      """
+      configuration: "postgresql_config"
+    )
+    getTopPosts(offset: Int!, limit: Int!): [Posts]
+    @dbquery(
+      type: "postgresql"
+      query: """
+      select * from "posts"
+      order by "reddit_upvotes" desc
       offset $1
       limit $2
       """
@@ -293,7 +332,7 @@ type Query {
       query: """
       SELECT *
       FROM "public"."users" T
-      WHERE T."username" = $1
+      WHERE T."username" = $1 OR T."reddit_username" = $1
       """
       configuration: "postgresql_config"
     )
@@ -435,6 +474,7 @@ type Mutation {
     body: String!
     post_id: ID!
     user_id: ID!
+    ipfs_hash: String!
   ): Comments
     @dbquery(
       type: "postgresql"
@@ -476,6 +516,7 @@ type Mutation {
     user_id: ID!
     title: String!
     url: String!
+    ipfs_hash: String!
   ): Posts
     @dbquery(
       type: "postgresql"

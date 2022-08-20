@@ -4,41 +4,33 @@ import { useQuery } from "@apollo/client"
 import { useEffect, useState } from "react";
 import { useLoadGraph } from "@react-sigma/core";
 
-export const LoadGraph = () => {
+export const LoadGraph = ({ id, username }) => {
 
-    const [xOffset, setXOffset] = useState(5);
-    const [yOffset, setYOffset] = useState(5);
-
-    const { data: followers } = (GET_FOLLOWERS_BY_USER_ID, {
+    const { data: followers } = useQuery(GET_FOLLOWERS_BY_USER_ID, {
         variables: {
-            id: "318"
+            id: id
         }
     })
 
     const { data: following } = useQuery(GET_FOLLOWINGS_BY_USER_ID, {
         variables: {
-            id: "318"
+            id: id
         }
     })
 
     const loadGraph = useLoadGraph();
     useEffect(() => {
-
         const graph = new Graph();
-        graph.addNode("John", { x: 0, y: 10, size: 5, label: "John", color: "blue" });
+        graph.addNode(username, { x: Math.random(), y: Math.random(), size: 15, label: username, color: "blue" });
 
         followers?.getFollowersByUser_id?.map(follow => {
-            graph.addNode(follow?.follower?.username, { x: 0 + xOffset, y: 10 + yOffset, size: 5, label: follow?.follower?.username, color: "green" })
-            graph.addEdge(follow?.follower?.username, "John")
-            setXOffset(prevXOffset => prevXOffset + 1)
-            setYOffset(prevYOffset => prevYOffset + 1)
+            graph.addNode(follow?.follower?.username, { x: Math.random(), y: Math.random(), size: 5, label: follow?.follower?.username, color: "green" });
+            graph.addEdge(follow?.follower?.username, username)
         })
 
-        following?.getFollowingsByUser_id?.map((follow, index) => {
-            graph.addNode(follow?.following?.username, { x: 10 + index, y: 10 - 5 * index, size: 5, label: follow?.following?.username, color: "red" })
-            graph.addEdge("John", follow?.following?.username)
-            setXOffset(prevXOffset => prevXOffset + 1)
-            setYOffset(prevYOffset => prevYOffset + 1)
+        following?.getFollowingsByUser_id?.map((follow) => {
+            graph.addNode(follow?.following?.username, { x: Math.random(), y: Math.random(), size: 5, label: follow?.following?.username, color: "red" })
+            graph.addEdge(username, follow?.following?.username)
         })
 
         loadGraph(graph);

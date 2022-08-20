@@ -7,11 +7,11 @@ function Suggestions() {
 
     const { data } = useQuery(GET_LATEST_USERS, {
         variables: {
-            first: 4
+            limit: 4
         }
     })
 
-    const suggestions = data?.usersCollection?.edges || []
+    const suggestions = data?.getLatestUsers || []
 
     return (
         <div className="mt-4 bg-base-100 ml-10 my-7 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm">
@@ -21,7 +21,7 @@ function Suggestions() {
             </div>
             {
                 suggestions.map(profile => (
-                    <SuggestionRow key={profile.node.id} profile={profile.node} />
+                    <SuggestionRow key={profile.id} profile={profile} />
                 ))
             }
         </div>

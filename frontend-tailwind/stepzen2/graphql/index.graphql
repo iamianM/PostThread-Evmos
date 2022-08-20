@@ -285,6 +285,7 @@ input usersUpdateInput {
   wallet_address_provided: String
   wallet_address_personal: String
   reddit_airdrop_claimed: String
+  tokens_claimed: Boolean
 }
 
 input votesFilter {

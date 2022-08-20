@@ -8,6 +8,7 @@ function SuggestionRow({ profile }) {
 
     const user_id = localStorage.getItem("user_id")
     const [isFollowing, setIsFollowing] = useState(null)
+    const username = profile?.username || profile?.reddit_username
 
     const { data: followData } = useQuery(GET_FOLLOWINGS_BY_USER_ID, {
         variables: { id: user_id }
@@ -67,9 +68,9 @@ function SuggestionRow({ profile }) {
     return (
         <div key={profile.id} className="flex items-center justify-between mt-3">
             <img className="w-10 h-10 rounded-full border p-[2px]" src={profile.profile_pic} />
-            <Link href={`/user/${profile.username}`}>
+            <Link href={`/user/${username}`}>
                 <div className="flex-1 ml-4 hover:text-info hover:underline cursor-pointer">
-                    <h2 className="font-semibold text-sm">{profile.username}</h2>
+                    <h2 className="font-semibold text-sm">{username}</h2>
                 </div>
             </Link>
             {isFollowing ? (

@@ -3,13 +3,14 @@ import { useRouter } from 'next/router'
 import Posts from '../../components/Posts'
 import { useEffect, useState } from 'react'
 import { GET_USER_PROFILE_BY_USERNAME } from '../../graphql/queries'
-import { CollectionIcon, ChatAlt2Icon, PaperAirplaneIcon, CogIcon } from "@heroicons/react/outline"
+import { CollectionIcon, ChatAlt2Icon, PaperAirplaneIcon, CogIcon, ShareIcon } from "@heroicons/react/outline"
 import Comments from '../../components/Comments'
 import ProfileCard from '../../components/ProfileCard'
 import Header from '../../components/Header'
 import AirdropCard from '../../components/AirdropCard'
 import Settings from '../../components/Settings'
 import { useSession } from 'next-auth/react'
+import DisplayGraph from '../../components/DisplayGraph'
 
 function ProfilePage() {
 
@@ -27,11 +28,14 @@ function ProfilePage() {
         localStorage.getItem("user_id") ? setUser_id(localStorage.getItem("user_id")) : setUser_id(null)
     }, [session])
 
-    console.log(data?.getUserByUsername)
     const id = data?.getUserByUsername?.id
     const posts = data?.getUserByUsername?.postsList || []
     let userComments = []
-    posts?.map(post => (post?.commentsList?.map(comment => { if (comment?.users?.username === router.query.username) userComments.push(comment) }))) || []
+    posts?.map(post => (post?.commentsList?.map(comment => {
+        if (comment?.users?.username === router.query.username ||
+            comment?.users?.reddit_username === router.query.username)
+            userComments.push(comment)
+    })))
 
     return (
         <div className='bg-base-200 h-auto'>
@@ -60,6 +64,15 @@ function ProfilePage() {
                                 <div className="flex items-center justify-center">
                                     <ChatAlt2Icon className='h-5' />
                                     <span className="ml-3 text-sm font-medium text-inherit"> Comments </span>
+                                </div>
+                            </a>
+                        </li>
+                        <li className="flex-1 cursor-pointer">
+                            <a className="relative block p-4" onClick={() => setActiveTab('graph')}>
+                                {activeTab === 'graph' && <span className="absolute inset-x-0 w-full h-px bg-primary -bottom-px"></span>}
+                                <div className="flex items-center justify-center">
+                                    <ShareIcon className='h-5' />
+                                    <span className="ml-3 text-sm font-medium text-inherit"> Social Graph </span>
                                 </div>
                             </a>
                         </li>
@@ -92,6 +105,7 @@ function ProfilePage() {
                     {activeTab === 'comments' && (!userComments.length > 0 ? <h1 className='text-center mt-10 font-semibold text-2xl'>No comments to show</h1> : <Comments commentsToShow={userComments} />)}
                     {activeTab === 'airdrop' && <AirdropCard />}
                     {activeTab === 'settings' && <Settings id={id} />}
+                    {activeTab === 'graph' && <DisplayGraph id={id} username={router.query.username} />}
                 </section>
             </main>
         </div >

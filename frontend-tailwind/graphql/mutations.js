@@ -6,13 +6,15 @@ mutation AddPost(
     $url: String!,
     $title: String!,
     $category_id: ID!,
-    $user_id: ID! ) { 
+    $user_id: ID!,
+    $ipfs_hash: String! ) { 
     insertPosts(
         body: $body,
         url: $url,
         title: $title,
         category_id: $category_id,
-        user_id: $user_id
+        user_id: $user_id,
+        ipfs_hash: $ipfs_hash
     ) {
         id
         body
@@ -21,6 +23,7 @@ mutation AddPost(
         category_id
         user_id
         created_at
+        ipfs_hash
     }
 }`
 
@@ -50,17 +53,20 @@ export const ADD_COMMENT = gql`
 mutation AddComment(
     $post_id: ID!,
     $body: String!,
-    $user_id: ID!) { 
+    $user_id: ID!,
+    $ipfs_hash: String!) { 
     insertComments(
     post_id: $post_id,
     body: $body
     user_id: $user_id
+    ipfs_hash: $ipfs_hash
   ) {
     id
     created_at
     body
     post_id,
     user_id
+    ipfs_hash
   }
 }`
 
@@ -109,9 +115,9 @@ mutation deleteFollow(
   }
 }`
 
-export const UPDATE_USER_DAILY_PAYOUT_CLAIMED = gql`
+export const UPDATE_USER_TOKENS_CLAIMED = gql`
 mutation updateUserDailyPayoutClaimed($id: BigInt!, $claimed: Boolean!) {
-    updateusersCollection(set: {daily_payout_claimed: $claimed}, filter: {id: {eq: $id}}) {
+    updateusersCollection(set: {tokens_claimed: $claimed}, filter: {id: {eq: $id}}) {
       records {
       username
       id

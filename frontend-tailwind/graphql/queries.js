@@ -102,6 +102,7 @@ export const GET_USER_PROFILE_BY_USERNAME = gql`
         users {
           profile_pic
           username
+          reddit_username
         }
         commentsList {
           body
@@ -130,8 +131,10 @@ export const GET_COMMENTS_BY_POST_ID = gql`
       users {
         profile_pic
         username
+        reddit_username
       }
       created_at
+      transaction_hash
     }
   }
 `;
@@ -202,6 +205,51 @@ export const GET_FILTERED_POSTS = gql`
       users {
         username
         profile_pic
+        reddit_username
+      }
+      created_at
+      transaction_hash
+      reddit_upvotes
+      reddit_downvotes
+    }
+  }
+`;
+
+export const GET_LATEST_POSTS = gql`
+  query getLatestPosts($limit: Int!, $offset: Int!) {
+    getLatestPosts(limit: $limit, offset: $offset) {
+      id
+      body
+      categories {
+        name
+      }
+      title
+      url
+      users {
+        username
+        profile_pic
+      }
+      created_at
+      transaction_hash
+      reddit_upvotes
+      reddit_downvotes
+    }
+  }
+`;
+
+export const GET_TOP_POSTS = gql`
+  query getTopPosts($limit: Int!, $offset: Int!) {
+    getTopPosts(limit: $limit, offset: $offset) {
+      id
+      body
+      categories {
+        name
+      }
+      title
+      url
+      users {
+        username
+        profile_pic
       }
       created_at
       transaction_hash
@@ -212,16 +260,13 @@ export const GET_FILTERED_POSTS = gql`
 `;
 
 export const GET_LATEST_USERS = gql`
-  query getLatestUsers($first: Int!) {
-    usersCollection(first: $first, orderBy: { created_at: DescNullsLast }) {
-      edges {
-        node {
-          id
-          username
-          profile_pic
-        }
-      }
-    }
+  query getLatestUsers($limit: Int!) {
+    getLatestUsers(limit: $limit) {
+    id
+    reddit_username
+    username
+    profile_pic
+  }
   }
 `;
 
@@ -267,6 +312,14 @@ export const GET_USER_PROFILE_CARD_BY_USER_ID = gql`
       profile_pic
       reddit_airdrop_claimed
       reddit_airdrop_value
+      reddit_username
+      exp
+      level
+      exp_to_next_level
+      tokens_to_claim
+      tokens_claimed
+      social_score
+      wallet_address_personal
     }
   }
 `;
