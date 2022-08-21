@@ -83,7 +83,7 @@ function Post({ post, showAddComment, showComments, showFull }) {
             variables: {
                 post_id: post.id,
                 up: isUpVote,
-                user_id: user_id
+                user_id: localStorage?.getItem("user_id")
             }
         })
     }
@@ -100,7 +100,7 @@ function Post({ post, showAddComment, showComments, showFull }) {
         const commentToIpfs = JSON.stringify({
             body: commentToSend,
             post_id: post.id,
-            user_id: user_id
+            user_id: localStorage?.getItem("user_id")
         })
 
         const added = await ipfsClient.add(commentToIpfs)
