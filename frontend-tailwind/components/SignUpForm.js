@@ -6,6 +6,7 @@ import { GET_USER_BY_USERNAME } from '../graphql/queries';
 import { useMutation } from '@apollo/client'
 import { signIn } from 'next-auth/react'
 import client from '../apollo-client'
+import { Ring } from '@uiball/loaders';
 
 
 export default function SignUpForm() {
@@ -13,6 +14,7 @@ export default function SignUpForm() {
     const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
     const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
     const projectIdAndSecret = `${projectId}:${projectSecret}`
+    const [loading, setLoading] = useState(false)
 
     const ipfsClient = create({
         host: 'ipfs.infura.io',
@@ -50,6 +52,7 @@ export default function SignUpForm() {
 
     const handleSubmit = async (event) => {
         // Stop the form from submitting and refreshing the page.
+        setLoading(true)
         event.preventDefault()
         let url = ''
 
@@ -89,7 +92,7 @@ export default function SignUpForm() {
         // sign user with credential provider
         await signIn("credentials", { username, password, callbackUrl: "/" });
 
-        console.log("signed in")
+        setLoading(false)
 
         window.location = "/"
     }
@@ -129,7 +132,14 @@ export default function SignUpForm() {
                                     className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-primary" />
                             </div>
                             <div className="flex items-baseline justify-between">
-                                <button type="submit" className="px-6 py-2 mt-4 text-base-content bg-primary rounded-lg hover:bg-primary-focus">Sign Up</button>
+                                <button type="submit" className="px-6 py-2 mt-4 text-base-content bg-primary rounded-lg hover:bg-primary-focus">
+                                    <div className='flex space-x-2'>
+                                        Sign Up
+                                        {loading && <Ring size={30}
+                                            speed={1.4}
+                                            color="black" />}
+                                    </div>
+                                </button>
                             </div>
                         </div>
                     </form>
