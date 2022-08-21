@@ -31,6 +31,7 @@ export const GET_POST_BY_ID = gql`
         created_at
         users {
           username
+          reddit_username
           profile_pic
         }
       }
@@ -39,9 +40,13 @@ export const GET_POST_BY_ID = gql`
       users {
         username
         profile_pic
+        reddit_username
       }
       id
       transaction_hash
+      created_at
+      reddit_upvotes
+      reddit_downvotes
     }
   }
 `;

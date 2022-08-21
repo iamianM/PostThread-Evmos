@@ -45,8 +45,6 @@ function Comments({ id, showAddComment }) {
 
     const [comment, setComment] = useState("")
     const comments = (data?.getCommentsUsingPost_id || [])
-    console.log(data)
-    console.log(comments)
 
     const [addComment] = useMutation(ADD_COMMENT, {
         refetchQueries: [
@@ -65,7 +63,7 @@ function Comments({ id, showAddComment }) {
 
         const commentToIpfs = JSON.stringify({
             body: commentToSend,
-            post_id: post.id,
+            post_id: id,
             user_id: user_id
         })
 

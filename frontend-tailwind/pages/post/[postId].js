@@ -15,6 +15,7 @@ function PostPage() {
     })
 
     const post = data?.getPosts
+    console.log(post)
 
     return (
         <div className='bg-base-200'>
