@@ -134,7 +134,7 @@ export default function SignUpForm() {
                             <div className="flex items-baseline justify-between">
                                 <button type="submit" className="px-6 py-2 mt-4 text-base-content bg-primary rounded-lg hover:bg-primary-focus">
                                     <div className='flex space-x-2 items-center'>
-                                        Sign Up
+                                        <p>Sign Up</p>
                                         {loading && <Ring size={20}
                                             speed={1.4}
                                             color="black" />}
