@@ -77,7 +77,7 @@ function PostBox({ category, refetch }) {
             })
 
             category_id = newCategory?.id
-            console.log(new category)
+            console.log(newCategory)
         }
 
         const post = JSON.stringify({
