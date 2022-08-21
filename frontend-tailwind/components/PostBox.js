@@ -57,10 +57,10 @@ function PostBox({ category, refetch }) {
             }
         })
 
-        const categoryExists = getCategoryByName?.id > 0
+        const categoryExists = !!getCategoryByName?.id
         console.log(categoryExists)
         let url = ''
-        let category_id = getCategoryByName.id ?? 0
+        let category_id = getCategoryByName?.id ?? 0
 
         if (imageToIpfs) {
             const added = await ipfsClient.add(imageToIpfs)
@@ -76,7 +76,8 @@ function PostBox({ category, refetch }) {
                 }
             })
 
-            category_id = newCategory.id
+            category_id = newCategory?.id
+            console.log(new category)
         }
 
         const post = JSON.stringify({
