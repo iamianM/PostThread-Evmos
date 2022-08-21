@@ -40,12 +40,14 @@ function Feed() {
         }
     })
 
+    console.log(session)
+
     useEffect(() => {
         const registerUser = async () => {
             const { data: { getUserByUsername } } = await client.query({
                 query: GET_USER_BY_USERNAME,
                 variables: {
-                    username: session?.user?.username ?? session?.user[0]?.username
+                    username: session?.user?.name || session?.user?.username || session?.user[0]?.username
                 }
             })
 
@@ -55,7 +57,7 @@ function Feed() {
                 const { data: { insertUsers: newUser } } = await client.mutate({
                     mutation: ADD_USER,
                     variables: {
-                        username: session?.user?.username ?? session?.user[0]?.username,
+                        username: session?.user?.name || session?.user?.username || session?.user[0]?.username,
                         profile_pic: session?.user?.image ?? session?.user[0]?.profile_pic
                     }
                 })
@@ -89,7 +91,7 @@ function Feed() {
                 <div>
                     {session &&
                         <>
-                            <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name ?? session?.user[0]?.username} />
+                            <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name || session?.user?.username || session?.user[0]?.username} />
                             <Suggestions />
                         </>}
                     <Trending />
