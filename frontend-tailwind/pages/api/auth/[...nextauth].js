@@ -83,7 +83,7 @@ const options = {
         },
     },
 
-    secret: process.env.SECRET // SECRET env variable 
+    secret: process.env.NEXTAUTH_SECRET // SECRET env variable 
 
 }
 
