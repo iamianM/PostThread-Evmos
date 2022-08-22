@@ -101,7 +101,7 @@ function ProfilePage() {
                                 </a>
                             </li>}
                     </ul>
-                    {activeTab === 'posts' && (!posts.length > 0 ? <h1 className='text-center mt-10 font-semibold text-2xl'>No posts to show</h1> : <Posts posts={posts} />)}
+                    {activeTab === 'posts' && (!posts.length > 0 ? <h1 className='text-center mt-10 font-semibold text-2xl'>No posts to show</h1> : <Posts posts={posts} showMint={user_id === id} />)}
                     {activeTab === 'comments' && (!userComments.length > 0 ? <h1 className='text-center mt-10 font-semibold text-2xl'>No comments to show</h1> : <Comments commentsToShow={userComments} />)}
                     {activeTab === 'airdrop' && <AirdropCard />}
                     {activeTab === 'settings' && <Settings id={id} />}

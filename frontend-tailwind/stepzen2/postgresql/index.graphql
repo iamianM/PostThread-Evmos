@@ -100,6 +100,7 @@ type Users {
   github_username: String
   wallet_address_personal: String
   wallet_address_provided: String
+  signature: String
   email: String
   votesList: [Votes] @materializer(query: "getVotesUsingUser_id")
 }
@@ -536,6 +537,17 @@ type Mutation {
   insertUsers(
     profile_pic: String!
     username: String!
+  ): Users
+    @dbquery(
+      type: "postgresql"
+      schema: "public"
+      table: "users"
+      dml: INSERT
+      configuration: "postgresql_config"
+    )
+  insertSignature(
+    id: ID!
+    signature: String!
   ): Users
     @dbquery(
       type: "postgresql"

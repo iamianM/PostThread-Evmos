@@ -185,3 +185,12 @@ mutation updateUserAirdropStatus($id: BigInt!, $value: String!) {
     }
     }
 }`
+
+export const UPDATE_SIGNATURE = gql`
+mutation updateUserSignature($id: BigInt!, $value: String!) {
+    updateusersCollection(set: {signature: $value}, filter: {id: {eq: $id}}) {
+      records {
+      id
+    }
+    }
+}`

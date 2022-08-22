@@ -13,6 +13,7 @@ import ThemeSelector from "./ThemeSelector";
 import { useSession } from "next-auth/react"
 import { signIn } from "next-auth/react"
 import SearchBar from "./SearchBar"
+import ConnectWallet from "./ConnectWallet";
 
 
 function Header() {
@@ -34,6 +35,9 @@ function Header() {
                     <a onClick={() => { router.push("/") }} className="font-bold text-xl relative hidden md:inline-grid cursor-pointer text-base-content">
                         PostThread
                     </a>
+                </div>
+                <div>
+                    <ConnectWallet />
                 </div>
                 {/* Middle */}
                 <div className="max-w-lg flex items-center">
