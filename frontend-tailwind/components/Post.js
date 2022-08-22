@@ -40,7 +40,7 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
     })
 
     const onImageNotFound = (url) => {
-        if (url.startsWith("https://www.reddit.com/r/")) {
+        if (url.startsWith("https://www.reddit.com/r/") || url.startsWith("https://v.redd.it/")) {
             setIsLink(true)
             return
         }
