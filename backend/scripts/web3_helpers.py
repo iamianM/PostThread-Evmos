@@ -4,7 +4,7 @@ from eth_account.messages import encode_defunct
 from eth_abi.packed import encode_abi_packed
 from eth_utils import keccak
 from web3.middleware import geth_poa_middleware
-from brownie import network, config, PostThread, Thread, accounts
+from brownie import network, config, PostThread, Thread, accounts, history
 
 w3 = Web3(Web3.HTTPProvider('https://polygon-rpc.com/'))
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
@@ -54,7 +54,6 @@ def get_msa_id(wallet, create=False, wait_for_inclusion=True, wait_for_finalizat
     try:
         msa_id = postthread_contract.getMsaId(wallet.address, from_dict1)
     except Exception as e:
-        print('that', e)
         msa_id = None
     
     if not create:
@@ -86,7 +85,7 @@ def create_msas_with_delegator(delegator_wallets, wait_for_inclusion=True, wait_
             msa_ids[i] =  msa_id
             continue
 
-        private_key = delegator_wallet.privateKey.hex()
+        private_key = delegator_wallet.private_key
         hash = keccak(encode_abi_packed(['uint256'],[delegate_msa_id]))
         message = encode_defunct(hexstr=hash.hex())
         sigs.append(w3.eth.account.sign_message(message, private_key=private_key).signature.hex())

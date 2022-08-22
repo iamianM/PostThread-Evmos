@@ -15,7 +15,7 @@ w3 = Web3(Web3.HTTPProvider('https://polygon-rpc.com/'))
 
 creds = json.load(open(".db-creds.json"))
 schemas = json.load(open("schemas.json"))
-pw = json.load(open(".wallets-creds.json"))
+pw = json.load(open(".wallets-creds.json"))['PASSWORD']
 
 url = creds["SUPABASE_URL"]
 key = creds["SUPABASE_KEY"]
