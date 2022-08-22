@@ -148,6 +148,7 @@ function ProfileCard({ id }) {
                     }
                     <h1 className='font-semibold mt-4 '>Level: {userData?.getUsers?.level}</h1>
                     <progress className="progress w-56 progress-primary" value={percentageToNextLevel} max="100"></progress>
+                    <h1 className='font-semibold mt-4 '>Social score: {userData?.getUsers?.social_score}</h1>
                 </div>
             </div>
         </div>

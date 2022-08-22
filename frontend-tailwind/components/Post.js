@@ -22,6 +22,7 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
 
     const { data: session } = useSession()
     const [imageError, setImageError] = useState(false);
+    const [isLink, setIsLink] = useState(false);
 
     const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
     const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
@@ -38,8 +39,12 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
         },
     })
 
-    const onImageNotFound = () => {
-        setImageError(true);
+    const onImageNotFound = (url) => {
+        if (url.startsWith("https://www.reddit.com/r/")) {
+            setIsLink(true)
+            return
+        }
+        else setImageError(true);
     }
 
     const { data } = useQuery(GET_COMMENTS_BY_POST_ID, {
@@ -188,8 +193,8 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
                             </div>
                             <div className="flex justify-center">
                                 {
-                                    post?.url && (
-                                        <img src={imageError ? 'https://reactnative-examples.com/wp-content/uploads/2022/02/error-image.png' : post?.url} onError={() => onImageNotFound()} className={`p-4 object-cover ${showFull ? "w-full" : "w-2/3"}`} />
+                                    post?.url && !isLink && (
+                                        <img src={imageError ? 'https://reactnative-examples.com/wp-content/uploads/2022/02/error-image.png' : post?.url} onError={() => onImageNotFound(post?.url)} className={`p-4 object-cover ${showFull ? "w-full" : "w-2/3"}`} />
                                     )
                                 }
                             </div>
