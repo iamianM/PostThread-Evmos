@@ -2,7 +2,6 @@
 import json
 import time
 
-from scripts.database_queries import update_db
 import sqlite3
 from scripts.web3_helpers import *
 
