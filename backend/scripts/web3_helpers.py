@@ -4,15 +4,15 @@ from eth_account.messages import encode_defunct
 from eth_abi.packed import encode_abi_packed
 from eth_utils import keccak
 from web3.middleware import geth_poa_middleware
-from brownie import network, config, PostThread, accounts
+from brownie import network, config, PostThread, Thread, accounts
 
 w3 = Web3(Web3.HTTPProvider('https://polygon-rpc.com/'))
 w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-PRIVATE = json.load(open('.PRIVATE.json'))
-delegate = w3.eth.account.from_key(PRIVATE['KEY'])
+# PRIVATE = json.load(open('.PRIVATE.json'))
+# delegate = w3.eth.account.from_key(PRIVATE['KEY'])
 
-build = json.load(open("../backend/build/contracts/PostThread.json"))
+# build = json.load(open("../backend/build/contracts/PostThread.json"))
 prev = json.load(open("../backend/previous.json"))
 
 previous = json.load(open("previous.json"))
@@ -24,6 +24,7 @@ from_dict1_dont_wait['required_confs'] = 0
 
 cur_network = network.show_active()
 postthread_contract = PostThread.at(previous[cur_network]["postthread"])
+thread_contract = Thread.at(previous[cur_network]["thread"])
 
 schemas = json.load(open("schemas.json"))
 
@@ -113,16 +114,3 @@ def mint_data(messages, user_msa_ids, schemaId, wait_for_inclusion=True, wait_fo
         tx_hash = postthread_contract.addMessagesByOwner(user_msa_ids, int(schemaId), messages, from_dict1_dont_wait)
 
     return None
-
-def mint_vote(user_msa_id, num_votes, parent_hash, post_data_hash, parent_type):
-    message = '{' + f'"post_hash": "{post_data_hash}", "parent_hash": "{parent_hash}","parent_type": "{parent_type}","num_votes": {num_votes}' + '}'
-    return message
-
-def mint_user(user_msa_id, profile_pic, wallet_address): 
-    message = '{' + f'"msa_id": "{user_msa_id}", "profile_pic": "{profile_pic}","wallet_address": "{wallet_address}"' + '}'
-    return message    
-
-def follow_user(protagonist_msa_id, antagonist_msa_id, is_follow=True):
-    follow = "follow" if is_follow else "unfollow"
-    message = '{' + f'"protagonist_msa_id": {protagonist_msa_id},"antagonist_msa_id": "{antagonist_msa_id}","event": "{follow}"' + '}'
-    return message
