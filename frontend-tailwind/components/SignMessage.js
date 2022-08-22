@@ -84,7 +84,7 @@ export default function SignMessage({ wallet }) {
 
     return (
         <div className="flex space-x-4 items-center p-4">
-            <MetamaskIcon />
+            <MetamaskIcon width={40} height={40} />
             <button
                 onClick={(e) => handleSign(e)}
                 disabled={disabled}

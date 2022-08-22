@@ -16,8 +16,9 @@ import Link from "next/link";
 import { JellyTriangle } from '@uiball/loaders'
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'ipfs-http-client';
+import MintButton from "./MintButton";
 
-function Post({ post, showAddComment, showComments, showFull }) {
+function Post({ post, showAddComment, showComments, showFull, showMint }) {
 
     const { data: session } = useSession()
     const [imageError, setImageError] = useState(false);
@@ -146,82 +147,87 @@ function Post({ post, showAddComment, showComments, showFull }) {
     } else {
         return (
             <div className="bg-base-100 my-7 max-w-3xl border rounded-t-2xl rounded-b-2xl shadow-sm cursor-pointer">
-                <Link href={`/post/${post.id}`}>
-                    <div>
-                        <div className="flex items-center p-5">
-                            <img src={post?.users?.profile_pic} className="rounded-full h-12 object-contain border p-1 mr-3" />
-                            <div className="flex-col flex-1">
-                                <Link href={`/user/${username}`}>
-                                    <p className="font-bold cursor-pointer hover:text-info hover:underline">{username}</p>
-                                </Link>
-                                <Link href={`/category/${post?.categories?.name}`}>
-                                    <p className="text-sm cursor-pointer hover:text-info hover:underline">p/{post?.categories?.name}</p>
-                                </Link>
-                            </div>
-                            <div className="flex space-x-2">
-                                <TimeAgo className="text-sm" date={post?.created_at} />
-                                {post.transaction_hash ?
-                                    <ShieldCheckIcon className="h-5 text-success" /> :
-                                    <ClockIcon className="h-5 text-base-300" />
-                                }
-                            </div>
+
+                <div>
+                    <div className="flex items-center p-5">
+                        <img src={post?.users?.profile_pic} className="rounded-full h-12 object-contain border p-1 mr-3" />
+                        <div className="flex-col flex-1">
+                            <Link href={`/user/${username}`}>
+                                <p className="font-bold cursor-pointer hover:text-info hover:underline">{username}</p>
+                            </Link>
+                            <Link href={`/category/${post?.categories?.name}`}>
+                                <p className="text-sm cursor-pointer hover:text-info hover:underline">p/{post?.categories?.name}</p>
+                            </Link>
                         </div>
-                        <div className="flex justify-end mr-10 space-x-3">
-                            <div className="flex items-center space-x-1">
+                        <div className="flex space-x-2">
+                            <TimeAgo className="text-sm" date={post?.created_at} />
+                            {post.transaction_hash ?
+                                <ShieldCheckIcon className="h-5 text-success" /> :
+                                <ClockIcon className="h-5 text-base-300" />
+                            }
+                        </div>
+                    </div>
+                    <div className={`flex ${showMint ? "justify-between" : "justify-end"} m-4`}>
+                        {showMint && <MintButton />}
+                        <div className="flex items-center space-x-2">
+                            <div className="flex items-center ">
                                 <ArrowCircleUpIcon className="h-5 text-success" />
                                 <p>{post?.reddit_upvotes ?? 0} </p>
                             </div>
-                            <div className="flex items-center space-x-1">
+                            <div className="flex items-center">
                                 <ArrowCircleDownIcon className="h-5 text-error" />
                                 <p>{post?.reddit_downvotes ?? 0}</p>
                             </div>
                         </div>
-
-                        <div className="p-7">
-                            <h1 className="text-base-content text-lg font-semibold">{post?.title}</h1>
-                            <p className={`m-5 ${!showFull && "truncate"} ${showFull && "text-ellipsis"}`}>{post?.body}</p>
-                        </div>
-                        <div className="flex justify-center">
-                            {
-                                post?.url && (
-                                    <img src={imageError ? 'https://reactnative-examples.com/wp-content/uploads/2022/02/error-image.png' : post?.url} onError={() => onImageNotFound()} className={`p-4 object-cover ${showFull ? "w-full" : "w-2/3"}`} />
-                                )
-                            }
-                        </div>
-                        <div>
-                            <div className="p-5 truncate">
+                    </div>
+                    <Link href={`/post/${post.id}`}>
+                        <a>
+                            <div className="p-7">
+                                <h1 className="text-base-content text-lg font-semibold">{post?.title}</h1>
+                                <p className={`m-5 ${!showFull && "truncate"} ${showFull && "text-ellipsis"}`}>{post?.body}</p>
+                            </div>
+                            <div className="flex justify-center">
                                 {
-                                    comments?.length > 0 && (
-                                        <p className="font-semibold text-sm mb-1">{comments?.length} comments</p>
+                                    post?.url && (
+                                        <img src={imageError ? 'https://reactnative-examples.com/wp-content/uploads/2022/02/error-image.png' : post?.url} onError={() => onImageNotFound()} className={`p-4 object-cover ${showFull ? "w-full" : "w-2/3"}`} />
                                     )
                                 }
                             </div>
+                        </a>
+                    </Link>
+                    <div>
+                        <div className="p-5 truncate">
+                            {
+                                comments?.length > 0 && (
+                                    <p className="font-semibold text-sm mb-1">{comments?.length} comments</p>
+                                )
+                            }
                         </div>
-
-                        {showComments && comments?.length > 0 && (
-                            <div className="ml-6 h-auto max-h-40 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
-                                {comments.map(comment => (
-                                    <div key={uuidv4()} className="flex items-center space-x-2 mb-3">
-                                        <img className="h-7 rounded-full" src={comment?.users?.profile_pic} />
-                                        <p className="text-sm flex-1">
-                                            <Link href={`/user/${comment?.users?.username ?? comment?.users?.reddit_username}`}>
-                                                <span className="font-bold hover:text-info hover:underline cursor-pointer">{comment?.users?.username ?? comment?.users?.reddit_username}</span>
-                                            </Link>
-                                            {" "}{comment.body}
-                                        </p>
-                                        <div className="flex items-center space-x-2">
-                                            <TimeAgo className="text-sm" date={comment?.created_at} />
-                                            {comment.transaction_hash ?
-                                                <ShieldCheckIcon className="h-3 text-success px-2" /> :
-                                                <ClockIcon className="h-3 text-base-300 px-2" />
-                                            }
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
                     </div>
-                </Link>
+
+                    {showComments && comments?.length > 0 && (
+                        <div className="ml-6 h-auto max-h-40 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
+                            {comments.map(comment => (
+                                <div key={uuidv4()} className="flex items-center space-x-2 mb-3">
+                                    <img className="h-7 rounded-full" src={comment?.users?.profile_pic} />
+                                    <p className="text-sm flex-1">
+                                        <Link href={`/user/${comment?.users?.username ?? comment?.users?.reddit_username}`}>
+                                            <span className="font-bold hover:text-info hover:underline cursor-pointer">{comment?.users?.username ?? comment?.users?.reddit_username}</span>
+                                        </Link>
+                                        {" "}{comment.body}
+                                    </p>
+                                    <div className="flex items-center space-x-2">
+                                        <TimeAgo className="text-sm" date={comment?.created_at} />
+                                        {comment.transaction_hash ?
+                                            <ShieldCheckIcon className="h-3 text-success px-2" /> :
+                                            <ClockIcon className="h-3 text-base-300 px-2" />
+                                        }
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 {
                     session &&

@@ -48,74 +48,74 @@ function PostBox({ category, refetch }) {
             id: "post-toast",
         })
 
-        // try {
+        try {
 
-        const { data: { getCategoryByName } } = await client.query({
-            query: GET_CATEGORY_BY_NAME,
-            variables: {
-                name: category || data.category
-            }
-        })
-
-        const categoryExists = !!getCategoryByName?.id
-        console.log(categoryExists)
-        let url = ''
-        let category_id = getCategoryByName?.id ?? 0
-
-        if (imageToIpfs) {
-            const added = await ipfsClient.add(imageToIpfs)
-            console.log(added)
-            url = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
-        }
-
-
-        if (!categoryExists) {
-            const { data: { insertCategories: newCategory } } = await addCategory({
+            const { data: { getCategoryByName } } = await client.query({
+                query: GET_CATEGORY_BY_NAME,
                 variables: {
-                    name: data.category
+                    name: category || data.category
                 }
             })
 
-            category_id = newCategory?.id
-            console.log(newCategory)
-        }
+            const categoryExists = !!getCategoryByName?.id
+            console.log(categoryExists)
+            let url = ''
+            let category_id = getCategoryByName?.id ?? 0
 
-        const post = JSON.stringify({
-            body: data.body,
-            url: url,
-            title: data.title,
-            user_id: localStorage.getItem('user_id'),
-            category_id: category_id
-        })
+            if (imageToIpfs) {
+                const added = await ipfsClient.add(imageToIpfs)
+                console.log(added)
+                url = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
+            }
 
-        const added = await ipfsClient.add(post)
-        console.log(added)
-        const postUrl = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
 
-        console.log(postUrl)
+            if (!categoryExists) {
+                const { data: { insertCategories: newCategory } } = await addCategory({
+                    variables: {
+                        name: data.category
+                    }
+                })
 
-        const { data: { insertPosts: newPost } } = await addPost({
-            variables: {
+                category_id = newCategory?.id
+                console.log(newCategory)
+            }
+
+            const post = JSON.stringify({
                 body: data.body,
                 url: url,
                 title: data.title,
                 user_id: localStorage.getItem('user_id'),
-                category_id: category_id,
-                ipfs_hash: postUrl
-            }
-        })
+                category_id: category_id
+            })
 
-        console.log(newPost)
+            const added = await ipfsClient.add(post)
+            console.log(added)
+            const postUrl = `https://postthread.infura-ipfs.io/ipfs/${added.path}`
 
-        refetch()
-        toast.success("Post created!", {
-            id: "post-toast",
-        })
-        // } catch (error) {
-        //     toast.error("Whoops! Something went wrong.", {
-        //         id: "post-toast",
-        //     })
-        // }
+            console.log(postUrl)
+
+            const { data: { insertPosts: newPost } } = await addPost({
+                variables: {
+                    body: data.body,
+                    url: url,
+                    title: data.title,
+                    user_id: localStorage.getItem('user_id'),
+                    category_id: category_id,
+                    ipfs_hash: postUrl
+                }
+            })
+
+            console.log(newPost)
+
+            refetch()
+            toast.success("Post created!", {
+                id: "post-toast",
+            })
+        } catch (error) {
+            toast.error("Whoops! Something went wrong.", {
+                id: "post-toast",
+            })
+        }
 
         setValue("body", "")
         setValue("title", "")
