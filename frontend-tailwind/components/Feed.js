@@ -74,30 +74,17 @@ function Feed() {
     }, [session])
 
     return (
-        <main className="grid grid-cols-1 max-w-sm md:max-w-2xl lg:grid-cols-3 lg:max-w-5xl 
-            xl:max-w-6xl mx-auto scrollbar-hide">
-            <section className="col-span-2 h-screen rounded-b-2xl scrollbar-hide overflow-auto">
-                {!data?.getLatestPosts.length > 0 ? (
-                    <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
-                        <JellyTriangle
-                            size={50}
-                            speed={1.4}
-                            color="black"
-                        />
-                    </div>
-                ) : <ScrollPosts data={data} fetchMore={fetchMore} order_by={filter} setFilter={setFilter} refetch={refetch} />}
-            </section>
-            <section className="hidden lg:inline-grid md:col-span-1 ">
-                <div>
-                    {session &&
-                        <>
-                            <MiniProfile image={session?.user?.image ?? session?.user[0]?.profile_pic} name={session?.user?.name || session?.user?.username || session?.user[0]?.username} />
-                            <Suggestions />
-                        </>}
-                    <Trending />
+        <>
+            {!data?.getLatestPosts.length > 0 ? (
+                <div className="flex w-full h-screen items-center justify-center p-10 text-3-xl">
+                    <JellyTriangle
+                        size={50}
+                        speed={1.4}
+                        color="black"
+                    />
                 </div>
-            </section>
-        </main>
+            ) : <ScrollPosts data={data} fetchMore={fetchMore} order_by={filter} setFilter={setFilter} refetch={refetch} />}
+        </>
     )
 }
 

@@ -87,7 +87,9 @@ type Users {
   profile_pic: String!
   username: String
   level: Int
+  password: String
   daily_payout_claimed: Boolean
+  daily_payout_value: Float
   reddit_airdrop_claimed: String
   reddit_airdrop_value: Int
   exp: Float
@@ -537,6 +539,7 @@ type Mutation {
   insertUsers(
     profile_pic: String!
     username: String!
+    password: String!
   ): Users
     @dbquery(
       type: "postgresql"

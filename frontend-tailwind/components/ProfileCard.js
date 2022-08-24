@@ -3,7 +3,7 @@ import TimeAgo from 'react-timeago'
 import { UserAddIcon, UserRemoveIcon } from '@heroicons/react/outline'
 import { useMutation, useQuery } from '@apollo/client'
 import { GET_FOLLOWINGS_BY_USER_ID, GET_USER_PROFILE_CARD_BY_USER_ID } from '../graphql/queries'
-import { ADD_FOLLOW, REMOVE_FOLLOW, UPDATE_USER_TOKENS_CLAIMED } from '../graphql/mutations'
+import { ADD_FOLLOW, REMOVE_FOLLOW, UPDATE_USER_TOKENS_CLAIMED, UPDATE_USER_DAILY_PAYOUT_CLAIMED } from '../graphql/mutations'
 import { useSession } from 'next-auth/react'
 import toast from 'react-hot-toast'
 
@@ -23,17 +23,18 @@ function ProfileCard({ id }) {
         variables: { id: id }
     })
 
-    console.log(userData)
+    console.log("Userdata" + userData)
 
 
     const { data: followData } = useQuery(GET_FOLLOWINGS_BY_USER_ID, {
         variables: { id: user_id }
     })
 
-    const dailyReward = userData?.getUsers?.tokens_to_claim || 0
-    const percentageToNextLevel = (userData?.getUsers?.exp * 100) / userData?.getUsers?.exp_to_next_level
+    const dailyReward = Math.floor(userData?.getUsers?.daily_payout_value) || 0
+    const percentageToNextLevel = (userData?.getUsers?.exp * 100) / (userData?.getUsers?.exp + userData?.getUsers?.exp_to_next_level)
 
-    const [claimReward] = useMutation(UPDATE_USER_TOKENS_CLAIMED, {
+
+    const [claimReward] = useMutation(UPDATE_USER_DAILY_PAYOUT_CLAIMED, {
         variables: {
             id: user_id,
             claimed: true
@@ -43,6 +44,29 @@ function ProfileCard({ id }) {
             'getUserProfileCardByUser_id'
         ]
     })
+
+    const [cashOutTokens] = useMutation(UPDATE_USER_TOKENS_CLAIMED, {
+        variables: {
+            id: user_id,
+            claimed: true
+        },
+        refetchQueries: [
+            GET_USER_PROFILE_CARD_BY_USER_ID,
+            'getUserProfileCardByUser_id'
+        ]
+    })
+
+    const cashOut = async () => {
+        if (userData?.getUsers?.wallet_address_personal) {
+            try { await cashOutTokens() } catch (e) {
+                toast.error("Something went wrong. Please try again later.")
+                return
+            }
+            toast.success("Tokens successfully cashed out to your wallet!")
+        } else {
+            toast.error("You need to have a personal wallet address to claim tokens! Go to the Settings tab")
+        }
+    }
 
     const claim = async () => {
         if (userData?.getUsers?.wallet_address_personal) {
@@ -124,9 +148,13 @@ function ProfileCard({ id }) {
                     </p>}
                     {user_id === id ? (
                         <>
-                            <button className="w-auto bg-primary p-2 rounded-xl text-inherit font-semibold text-sm gap-3 mt-5 flex-1 disabled:bg-primary-focus"
-                                onClick={claim} disabled={userData?.getUsers?.tokens_claimed}>
-                                {userData?.getUsers?.tokens_claimed ? "Daily reward already claimed" : `Get daily reward💰 ${dailyReward}`}
+                            <button className="w-full bg-primary p-2 rounded-xl text-inherit font-semibold text-sm gap-3 mt-5 flex-1 disabled:bg-primary-focus"
+                                onClick={claim} disabled={userData?.getUsers?.daily_payout_claimed}>
+                                {userData?.getUsers?.daily_payout_claimed ? "Daily reward claimed" : `Get daily reward🎁 ${dailyReward}`}
+                            </button >
+                            <button className="w-full bg-primary p-2 rounded-xl text-inherit font-semibold text-sm gap-3 mt-5 flex-1 disabled:bg-primary-focus"
+                                onClick={cashOut} disabled={userData?.getUsers?.tokens_claimed}>
+                                {userData?.getUsers?.tokens_claimed ? "Tokens cashed out" : "Cash out tokens💰"}
                             </button >
                         </>
                     ) : (
@@ -147,7 +175,7 @@ function ProfileCard({ id }) {
                     )
                     }
                     <h1 className='font-semibold mt-4 '>Level: {userData?.getUsers?.level}</h1>
-                    <progress className="progress w-56 progress-primary" value={percentageToNextLevel} max="100"></progress>
+                    <progress className="progress w-full h-3 progress-primary" value={percentageToNextLevel} max="100"></progress>
                     <h1 className='font-semibold mt-4 '>Social score: {userData?.getUsers?.social_score}</h1>
                 </div>
             </div>

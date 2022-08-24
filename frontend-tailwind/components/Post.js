@@ -17,12 +17,16 @@ import { JellyTriangle } from '@uiball/loaders'
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'ipfs-http-client';
 import MintButton from "./MintButton";
+import dynamic from 'next/dynamic';
+const Picker = dynamic(() => import('emoji-picker-react'), { ssr: false });
+
 
 function Post({ post, showAddComment, showComments, showFull, showMint }) {
 
     const { data: session } = useSession()
     const [imageError, setImageError] = useState(false);
     const [isLink, setIsLink] = useState(false);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
     const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
     const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
@@ -85,6 +89,7 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
         if (vote && isUpVote) return
         if (vote === false && !isUpVote) return
 
+        setVote(isUpVote)
         await addVote({
             variables: {
                 post_id: post.id,
@@ -138,6 +143,10 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
         const vote = votes?.find(vote => vote.user_id === user_id)?.up
         setVote(vote)
     }, [voteData])
+
+    const onEmojiClick = (event, emojiObject) => {
+        setComment(comment.concat(emojiObject.emoji));
+    };
 
     if (!post) {
         return (
@@ -255,7 +264,7 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
                         </div>
 
                         {showAddComment && <form className="flex items-center p-4 border-t">
-                            <EmojiHappyIcon className="h-7" />
+                            <EmojiHappyIcon className="h-7 cursor-pointer" onClick={() => setShowEmojiPicker(prev => !prev)} />
                             <input
                                 type="text"
                                 value={comment}
@@ -265,6 +274,7 @@ function Post({ post, showAddComment, showComments, showFull, showMint }) {
                             />
                             <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Comment</button>
                         </form>}
+                        {showEmojiPicker && <Picker className="z-10" onEmojiClick={onEmojiClick} />}
                     </>
                 }
             </div >

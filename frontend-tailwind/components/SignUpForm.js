@@ -7,7 +7,7 @@ import { useMutation } from '@apollo/client'
 import { signIn } from 'next-auth/react'
 import client from '../apollo-client'
 import { Ring } from '@uiball/loaders';
-
+import bcrypt from 'bcryptjs'
 
 export default function SignUpForm() {
 
@@ -64,7 +64,9 @@ export default function SignUpForm() {
 
         const username = event.target.username.value
         const profile_pic = url
-        const password = "password"
+        const password = event.target.password.value
+        const hashedPassword = bcrypt.hashSync(password, process.env.SALT) // hash created previously created upon sign up
+
 
         // check if username already exists
         const { data: { getUserByUsername } } = await client.query({
@@ -85,6 +87,7 @@ export default function SignUpForm() {
                 variables: {
                     username: username,
                     profile_pic: profile_pic,
+                    password: hashedPassword
                 }
             })
         }

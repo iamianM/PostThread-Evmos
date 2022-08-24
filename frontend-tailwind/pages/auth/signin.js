@@ -1,23 +1,46 @@
-import { signIn, getProviders, signOut, useSession } from 'next-auth/react'
+import { signIn, getProviders } from 'next-auth/react'
 import Login from '../../components/Login'
 import Image from 'next/image'
 import Link from 'next/link'
-import { GET_USER_BY_USERNAME } from '../../graphql/queries'
-import { ADD_USER } from '../../graphql/mutations'
-import client from '@apollo/client'
+import { GET_USER_HASHED_PASSWORD } from '../../graphql/queries'
+import client from '../../apollo-client'
+import bcrypt from 'bcryptjs'
+import toast from 'react-hot-toast'
+import { Ring } from '@uiball/loaders';
+import { useState } from 'react'
+
 
 const Signin = ({ providers }) => {
 
-    const { data: session } = useSession(null)
+    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (event) => {
         // Stop the form from submitting and refreshing the page.
         event.preventDefault()
+        setLoading(true)
 
         const username = event.target.username.value
         const password = event.target.password.value
 
-        await signIn("credentials", { username, password, callbackUrl: "/" });
+        // check password
+        const { data: { getUserByUsername } } = await client.query({
+            query: GET_USER_HASHED_PASSWORD,
+            variables: {
+                username: username
+            }
+        })
+
+        const hashedPassword = getUserByUsername?.password
+        const result = bcrypt.compareSync(password, hashedPassword)
+
+        if (result) {
+            await signIn("credentials", { username, password, callbackUrl: "/" });
+        } else {
+            toast.error("Incorrect password", {
+                id: "password-toast",
+            })
+        }
+        setLoading(false)
     }
 
     return (
@@ -42,7 +65,14 @@ const Signin = ({ providers }) => {
                                     className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-primary" />
                             </div>
                             <div className="flex items-baseline justify-between">
-                                <button type="submit" className="px-6 py-2 mt-4 text-base-content bg-primary rounded-lg hover:bg-primary-focus">Login</button>
+                                <button type="submit" className="px-6 py-2 mt-4 text-base-content bg-primary rounded-lg hover:bg-primary-focus">
+                                    <div className='flex space-x-2 items-center'>
+                                        <p>Login</p>
+                                        {loading && <Ring size={20}
+                                            speed={1.4}
+                                            color="black" />}
+                                    </div>
+                                </button>
                                 <Link href="/signup">
                                     <a className='cursor-pointer hover:underline'>Sign up</a>
                                 </Link>

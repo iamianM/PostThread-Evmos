@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import Comments from '../../components/Comments'
 import Header from '../../components/Header'
@@ -6,6 +7,8 @@ import Post from '../../components/Post'
 import { GET_POST_BY_ID } from '../../graphql/queries'
 
 function PostPage() {
+
+    const { data: session } = useSession()
 
     const router = useRouter()
     const { data } = useQuery(GET_POST_BY_ID, {
@@ -26,7 +29,7 @@ function PostPage() {
                     <Post post={post} showAddComment={false} showComments={false} showFull={true} />
                 </section>
                 <section className="lg:col-span-1 mb-10">
-                    <Comments id={router.query.postId} showAddComment={true} />
+                    <Comments id={router.query.postId} showAddComment={session ? true : false} />
                 </section>
             </main>
         </div>

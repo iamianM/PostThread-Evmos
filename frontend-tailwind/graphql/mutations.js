@@ -40,8 +40,9 @@ mutation AddCategory(
 export const ADD_USER = gql`
 mutation AddUser(
     $username: String!, 
-    $profile_pic: String!) { 
-    insertUsers(username: $username, profile_pic: $profile_pic) {
+    $profile_pic: String!,
+    $password: String!) { 
+    insertUsers(username: $username, profile_pic: $profile_pic, password: $password) {
        id
        username
        profile_pic
@@ -116,8 +117,18 @@ mutation deleteFollow(
 }`
 
 export const UPDATE_USER_TOKENS_CLAIMED = gql`
-mutation updateUserDailyPayoutClaimed($id: BigInt!, $claimed: Boolean!) {
+mutation updateUserTokensClaimed($id: BigInt!, $claimed: Boolean!) {
     updateusersCollection(set: {tokens_claimed: $claimed}, filter: {id: {eq: $id}}) {
+      records {
+      username
+      id
+    }
+    }
+}`
+
+export const UPDATE_USER_DAILY_PAYOUT_CLAIMED = gql`
+mutation updateUserDailyPayoutClaimed($id: BigInt!, $claimed: Boolean!) {
+    updateusersCollection(set: {daily_payout_claimed: $claimed}, filter: {id: {eq: $id}}) {
       records {
       username
       id

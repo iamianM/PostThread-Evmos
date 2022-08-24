@@ -314,6 +314,7 @@ export const GET_USER_PROFILE_CARD_BY_USER_ID = gql`
   query getUserProfileCardByUser_id($id: ID!) {
     getUsers(id: $id) {
       daily_payout_claimed
+      daily_payout_value
       created_at
       level
       username
@@ -353,3 +354,10 @@ export const GET_AIRDROP_INFO = gql`
       variable_value
     }
 }`
+
+export const GET_USER_HASHED_PASSWORD = gql`
+query getUserByUsername($username: String!) {
+    getUserByUsername(username: $username) {
+      password
+    }
+  }`

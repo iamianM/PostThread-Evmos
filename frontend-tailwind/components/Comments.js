@@ -12,12 +12,15 @@ import toast from "react-hot-toast"
 import { ADD_COMMENT } from '../graphql/mutations'
 import { useSession } from "next-auth/react";
 import { create } from 'ipfs-http-client';
+import dynamic from 'next/dynamic';
+const Picker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
 function Comments({ id, showAddComment }) {
 
     const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_ID
     const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_PROJECT_SECRET
     const projectIdAndSecret = `${projectId}:${projectSecret}`
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
     const ipfsClient = create({
         host: 'ipfs.infura.io',
@@ -93,13 +96,17 @@ function Comments({ id, showAddComment }) {
         }
     }
 
+    const onEmojiClick = (event, emojiObject) => {
+        setComment(comment.concat(emojiObject.emoji));
+    };
+
     return (
         <div className="bg-base-100 mt-7 p-5 border rounded-t-2xl rounded-b-2xl shadow-sm scrollbar-hide overflow-y-scroll">
             <div className="flex justify-between text-sm mb-5">
                 <h3 className="text-sm font-bold text-gray-400">Comments</h3>
             </div>
             {comments.length > 0 && (
-                <div className="ml-6 h-fit max-h-96 overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
+                <div className="ml-6 max-h-screen overflow-y-scroll scrollbar-hide scrollbar-thumb-black scrollbar-thin">
                     {comments.map(comment => (
                         <div key={comment.id} className="flex items-center space-x-2 mb-3">
                             <img className="h-7 rounded-full" src={comment?.users?.profile_pic} />
@@ -120,7 +127,7 @@ function Comments({ id, showAddComment }) {
             )}
             {showAddComment &&
                 <form className="flex items-center p-4 border-t">
-                    <EmojiHappyIcon className="h-7" />
+                    <EmojiHappyIcon className="h-7 cursor-pointer" onClick={() => setShowEmojiPicker(prev => !prev)} />
                     <input
                         type="text"
                         value={comment}
@@ -129,7 +136,9 @@ function Comments({ id, showAddComment }) {
                         className="border-none bg-base-100 flex-1 focus:ring-0 outline-none"
                     />
                     <button type="submit" onClick={sendComment} disabled={!comment.trim()} className="font-semibold text-primary hover:text-primary-focus cursor-pointer">Comment</button>
-                </form>}
+                </form>
+            }
+            {showEmojiPicker && <Picker className="absolute z-10" onEmojiClick={onEmojiClick} />}
         </div>
     )
 }
