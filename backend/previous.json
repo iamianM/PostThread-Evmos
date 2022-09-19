@@ -21,5 +21,9 @@
   "polygon-main": {
     "postthread": "0x572f5adCCc9B75891c04978E180b4869612Bf741",
     "thread": "0x6de5041Ba5621BB3DFeDe77d254e68b04e05FC6E"
+  },
+  "evmos-mainnet2": {
+    "postthread": "0x1DffEbe09D0DC83207e337394188E8B577135ca9",
+    "thread": "0x53390359958A33AE7db7F0f90edB5b25b4c6a513"
   }
 }

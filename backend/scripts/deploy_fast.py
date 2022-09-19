@@ -9,7 +9,7 @@ import time
 
 
 is_testnet = network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS
-postthread, thread, account = deploy_contracts(accounts, use_previous=True, publish=not is_testnet, testnet=is_testnet)
+postthread, thread, account = deploy_contracts(accounts, use_previous=True, publish=False, testnet=is_testnet)
 
 # mint msa ids
 try:
